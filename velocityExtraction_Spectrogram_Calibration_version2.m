@@ -40,11 +40,11 @@ resultData.title = {};
 resultData.drParameter = [];
 resultData.error = [];
 resultData.velTruth = [];
-resultData.xSMD = zeros(2000, basicParameter.maxNote - basicParameter.minNote + 1);
-resultData.ySMD = zeros(2000, basicParameter.maxNote - basicParameter.minNote + 1);
+resultData.xSMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
+resultData.ySMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
 
 %%
-filename = 'Bach_BWV849-02_001_20090916-SMD';
+filename = 'Beethoven_Op031No2-02_002_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
 
@@ -81,14 +81,14 @@ end
 
 
 %%
-targetPitch = 72;
+targetPitch = 40;
 midiRef = readmidi_java(MIDIFilename,true);
 plot(midiRef(midiRef(:,4)==targetPitch, 5)); hold on; plot(midiVel(midiVel(:,4)==targetPitch, 5)); hold off;
 
 %%
 
 fitType=fittype('(a*x+b)');
-fittingArraySMD = zeros(3, length(noteArray)); % a, b, rsquare
+fittingArraySMD = zeros(3, 88); % a, b, rsquare
 
 
 
@@ -96,14 +96,40 @@ fittingArraySMD = zeros(3, length(noteArray)); % a, b, rsquare
 
 
 
-for i = 1: length(noteArray)
-    if max(find(xdataSMD(:,i))) > 5
-        dataSize = min(find(xdataSMD(:,i)==0)) -1;
-        [fit1, gof] = fit(xdataSMD(1:dataSize,i), log(ydataSMD(1:dataSize,i)), fitType , 'StartPoint', [1 1]);
+for i = 1: 88
+    if max(find(resultData.xSMD(:,i))) > 5
+        dataSize = max(find(resultData.xSMD(:,i)~=0));
+        [fit1, gof] = fit(resultData.xSMD(1:dataSize,i), log(resultData.ySMD(1:dataSize,i)), fitType , 'StartPoint', [1 1]);
         fittingArraySMD(:, i) = [fit1.a; fit1.b; gof.rsquare];
     end
     
 end
+
+%%
+
+
+ydataSMDLow = zeros(100000,1);
+xdataSMDLow = zeros(100000,1);
+LowOctaveIndex = 1;
+for i = 81:88
+    dataLength = max(find(resultData.ySMD(:,i)~=0));
+    ydataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.ySMD(1:dataLength, i);
+    xdataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.xSMD(1:dataLength, i);
+    
+    if dataLength
+        LowOctaveIndex = LowOctaveIndex+dataLength;
+    end
+end
+
+
+ydataSMDLow(find(ydataSMDLow==0),:) = [];
+xdataSMDLow(find(xdataSMDLow==0),:) = [];
+
+
+[fit1, gof] = fit(xdataSMDLow, log(ydataSMDLow), fitType , 'StartPoint', [1 1]);
+plot(fit1, xdataSMDLow, log(ydataSMDLow))
+
+[fittingArraySMDLow] = [fit1.a; fit1.b; gof.rsquare];
 
 %%
 

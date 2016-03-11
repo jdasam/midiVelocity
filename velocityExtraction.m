@@ -24,10 +24,10 @@ sheetMatrixMidiRoll = zeros(basicParameter.maxNote-19, floor(midiRef(length(midi
 
 for i = 1 : length(midiRef)
     notePitch = midiRef(i,4) - 19;
-    onset = floor( midiRef(i,6) * sr / nfft) + 1;
-    offset = floor( midiRef(i,7) * sr / nfft) + 1;
+    onset = ceil( midiRef(i,6) * sr / nfft);
+    offset = ceil( midiRef(i,7) * sr / nfft);
 
-    sheetMatrixMidi(notePitch, onset:offset) = 0.2;
+    sheetMatrixMidi(notePitch, onset:offset) = 0.1;
     sheetMatrixMidi(notePitch, onset-2:onset+2) = [0.3, 0.6, 1, 0.6, 0.3];
     
     sheetMatrixMidiRoll(notePitch, onset:offset) = 1;
