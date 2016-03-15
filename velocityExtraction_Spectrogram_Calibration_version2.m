@@ -44,9 +44,18 @@ resultData.xSMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 
 resultData.ySMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
 
 %%
+basicParameter = rmfiled(basicParameter, 'targetVelMean');
+basicParameter = rmfiled(basicParameter, 'targetVelRange');
+
+
+%%
 filename = 'Beethoven_Op031No2-02_002_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
+
+%basicParameter.targetVelMean = 68; %
+%basicParameter.targetVelRange = 15; %
+basicParameter.hopSize = 4048;
 
 [midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtraction(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
 
@@ -57,6 +66,7 @@ resultData.drParameter(:,size(resultData.drParameter,2)+1) = [basicParameter.dr.
 resultData.error(:,size(resultData.error,2)+1) = basicParameter.error;
 resultData.velTruth(:,size(resultData.velTruth,2)+1) = [basicParameter.velTruth.a1; basicParameter.velTruth.b1; basicParameter.velTruth.c1];
 
+%%
 % fitting
 
 %ydataSMD = zeros(1000, basicParameter.maxNote - basicParameter.minNote + 1);
@@ -81,7 +91,7 @@ end
 
 
 %%
-targetPitch = 40;
+targetPitch = 29;
 midiRef = readmidi_java(MIDIFilename,true);
 plot(midiRef(midiRef(:,4)==targetPitch, 5)); hold on; plot(midiVel(midiVel(:,4)==targetPitch, 5)); hold off;
 

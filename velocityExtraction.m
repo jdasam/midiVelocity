@@ -8,8 +8,8 @@ d2 = (d2(:,1) + d2(:,2))/2;
 
 
 nfft = 2048;
-window = nfft * 4;
-noverlap = window - nfft;
+window = 8192;
+noverlap = window - basicParameter.hopSize;
 [s2, f, t] = spectrogram (d2, window, noverlap);
 
 
@@ -19,16 +19,21 @@ midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
 
 
 % midiPitch - 19 ( ref scale's first note is 21, and this is second coloumn of B)
-sheetMatrixMidi = zeros(basicParameter.maxNote-19, floor(midiRef(length(midiRef), 7) * sr/nfft));
-sheetMatrixMidiRoll = zeros(basicParameter.maxNote-19, floor(midiRef(length(midiRef), 7) * sr/nfft));
+sheetMatrixMidi = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
+sheetMatrixMidiRoll = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
 
 for i = 1 : length(midiRef)
     notePitch = midiRef(i,4) - 19;
-    onset = ceil( midiRef(i,6) * sr / nfft);
-    offset = ceil( midiRef(i,7) * sr / nfft);
+    onset = ceil( midiRef(i,6) * sr / basicParameter.hopSize) - ceil(window/basicParameter.hopSize);
+    offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) - ceil(window/basicParameter.hopSize);
 
     sheetMatrixMidi(notePitch, onset:offset) = 0.1;
-    sheetMatrixMidi(notePitch, onset-2:onset+2) = [0.3, 0.6, 1, 0.6, 0.3];
+    
+    if onset > 2
+        sheetMatrixMidi(notePitch, onset-2:onset+2) = [0.3, 0.6, 1, 0.6, 0.3];
+    else
+        sheetMatrixMidi(notePitch, onset:onset+2) = [1, 0.6, 0.3];
+    end
     
     sheetMatrixMidiRoll(notePitch, onset:offset) = 1;
     
@@ -58,10 +63,14 @@ elseif size(sheetMatrixMidi,2) > size(X,2)
     X = horzcat(X,dummyMatrix);
 end
 
+%X(501:4097,:) = ones(3597, size(X,2)) * 0.00000000001;
+
 
 
 % Calculate Gx
 Gx = sheetMatrixMidi;
+
+
 Bcopy = B;
 
 %[B, Gx, cost] = beta_nmf_H(X, basicParameter.beta, 10, B, Gx);
@@ -83,20 +92,24 @@ Xhat = Bcopy * Gx;
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
-
+betaDivVector = zeros(50);
 
 for i = 1:50
 
     %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-    Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))));
+    Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1)) + sum(sum(Gx)) * 0.00000001  ));
     Gx(find(isnan(Gx)))=0;
     %Bcopy = betaNormC(Bcopy,basicParameter.beta);
     %Bcopy(find(isnan(Bcopy)))=0;
 
     Xhat = Bcopy * Gx;  
-    %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
+    betaDivergence = betaDivergenceMatrix(X(:,130:150), Xhat(:,130:150), basicParameter.beta);
+    betaDivVector(i) = betaDivergence;
+    
 
 end
+
+
 
 
 % evaluate the result
@@ -107,21 +120,53 @@ gainData = zeros(length(midiVel),1);
 
 
 for i = 1:length(midiVel)
-    index = ceil( midiVel(i,6) * sr / nfft) ;
+    index = ceil( midiVel(i,6) * sr / basicParameter.hopSize) ;
+    if index < 3;
+        index = 3;
+    end
+    
+    
     pitch = midiVel(i,4) - 19;
     
     gainCalculated = max(Gx(pitch,index-2:index+2));
     gainData(i) = gainCalculated;
     
+end
+gainDB = 20 * log10(gainData + 0.000001);
+
+
+
+histData = histogram(gainDB, ceil(max(gainDB)) - floor(min(gainDB)));
+f = fit(linspace(floor(min(gainDB)),ceil(max(gainDB)), ceil(max(gainDB)) - floor(min(gainDB)))', histData.Values','gauss1');
+histDataMIDI = histogram(midiRef(:,5), max(midiRef(:,5)) - min(midiRef(:,5)) + 1);
+f2 = fit(linspace(min(midiRef(:,5)),max(midiRef(:,5)), histDataMIDI.NumBins)', histDataMIDI.Values','gauss1');
+
+
+estimatedVelMean = 1.463 * f.b1 - 17.69;
+estimatedVelRange = 2.574 * f.c1 - 0.949;
+
+if ~isfield(basicParameter, 'targetVelMean'); basicParameter.targetVelMean = estimatedVelMean; end
+if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = estimatedVelRange; end
+
+compA = (basicParameter.targetVelRange + 0.949) / 2.574 / f.c1;
+compB = f.b1 - (basicParameter.targetVelMean + 17.69) / 1.463;
+
+
+for i = 1:length(midiVel)
+    index = ceil( midiVel(i,6) * sr / basicParameter.hopSize) ;
+    pitch = midiVel(i,4) - 19;
     
-    coefA = fittingArray(2, min(find(fittingArray(1,:)>=pitch-1)));
-    coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1)));
+    [gainCalculated microIndex] = max(Gx(pitch,index-2:index+2));
+
+    
+    coefA = fittingArray(2, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10) * compA;
+    coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10) + compB;
 
     
     %coefA = fittingArraySMD(1,pitch-1);
     %coefB = fittingArraySMD(2,pitch-1);
     
-    midiVel(i,5) = round( (log(gainCalculated) - (coefB ) ) / coefA )  ; 
+    midiVel(i,5) = round( (log10(gainCalculated)*20 - coefB ) / coefA )  ; 
     midiVelNorm(i) = log(gainCalculated);
     %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
     if midiVel(i,5) < 0
@@ -131,16 +176,13 @@ for i = 1:length(midiVel)
         midiVel(i,5) = 127;
     end
     
+    if microIndex ~= 3
+        midiVel(i,6) = midiVel(i,6) + (microIndex - 3) * basicParameter.hopSize /sr;
+    end
+    
+    
     
 end
-
-gainDB = 20 * log10(gainData + 0.000001);
-
-histData = histogram(gainDB, ceil(max(gainDB)) - floor(min(gainDB)));
-f = fit(linspace(floor(min(gainDB)),ceil(max(gainDB)), ceil(max(gainDB)) - floor(min(gainDB)))', histData.Values','gauss1');
-histDataMIDI = histogram(midiRef(:,5), max(midiRef(:,5)) - min(midiRef(:,5)) + 1);
-f2 = fit(linspace(min(midiRef(:,5)),max(midiRef(:,5)), histDataMIDI.NumBins)', histDataMIDI.Values','gauss1');
-
 
 % calculate error
 errorMatrix = zeros(length(midiVel),2);
@@ -151,7 +193,8 @@ for i = 1: length(midiVel)
 end
 
 error = sum(errorMatrix(:,2)) / length(errorMatrix); % error
-errorSTD = sum(sqrt(((errorMatrix(:,2)) - error).^2) / length(errorMatrix)); % error std
+errorSTD =std(errorMatrix(:,2));
+%errorSTD = sqrt(sum((errorMatrix(:,2) - error).^2) / length(errorMatrix)); % error std
 
 
 errorPerNote = zeros(2, max(errorMatrix(:,1)));
@@ -188,6 +231,13 @@ intensityVel = betaNormC(midiVel(:,5),2);
 
 
 normalizedError = sum( abs( intensityRef - intensityVel) ./ intensityRef ) / length(intensityRef);
-%normalizedSTD = std(abs( intensityRef - intensityVel) ./ intensityRef )
-normalizedSTD = sum(sqrt(((abs( intensityRef - intensityVel) ./ intensityRef ) - normalizedError) .^2)) / length(intensityRef);
+normalizedSTD = std(abs( intensityRef - intensityVel) ./ intensityRef );
 error = [error; errorSTD; normalizedError; normalizedSTD];
+
+
+
+plot(betaDivVector)
+
+
+
+end
