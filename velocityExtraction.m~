@@ -22,13 +22,17 @@ midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
 sheetMatrixMidi = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
 sheetMatrixMidiRoll = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
 
+hopRatio = window/basicParameter.hopSize;
+basicParameter.hopSize * index + hopRatio/2 * window
+
+
 for i = 1 : length(midiRef)
     notePitch = midiRef(i,4) - 19;
     sampleIndex = midiRef(i,6) * sr;
-    if sampleIndex < window
+    if sampleIndex < window/2
         onset = 1;
     else
-        onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize);
+        onset = ceil( ( sampleIndex - window/2 )/ basicParameter.hopSize);
     end
     offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) + 1;
     sheetMatrixMidi(notePitch, onset:offset) = 0.1;
@@ -127,13 +131,7 @@ gainData = zeros(length(midiVel),1);
 
 
 for i = 1:length(midiVel)
-    sampleIndex = midiVel(i,6) * sr;
-    if sampleIndex < window/2
-        index = 1;
-    else
-        index = ceil( ( sampleIndex - window/2 )/ basicParameter.hopSize);
-    end
-    
+    index = ceil( midiRef(i,6) * sr / basicParameter.hopSize) - floor(window/basicParameter.hopSize) + 1;
     if index < 3;
         index = 3;
     end
@@ -167,11 +165,11 @@ if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = f
 
 for i = 1:length(midiVel)
     
-    sampleIndex = midiVel(i,6) * sr;
+    sampleIndex = midiRef(i,6) * sr;
     if sampleIndex < window/2
         index = 1;
     else
-        index = ceil( ( sampleIndex - window/2)/ basicParameter.hopSize);
+        index = ceil( ( sampleIndex - window/2 )/ basicParameter.hopSize);
     end
     pitch = midiVel(i,4) - 19;
     

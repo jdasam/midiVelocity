@@ -49,7 +49,7 @@ basicParameter = rmfiled(basicParameter, 'targetVelRange');
 
 
 %%
-filename = 'Beethoven_Op031No2-02_002_20090916-SMD';
+filename = 'Chopin_Op010-04_007_20100611-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
 
@@ -57,7 +57,7 @@ MP3Filename =  strcat(filename, '.mp3');
 %basicParameter.targetVelRange = 15; %
 basicParameter.hopSize = 2048;
 
-[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtraction(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
+[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtraction(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
 
 
 %resultData.title(size(resultData.title, 1)+1,1) = filename;
@@ -74,7 +74,11 @@ resultData.velTruth(:,size(resultData.velTruth,2)+1) = [basicParameter.velTruth.
 
 
 midiRef = readmidi_java(MIDIFilename,true);
+errorVector = abs(midiRef(:,5) - midiVel(:,5)) ./ midiRef(:,5);
+hold off; plot(midiRef(:,5)); hold on; plot(midiVel(:,5))
 
+
+%%
 for i = 1 : length(midiRef)
     index = ceil( midiRef(i,6) * basicParameter.sr / basicParameter.nfft);
     pitch = midiRef(i,4) - 20;
