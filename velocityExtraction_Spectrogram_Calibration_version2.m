@@ -55,7 +55,7 @@ MP3Filename =  strcat(filename, '.mp3');
 
 %basicParameter.targetVelMean = 68; %
 %basicParameter.targetVelRange = 15; %
-basicParameter.hopSize = 4048;
+basicParameter.hopSize = 2048;
 
 [midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtraction(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
 
@@ -77,7 +77,7 @@ midiRef = readmidi_java(MIDIFilename,true);
 
 for i = 1 : length(midiRef)
     index = ceil( midiRef(i,6) * basicParameter.sr / basicParameter.nfft);
-    pitch = midiRef(i,4) - 19;
+    pitch = midiRef(i,4) - 20;
     
     if index < 1
         index = 1;
@@ -91,7 +91,7 @@ end
 
 
 %%
-targetPitch = 29;
+targetPitch = 50;
 midiRef = readmidi_java(MIDIFilename,true);
 plot(midiRef(midiRef(:,4)==targetPitch, 5)); hold on; plot(midiVel(midiVel(:,4)==targetPitch, 5)); hold off;
 
@@ -117,11 +117,12 @@ end
 
 %%
 
+fitType=fittype('(a*x+b)');
 
 ydataSMDLow = zeros(100000,1);
 xdataSMDLow = zeros(100000,1);
 LowOctaveIndex = 1;
-for i = 81:88
+for i =  54:68
     dataLength = max(find(resultData.ySMD(:,i)~=0));
     ydataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.ySMD(1:dataLength, i);
     xdataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.xSMD(1:dataLength, i);

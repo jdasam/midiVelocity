@@ -24,8 +24,8 @@ sheetMatrixMidiRoll = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiR
 
 for i = 1 : length(midiRef)
     notePitch = midiRef(i,4) - 19;
-    onset = ceil( midiRef(i,6) * sr / basicParameter.hopSize) - ceil(window/basicParameter.hopSize);
-    offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) - ceil(window/basicParameter.hopSize);
+    onset = ceil( midiRef(i,6) * sr / basicParameter.hopSize) - floor(window/basicParameter.hopSize) + 1;
+    offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) - floor(window/basicParameter.hopSize) + 1;
 
     sheetMatrixMidi(notePitch, onset:offset) = 0.1;
     
@@ -59,7 +59,7 @@ axis('xy')
 if size(sheetMatrixMidi,2) < size(X,2)
     X(:, size(sheetMatrixMidi,2) + 1 : size(X,2) ) = [];
 elseif size(sheetMatrixMidi,2) > size(X,2)
-    dummyMatrix = ones(size(X,1), size(sheetMatrixMidi,2) - size(X,2)) * 0.000001;
+    dummyMatrix = ones(size(X,1), size(sheetMatrixMidi,2) - size(X,2)) * 0.00000001;
     X = horzcat(X,dummyMatrix);
 end
 
@@ -74,8 +74,9 @@ Gx = sheetMatrixMidi;
 Bcopy = B;
 
 %[B, Gx, cost] = beta_nmf_H(X, basicParameter.beta, 10, B, Gx);
+%Xhat = Bcopy * Gx;  
 
-Xhat = Bcopy * Gx;
+Xhat = sqrt(Bcopy.^2 * Gx.^2);
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
@@ -88,7 +89,8 @@ Bcopy(find(isnan(Bcopy)))=0;
 
 
 Gx(find(isnan(Gx)))=0;
-Xhat = Bcopy * Gx;  
+Xhat = sqrt(Bcopy.^2 * Gx.^2);
+%Xhat = Bcopy * Gx;  
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
@@ -97,14 +99,15 @@ betaDivVector = zeros(50);
 for i = 1:50
 
     %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-    Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1)) + sum(sum(Gx)) * 0.00000001  ));
+    Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
     Gx(find(isnan(Gx)))=0;
     %Bcopy = betaNormC(Bcopy,basicParameter.beta);
     %Bcopy(find(isnan(Bcopy)))=0;
-
-    Xhat = Bcopy * Gx;  
-    betaDivergence = betaDivergenceMatrix(X(:,130:150), Xhat(:,130:150), basicParameter.beta);
-    betaDivVector(i) = betaDivergence;
+    
+    Xhat = sqrt(Bcopy.^2 * Gx.^2);
+    %Xhat = Bcopy * Gx;  
+    %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
+    %betaDivVector(i) = betaDivergence;
     
 
 end
@@ -120,7 +123,7 @@ gainData = zeros(length(midiVel),1);
 
 
 for i = 1:length(midiVel)
-    index = ceil( midiVel(i,6) * sr / basicParameter.hopSize) ;
+    index = ceil( midiRef(i,6) * sr / basicParameter.hopSize) - floor(window/basicParameter.hopSize) + 1;
     if index < 3;
         index = 3;
     end
@@ -145,19 +148,22 @@ f2 = fit(linspace(min(midiRef(:,5)),max(midiRef(:,5)), histDataMIDI.NumBins)', h
 estimatedVelMean = 1.463 * f.b1 - 17.69;
 estimatedVelRange = 2.574 * f.c1 - 0.949;
 
-if ~isfield(basicParameter, 'targetVelMean'); basicParameter.targetVelMean = estimatedVelMean; end
-if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = estimatedVelRange; end
+if ~isfield(basicParameter, 'targetVelMean'); basicParameter.targetVelMean = f2.b1; end
+if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = f2.c1; end
 
 compA = (basicParameter.targetVelRange + 0.949) / 2.574 / f.c1;
 compB = f.b1 - (basicParameter.targetVelMean + 17.69) / 1.463;
 
 
 for i = 1:length(midiVel)
-    index = ceil( midiVel(i,6) * sr / basicParameter.hopSize) ;
+    index = ceil( midiRef(i,6) * sr / basicParameter.hopSize) - floor(window/basicParameter.hopSize) + 1;
     pitch = midiVel(i,4) - 19;
     
-    [gainCalculated microIndex] = max(Gx(pitch,index-2:index+2));
-
+    if index > 2
+        [gainCalculated microIndex] = max(Gx(pitch,index-2:index+2));
+    else
+        [gainCalculated microIndex] = max(Gx(pitch,index:index+2));
+    end
     
     coefA = fittingArray(2, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10) * compA;
     coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10) + compB;
@@ -236,7 +242,7 @@ error = [error; errorSTD; normalizedError; normalizedSTD];
 
 
 
-plot(betaDivVector)
+%plot(betaDivVector)
 
 
 
