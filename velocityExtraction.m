@@ -157,18 +157,21 @@ histDataMIDI = histogram(midiRef(:,5), max(midiRef(:,5)) - min(midiRef(:,5)) + 1
 f2 = fit(linspace(min(midiRef(:,5)),max(midiRef(:,5)), histDataMIDI.NumBins)', histDataMIDI.Values','gauss1');
 
 
-estimatedVelMean = 1.463 * f.b1 - 17.69;
-estimatedVelRange = 2.574 * f.c1 - 0.949;
+estimatedVelMean = 2.0163 * f.b1 - 56.3573;
+estimatedVelRange = 2.2909 * f.c1 + 2.8077;
 
 if ~isfield(basicParameter, 'targetVelMean'); basicParameter.targetVelMean = f2.b1; end
 if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = f2.c1; end
 
-%compA = (basicParameter.targetVelRange + 0.949) / 2.574 / f.c1;
-%compB = f.b1 - (basicParameter.targetVelMean + 17.69) / 1.463;
+targetGainMean =  (basicParameter.targetVelMean + 56.3573) / 2.0163;
+targetGainRange = (basicParameter.targetVelRange - 2.8077) / 2.2909;
+compA = targetGainRange/ f.c1
+compB = f.b1 - targetGainMean
 
 
+
+testVector = zeros(length(midiVel),1);
 for i = 1:length(midiVel)
-    
     sampleIndex = midiVel(i,6) * sr;
     if sampleIndex < window/2
         index = 1;
@@ -183,14 +186,13 @@ for i = 1:length(midiVel)
         [gainCalculated microIndex] = max(Gx(pitch,index:index+2));
     end
     
-    coefA = fittingArray(2, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10);% * compA;
-    coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10);% + compB;
+    coefA = fittingArray(2, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10);
+    coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10);
 
-    
     %coefA = fittingArraySMD(1,pitch-1);
     %coefB = fittingArraySMD(2,pitch-1);
-    
-    midiVel(i,5) = round( (log10(gainCalculated)*20 - coefB ) / coefA )  ; 
+    %midiVel(i,5) = round(   (log10(gainCalculated)*20 - compB - targetGainMean - coefB ) / coefA  * compA + targetGainMean/coefA )  ; 
+    midiVel(i,5) = round(   (log10(gainCalculated)*20 - compB - targetGainMean ) / coefA  * compA + (targetGainMean-coefB)/coefA )  ; 
     midiVelNorm(i) = log(gainCalculated);
     %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
     if midiVel(i,5) < 0
@@ -266,7 +268,6 @@ error = [error; errorSTD; normalizedError; normalizedSTD];
 
 
 %plot(betaDivVector)
-
 
 
 end

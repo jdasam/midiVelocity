@@ -53,11 +53,11 @@ lowB(401:4097,:) = 0.1 ^ 10;
 
 
 %%
-filename = 'Bach_BWV871-01_002_20090916-SMD';
+filename = 'Mozart_KV265_006_20110315-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
 
-%basicParameter.targetVelMean = 68; %
+%basicParameter.targetVelMean = 64; %
 %basicParameter.targetVelRange = 15; %
 basicParameter.hopSize = 2048;
  
@@ -72,11 +72,11 @@ resultData.drParameter(:,size(resultData.drParameter,2)+1) = [basicParameter.dr.
 resultData.error(:,size(resultData.error,2)+1) = basicParameter.error;
 resultData.velTruth(:,size(resultData.velTruth,2)+1) = [basicParameter.velTruth.a1; basicParameter.velTruth.b1; basicParameter.velTruth.c1];
 
-
 midiRef = readmidi_java(MIDIFilename,true);
 errorVector = abs(midiRef(:,5) - midiVel(:,5)) ./ midiRef(:,5);
 hold off; plot(midiRef(:,5)); hold on; plot(midiVel(:,5))
 
+%%
 % fitting
 
 for i = 1 : length(midiRef)
@@ -91,6 +91,20 @@ for i = 1 : length(midiRef)
     resultData.ySMD(dataIndex,pitch) = max(Gx(pitch,index-2:index+2));
     resultData.xSMD(dataIndex,pitch) = midiRef(i,5);     
 end
+
+%%
+hold off
+scatter(resultData.drParameter(3,1:11), resultData.velTruth(3,1:11))
+
+fitType=fittype('(a*x+b)');
+[fitMean, gof] = fit(resultData.drParameter(2,1:13)', resultData.velTruth(2,1:13)', fitType);
+[fitRange, gof] = fit(resultData.drParameter(3,1:13)', resultData.velTruth(3,1:13)', fitType);
+
+
+resultData.velGain(1:2, 1) = [fitMean.a ; fitMean.b];
+resultData.velGain(1:2, 2) = [fitRange.a; fitRange.b];
+%hold on
+%scatter(resultData.drParameter(2,14:19), resultData.velTruth(2,14:19))
 
 
 
