@@ -1,4 +1,4 @@
-function [midiVel, Gx, f, error, f2] = velocityExtraction(audioFilename, MIDIFilename, B, fittingArray, basicParameter)
+function [midiVel, Gx, f, error, f2] = velocityExtractionBasic(audioFilename, MIDIFilename, B, fittingArray, basicParameter)
 
 
 
@@ -28,7 +28,7 @@ for i = 1 : length(midiRef)
     if sampleIndex < window/2
         onset = 1;
     else
-        onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize) + 1;
+        onset = ceil( ( sampleIndex - (window - basicParameter.hopSize)/2 )/ basicParameter.hopSize);
     end
     offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) + 1;
     sheetMatrixMidi(notePitch, onset:offset) = 0.1;
@@ -80,9 +80,9 @@ Gx = sheetMatrixMidi;
 Bcopy = B;
 
 %[B, Gx, cost] = beta_nmf_H(X, basicParameter.beta, 10, B, Gx);
-%Xhat = Bcopy * Gx;  
+Xhat = Bcopy * Gx;  
 
-Xhat = sqrt(Bcopy.^2 * Gx.^2);
+%Xhat = sqrt(Bcopy.^2 * Gx.^2);
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
@@ -95,8 +95,8 @@ Bcopy(find(isnan(Bcopy)))=0;
 
 
 Gx(find(isnan(Gx)))=0;
-Xhat = sqrt(Bcopy.^2 * Gx.^2);
-%Xhat = Bcopy * Gx;  
+%Xhat = sqrt(Bcopy.^2 * Gx.^2);
+Xhat = Bcopy * Gx;  
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
@@ -110,8 +110,8 @@ for i = 1:50
     %Bcopy = betaNormC(Bcopy,basicParameter.beta);
     %Bcopy(find(isnan(Bcopy)))=0;
     
-    Xhat = sqrt(Bcopy.^2 * Gx.^2);
-    %Xhat = Bcopy * Gx;  
+    %Xhat = sqrt(Bcopy.^2 * Gx.^2);
+    Xhat = Bcopy * Gx;  
     betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
     betaDivVector(i) = betaDivergence;
     
@@ -133,7 +133,7 @@ for i = 1:length(midiVel)
     if sampleIndex < window/2
         index = 1;
     else
-        index = ceil( ( sampleIndex - window/2 )/ basicParameter.hopSize) +1;
+        index = ceil( ( sampleIndex - (window - basicParameter.hopSize)/2 )/ basicParameter.hopSize);
     end
     
     if index < 3;
@@ -173,7 +173,7 @@ for i = 1:length(midiVel)
     if sampleIndex < window/2
         index = 1;
     else
-        index = ceil( ( sampleIndex - window/2)/ basicParameter.hopSize) +1;
+        index = ceil( ( sampleIndex - (window - basicParameter.hopSize)/2 )/ basicParameter.hopSize);
     end
     pitch = midiVel(i,4) - 19;
     
@@ -265,7 +265,7 @@ error = [error; errorSTD; normalizedError; normalizedSTD];
 
 
 
-%plot(betaDivVector)
+plot(betaDivVector)
 
 
 

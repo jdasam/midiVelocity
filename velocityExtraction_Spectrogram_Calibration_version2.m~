@@ -53,7 +53,7 @@ lowB(401:4097,:) = 0.1 ^ 10;
 
 
 %%
-filename = 'Bach_BWV871-01_002_20090916-SMD';
+filename = 'Beethoven_Op027No1-02_003_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
 
