@@ -1,4 +1,4 @@
-function [midiVel, Gx, f, error, f2] = velocityExtraction(audioFilename, MIDIFilename, B, fittingArray, basicParameter)
+function [midiVel, Gx, f, error, f2] = velocityExtractionModified(audioFilename, MIDIFilename, B, fittingArray, basicParameter)
 
 
 
@@ -31,12 +31,12 @@ for i = 1 : length(midiRef)
         onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize) + 1;
     end
     offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) + 1;
-    sheetMatrixMidi(notePitch, onset:offset) = 0.1;
+    sheetMatrixMidi(notePitch, onset:offset) = 0.00000000000001;
     
     if onset > 2
-        sheetMatrixMidi(notePitch, onset-2:onset+2) = [0.3, 0.6, 1, 0.6, 0.3];
+        sheetMatrixMidi(notePitch, onset-2:onset+2) = 0.0000000000001 *[0.3, 0.6, 1, 0.6, 0.3];
     else
-        sheetMatrixMidi(notePitch, onset:onset+2) = [1, 0.6, 0.3];
+        sheetMatrixMidi(notePitch, onset:onset+2) = 0.0000000000001 * [1, 0.6, 0.3];
     end
     
     sheetMatrixMidiRoll(notePitch, onset:offset) = 1;
@@ -86,8 +86,22 @@ Xhat = sqrt(Bcopy.^2 * Gx.^2);
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
+test = Bcopy' * (Xhat .^(-1));
+
+
+
 Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))));
+%Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))));
+Gx = Gx .* sqrt( ( Bcopy'.^2 * (X .* (Xhat .^((basicParameter.beta-2)*2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1)))) );
+
+
+
+
+%Gx = Gx .* sqrt ( ( (Bcopy' .^0 * Xhat) ./ (Bcopy' * Xhat .^ 0) ) .* (Bcopy' * (X .* (Xhat .^ -1))));
+%Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
+
+
+
 
 Bcopy = betaNormC(Bcopy,basicParameter.beta);
 %Bcopy = normc(Bcopy);
@@ -106,6 +120,11 @@ for i = 1:50
 
     %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
     Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
+    
+    %Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
+
+
+
     Gx(find(isnan(Gx)))=0;
     %Bcopy = betaNormC(Bcopy,basicParameter.beta);
     %Bcopy(find(isnan(Bcopy)))=0;
@@ -163,12 +182,14 @@ estimatedVelRange = 2.2909 * f.c1 + 2.8077;
 if ~isfield(basicParameter, 'targetVelMean'); basicParameter.targetVelMean = f2.b1; end
 if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = f2.c1; end
 
-compA = f.c1 / ((basicParameter.targetVelRange - 2.8077) / 2.2909)
-compB = f.b1 - (basicParameter.targetVelMean + 56.3573) / 2.0163
+targetGainMean =  (basicParameter.targetVelMean + 56.3573) / 2.0163;
+targetGainRange = (basicParameter.targetVelRange - 2.8077) / 2.2909;
+compA = targetGainRange/ f.c1;
+compB = f.b1 - targetGainMean;
+
 
 
 for i = 1:length(midiVel)
-    
     sampleIndex = midiVel(i,6) * sr;
     if sampleIndex < window/2
         index = 1;
@@ -184,13 +205,12 @@ for i = 1:length(midiVel)
     end
     
     coefA = fittingArray(2, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10);
-    coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10) + compB;
+    coefB = fittingArray(3, min(find(fittingArray(1,:)>=pitch-1))) * 20 / log(10);
 
-    
     %coefA = fittingArraySMD(1,pitch-1);
     %coefB = fittingArraySMD(2,pitch-1);
-    
-    midiVel(i,5) = round(   (log10(gainCalculated)*20 - targetVel.  - coefB ) / coefA     )  ; 
+    %midiVel(i,5) = round(   (log10(gainCalculated)*20 - compB - targetGainMean - coefB ) / coefA  * compA + targetGainMean/coefA )  ; 
+    midiVel(i,5) = round(   (log10(gainCalculated)*20 - compB - targetGainMean ) / coefA  * compA + (targetGainMean-coefB)/coefA )  ; 
     midiVelNorm(i) = log(gainCalculated);
     %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
     if midiVel(i,5) < 0
@@ -265,8 +285,7 @@ error = [error; errorSTD; normalizedError; normalizedSTD];
 
 
 
-%plot(betaDivVector)
-
+plot(betaDivVector)
 
 
 end

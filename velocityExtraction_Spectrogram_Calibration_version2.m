@@ -53,7 +53,7 @@ lowB(401:4097,:) = 0.1 ^ 10;
 
 
 %%
-filename = 'Mozart_KV265_006_20110315-SMD';
+filename = 'Bach_BWV849-01_001_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
 
@@ -61,7 +61,7 @@ MP3Filename =  strcat(filename, '.mp3');
 %basicParameter.targetVelRange = 15; %
 basicParameter.hopSize = 2048;
  
-[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtraction(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
+[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
 %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
 
 
@@ -72,6 +72,8 @@ resultData.drParameter(:,size(resultData.drParameter,2)+1) = [basicParameter.dr.
 resultData.error(:,size(resultData.error,2)+1) = basicParameter.error;
 resultData.velTruth(:,size(resultData.velTruth,2)+1) = [basicParameter.velTruth.a1; basicParameter.velTruth.b1; basicParameter.velTruth.c1];
 
+
+%%
 midiRef = readmidi_java(MIDIFilename,true);
 errorVector = abs(midiRef(:,5) - midiVel(:,5)) ./ midiRef(:,5);
 hold off; plot(midiRef(:,5)); hold on; plot(midiVel(:,5))
