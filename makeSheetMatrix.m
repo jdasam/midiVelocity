@@ -1,4 +1,4 @@
-function [sheetMatrix, minNote, maxNote, nmat] = makeSheetMatrix(MIDIFilename, nfft, Y)
+function [sheetMatrix, minNote, maxNote, nmat] = makeSheetMatrix(MIDIFilename, nfft, Y, velPerNote, secPerNote)
 
 
 % Rewrite MIDI with fixed times
@@ -15,12 +15,12 @@ sheetMatrix = zeros(maxNote, length(Y));
 
 for i = 1: length(Y)
    timeSecond = i * nfft / 44100;
-   noteNumber = floor(timeSecond/24);
+   noteNumber = floor(timeSecond/velPerNote/secPerNote);
    
    if mod(timeSecond,1) <= 0.8
         meanVolume = mean(sum(Y(:,i)));
         %rmsVolume = abs(sqrt(sum(Y(:,i) .^2)));
-        if noteNumber < 88
+        if noteNumber < 108
             sheetMatrix (noteNumber+minNote, i) = meanVolume;
             %sheetMatrix (noteNumber+minNote, i) = rmsVolume;
             %sheetMatrix(noteNumber + minNote, i) = 1;

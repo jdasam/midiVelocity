@@ -31,12 +31,12 @@ for i = 1 : length(midiRef)
         onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize) + 1;
     end
     offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) + 1;
-    sheetMatrixMidi(notePitch, onset:offset) = 0.00000000000001;
+    sheetMatrixMidi(notePitch, onset:offset) = 1;
     
     if onset > 2
-        sheetMatrixMidi(notePitch, onset-2:onset+2) = 0.0000000000001 *[0.3, 0.6, 1, 0.6, 0.3];
+        sheetMatrixMidi(notePitch, onset-2:onset+2) = 10 *[0.3, 0.6, 1, 0.6, 0.3];
     else
-        sheetMatrixMidi(notePitch, onset:onset+2) = 0.0000000000001 * [1, 0.6, 0.3];
+        sheetMatrixMidi(notePitch, onset:onset+2) = 10 * [1, 0.6, 0.3];
     end
     
     sheetMatrixMidiRoll(notePitch, onset:offset) = 1;
@@ -78,21 +78,20 @@ Gx = sheetMatrixMidi;
 
 
 Bcopy = B;
+Bcopy = betaNormC(Bcopy,basicParameter.beta);
 
 %[B, Gx, cost] = beta_nmf_H(X, basicParameter.beta, 10, B, Gx);
 %Xhat = Bcopy * Gx;  
 
-Xhat = sqrt(Bcopy.^2 * Gx.^2);
+Xhat = Bcopy * Gx;
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
 
-test = Bcopy' * (Xhat .^(-1));
-
-
-
 Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-%Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))));
-Gx = Gx .* sqrt( ( Bcopy'.^2 * (X .* (Xhat .^((basicParameter.beta-2)*2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1)))) );
+%Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* ((Xhat.^2) .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * ((Xhat.^2) .^ (basicParameter.beta-1))));
+Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))));
+
+%Gx = Gx .* sqrt( ( Bcopy'.^2 * (X .* (Xhat .^((basicParameter.beta-2)*2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1)))) );
 
 
 
@@ -109,7 +108,7 @@ Bcopy(find(isnan(Bcopy)))=0;
 
 
 Gx(find(isnan(Gx)))=0;
-Xhat = sqrt(Bcopy.^2 * Gx.^2);
+Xhat = Bcopy * Gx;
 %Xhat = Bcopy * Gx;  
 %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta)
 
@@ -120,7 +119,7 @@ for i = 1:50
 
     %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
     Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
-    
+    %Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* (Xhat.^2 .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * (Xhat.^2 .^ (basicParameter.beta-1))));
     %Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
 
 
@@ -129,10 +128,10 @@ for i = 1:50
     %Bcopy = betaNormC(Bcopy,basicParameter.beta);
     %Bcopy(find(isnan(Bcopy)))=0;
     
-    Xhat = sqrt(Bcopy.^2 * Gx.^2);
+    Xhat = Bcopy * Gx;
     %Xhat = Bcopy * Gx;  
-    betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
-    betaDivVector(i) = betaDivergence;
+    %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
+    %betaDivVector(i) = betaDivergence;
     
 
 end
@@ -141,7 +140,7 @@ end
 
 
 % evaluate the result
-midiVel = midiRef;
+midiVel = readmidi_java(MIDIFilename,true);
 
 
 gainData = zeros(length(midiVel),1);
@@ -189,6 +188,7 @@ compB = f.b1 - targetGainMean;
 
 
 
+testVector = zeros(length(midiVel),1);
 for i = 1:length(midiVel)
     sampleIndex = midiVel(i,6) * sr;
     if sampleIndex < window/2
@@ -214,26 +214,34 @@ for i = 1:length(midiVel)
     midiVelNorm(i) = log(gainCalculated);
     %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
     if midiVel(i,5) < 0
-        midiVel(i,5) = 0;
+        midiVel(i,5) = 1;
     end
     if midiVel(i,5) > 127
         midiVel(i,5) = 127;
     end
-    
-    if microIndex ~= 3
-        midiVel(i,6) = midiVel(i,6) + (microIndex - 3) * basicParameter.hopSize /sr;
-    end
-    
-    
+
+%      if microIndex ~= 3
+%          midiVel(i,6) = midiVel(i,6) + (microIndex - 3) * basicParameter.hopSize /sr;
+%      end
+
+
     
 end
+
+
+% if midiVel(10,7) > midiVel(10,6) %if offset is still absolute time, not duration.
+%     midiVel(:,7) = midiRef(:,7) - midiVel(:,6);
+% end
+% 
+% midiVel(midiVel(:,7) < 0, 7) = 0.04;
+% 
 
 % calculate error
 errorMatrix = zeros(length(midiVel),2);
 
 for i = 1: length(midiVel)
     errorMatrix(i) = midiRef(i,4);
-    errorMatrix(i,2) = abs(midiRef(i,5) - midiVel(i,5)) / midiRef(i,5);
+    errorMatrix(i,2) = abs(midiRef(i,5) - midiVel(i,5));% / midiRef(i,5);
 end
 
 error = sum(errorMatrix(:,2)) / length(errorMatrix); % error
@@ -251,13 +259,6 @@ end
 
 
 result = errorPerNote(1,:) ./ errorPerNote(2,:);
-
-
-if midiVel(10,7) > midiVel(10,6)
-    midiVel(:,7) = midiRef(:,7) - midiVel(:,6);
-end
-
-midiVel(midiVel(:,7) < 0, 7) = 0.04;
 
 
 

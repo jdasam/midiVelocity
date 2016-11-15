@@ -1,4 +1,4 @@
-[d1,sr] = audioread('piano24velScaleYamaha.wav');
+[d1,sr] = audioread('piano12velScaleYamaha.wav');
 d1 = (d1(:,1) + d1(:,2))/2 ;
     
 nfft = 2048;
@@ -10,9 +10,10 @@ Y = abs(s);
 basicParameter = [];
 basicParameter.sr = sr;
 basicParameter.nfft = nfft;
+basicParameter.velMod = 12;
 
 %%
-[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrix('newScale24.mid', nfft, Y);
+[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrix('newScale12.mid', nfft, Y, basicParameter.velMod,1.5);
 
 basicParameter.beta = 1;
 
@@ -30,7 +31,7 @@ Y(Y==0) = 0.000001;
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTest(sheetMatrix,Y, B, basicParameter);
 %%
 % fitting 
-xdata = linspace(5,120,24)'; %velocity saved in original midi file
+xdata = linspace(10,120,basicParameter.velMod)'; %velocity saved in original midi file
 [fittingArray, errorByNote] = fittingByNote(Gtest, xdata, basicParameter);
 
 
@@ -53,32 +54,48 @@ lowB(401:4097,:) = 0.1 ^ 10;
 
 
 %%
-filename = 'Bach_BWV849-01_001_20090916-SMD';
+
+tic
+filename = 'Beethoven_Op031No2-03_002_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
 
-%basicParameter.targetVelMean = 64; %
-%basicParameter.targetVelRange = 15; %
+basicParameter.targetVelMean = 45; %
+basicParameter.targetVelRange = 30; %
 basicParameter.hopSize = 2048;
  
 [midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
 %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
 
-
+toc
 
 %resultData.title(size(resultData.title, 1)+1,1) = filename;
 resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
 resultData.drParameter(:,size(resultData.drParameter,2)+1) = [basicParameter.dr.a1; basicParameter.dr.b1; basicParameter.dr.c1];
 resultData.error(:,size(resultData.error,2)+1) = basicParameter.error;
 resultData.velTruth(:,size(resultData.velTruth,2)+1) = [basicParameter.velTruth.a1; basicParameter.velTruth.b1; basicParameter.velTruth.c1];
+%% NMF
+[Vhat, H]= NMFtest(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
+
+[x, t] = istft(Vhat, 2048, 8192, 44100);
+soundsc(x,44100)
+%%
+expandedB = zeros(size(B,1), size(B,2) * ceil(44100 / 2048));
+for i = 1 : size(B,2)
+    expandedB(:,(i-1)* ceil(44100 / 2048)+1 :i * ceil(44100 / 2048)) = repmat(B(:,i), 1,  ceil(44100 / 2048));
+end
+    
+
+[x, t] = istft(expandedB, 2048, 8192, 44100);
+soundsc(x,44100)
 
 
 %%
+%
 midiRef = readmidi_java(MIDIFilename,true);
 errorVector = abs(midiRef(:,5) - midiVel(:,5)) ./ midiRef(:,5);
 hold off; plot(midiRef(:,5)); hold on; plot(midiVel(:,5))
 
-%%
 % fitting
 
 for i = 1 : length(midiRef)
@@ -136,13 +153,13 @@ for i = 1: 88
 end
 
 %%
-
+hold off
 fitType=fittype('(a*x+b)');
 
 ydataSMDLow = zeros(100000,1);
 xdataSMDLow = zeros(100000,1);
 LowOctaveIndex = 1;
-for i =  54:68
+for i =  10:70
     dataLength = max(find(resultData.ySMD(:,i)~=0));
     ydataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.ySMD(1:dataLength, i);
     xdataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.xSMD(1:dataLength, i);
@@ -161,6 +178,15 @@ xdataSMDLow(find(xdataSMDLow==0),:) = [];
 plot(fit1, xdataSMDLow, log(ydataSMDLow))
 
 [fittingArraySMDLow] = [fit1.a; fit1.b; gof.rsquare];
+
+
+
+%%
+scatter(xdataSMDLow, log(ydataSMDLow), 5,'blue','filled', 'c')
+set(gca,'FontSize',18)
+xlabel('Velocity', 'FontSize', 20)
+ylabel('Intensity (log)', 'FontSize', 20)
+axis([0 127 0 9])
 
 %%
 

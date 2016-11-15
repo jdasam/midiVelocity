@@ -1,13 +1,13 @@
 function [fittingArray, errorByNote] = fittingByNote(Gtest, xdata, basicParameter)
 
 nmat = basicParameter.MIDI;
-ydata = zeros(24, basicParameter.maxNote - basicParameter.minNote +1);
+ydata = zeros(basicParameter.velMod, basicParameter.maxNote - basicParameter.minNote +1);
 
 for i = 1: basicParameter.maxNote - basicParameter.minNote +1
     velIndex = 1;
-    for j = (i-1)*24 + 1: i*24
+    for j = (i-1)*basicParameter.velMod + 1: i*basicParameter.velMod
         index = ceil( nmat(j,6) * basicParameter.sr / basicParameter.nfft);
-        pitch = nmat(j,4) - 19;
+        pitch = nmat(j,4) - (basicParameter.minNote - 2);
         
         if index < 1
             index = 1;
@@ -41,7 +41,7 @@ gainDataScale = zeros(1, length(nmatTest));
 
 for i = 1:length(nmatTest)
     index = floor( nmatTest(i,6) * basicParameter.sr / basicParameter.nfft) + 1;
-    pitch = nmatTest(i,4) - 19;
+    pitch = nmatTest(i,4) - (basicParameter.minNote - 2);
     gainCalculated = max(Gtest(pitch,index:index+1));
     gainDataScale(i) = log(gainCalculated);
     coefA = fittingArray(1,pitch-1);
