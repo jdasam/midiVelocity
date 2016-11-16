@@ -8,11 +8,12 @@ for i = 1: basicParameter.maxNote - basicParameter.minNote +1
     for j = (i-1)*basicParameter.velMod + 1: i*basicParameter.velMod
         index = ceil( nmat(j,6) * basicParameter.sr / basicParameter.nfft);
         pitch = nmat(j,4) - (basicParameter.minNote - 2);
+        %index = ceil( ( nmat(j,6) *basicParameter.sr - basicParameter.window /2 )/ basicParameter.hopSize) + 1;
+        pitch = nmat(j,4) - 19;
         
         if index < 1
             index = 1;
         end
-        
         ydata(velIndex,i) = max(Gtest(pitch,index:index+3));
         
         velIndex = velIndex + 1;
@@ -43,22 +44,30 @@ for i = 1:length(nmatTest)
     index = floor( nmatTest(i,6) * basicParameter.sr / basicParameter.nfft) + 1;
     pitch = nmatTest(i,4) - (basicParameter.minNote - 2);
     gainCalculated = max(Gtest(pitch,index:index+1));
+    %index = ceil( ( nmatTest(i,6) *basicParameter.sr - basicParameter.window /2 )/ basicParameter.hopSize) + 1;
+    if index < 1
+         index = 1;
+    end
+    %gainCalculated = max(Gtest(pitch,index:index+3));
     gainDataScale(i) = log(gainCalculated);
     coefA = fittingArray(1,pitch-1);
     coefB = fittingArray(2,pitch-1);
+
     
-    nmatTest(i,5) = round( (log(gainCalculated) - coefB) / coefA); 
+    nmatTest(i,5) = round( (log(gainCalculated) - coefB) / coefA);
     %nmatTest(i,5) = round(sqrt(max(Gtest(pitch,index:index+1))) * 2);
     if nmatTest(i,5) <= 0
         nmatTest(i,5) = 1;
     end
 end
 
+nmatTest(1:480, 5)
+
 % calculate error
 errorMatrix = zeros(length(nmatTest),2);
 
 for i = 1: length(nmatTest)
-    errorMatrix(i) = nmat(i,4);
+    errorMatrix(i) = nmat(i,4)-20;
     errorMatrix(i,2) = abs(nmat(i,5) - nmatTest(i,5)) / nmat(i,5);
 end
 
