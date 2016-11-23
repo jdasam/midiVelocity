@@ -7,10 +7,13 @@ noverlap = window - nfft;
 
 [s, f, t] = spectrogram (d1, window, noverlap);
 Y = abs(s);
+
 basicParameter = [];
 basicParameter.sr = sr;
 basicParameter.nfft = nfft;
 basicParameter.velMod = 12;
+%basicParameter.window = window;
+%basicParameter.hopSize = nfft;
 
 %%
 [sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrix('newScale12.mid', nfft, Y, basicParameter.velMod,1.5);
@@ -22,7 +25,7 @@ if size(Y,2) > size(sheetMatrix,2)
 
     Y(:, length(sheetMatrix) + 1 : length(Y) ) = [];
 end
-Y(Y==0) = 0.000001;
+Y(Y==0) = 0.0000001;
 
 % calculate Basis matrix
 [G, B] = basisNMF(Y, sheetMatrix, basicParameter.beta);
@@ -134,6 +137,9 @@ targetPitch = 50;
 midiRef = readmidi_java(MIDIFilename,true);
 plot(midiRef(midiRef(:,4)==targetPitch, 5)); hold on; plot(midiVel(midiVel(:,4)==targetPitch, 5)); hold off;
 
+sum(abs(midiRef(:,5) - midiVel(:,5))) / length(midiRef)
+
+
 %%
 
 fitType=fittype('(a*x+b)');
@@ -161,7 +167,7 @@ fitType=fittype('(a*x+b)');
 ydataSMDLow = zeros(100000,1);
 xdataSMDLow = zeros(100000,1);
 LowOctaveIndex = 1;
-for i =  10:70
+for i =  10:40
     dataLength = max(find(resultData.ySMD(:,i)~=0));
     ydataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.ySMD(1:dataLength, i);
     xdataSMDLow(LowOctaveIndex:LowOctaveIndex+dataLength-1) = resultData.xSMD(1:dataLength, i);
@@ -170,7 +176,6 @@ for i =  10:70
         LowOctaveIndex = LowOctaveIndex+dataLength;
     end
 end
-
 
 ydataSMDLow(find(ydataSMDLow==0),:) = [];
 xdataSMDLow(find(xdataSMDLow==0),:) = [];

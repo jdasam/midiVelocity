@@ -1,6 +1,10 @@
 function [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTest(sheetMatrix,Y, B, basicParameter)
 
 
+basicParameter.hopSize= 2048;
+window = 8192;
+
+
 nmat = basicParameter.MIDI;
 sheetMatrixTest = zeros(size(sheetMatrix));
 
@@ -8,11 +12,14 @@ sheetMatrixTest = zeros(size(sheetMatrix));
 
 for i = 1 : length(nmat)
     notePitch = nmat(i,4);
-    onset = ceil( nmat(i,6) * basicParameter.sr / basicParameter.nfft);
-    offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft);
-    if onset < 1
+    sampleIndex = nmat(i,6) * basicParameter.sr;
+    if sampleIndex < window/2
         onset = 1;
+    else
+        onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize) + 1;
     end
+    offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.hopSize) + 1;
+
     sheetMatrixTest (notePitch, onset:offset) = 1;
     %sheetMatrix (notePitch, onset+1:onset+4) = 2 ^ (nmat(i,5)/15);
 end
