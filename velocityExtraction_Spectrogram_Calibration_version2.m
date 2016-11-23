@@ -56,15 +56,17 @@ lowB(401:4097,:) = 0.1 ^ 10;
 %%
 
 tic
-filename = 'Beethoven_Op031No2-03_002_20090916-SMD';
+filename = 'Beethoven_Op027No1-01_003_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
-
-basicParameter.targetVelMean = 45; %
-basicParameter.targetVelRange = 30; %
-basicParameter.hopSize = 2048;
  
-[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
+%basicParameter.targetVelMean = 45; %
+%basicParameter.targetVelRange = 30; %
+basicParameter.hopSize = 2048;
+
+[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionTemporalContinuity(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
+
+%[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
 %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
 
 toc
