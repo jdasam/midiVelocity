@@ -1,4 +1,5 @@
-function [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTest(sheetMatrix,Y, B, basicParameter)
+function [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAS(sheetMatrix,Y, B, basicParameter)
+
 
 
 
@@ -10,14 +11,16 @@ sheetMatrixTest = zeros(size(sheetMatrix));
 for i = 1 : length(nmat)
     notePitch = nmat(i,4);
     sampleIndex = nmat(i,6) * basicParameter.sr;
-    if sampleIndex < window/2
+    if sampleIndex < basicParameter.window/2
         onset = 1;
     else
         onset = ceil( ( sampleIndex - basicParameter.window /2 )/ basicParameter.nfft) + 1;
     end
     offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft) + 1;
-
-    sheetMatrixTest (notePitch, onset:offset) = 1;
+    
+    
+    sheetMatrixTest (notePitch * 2 - basicParameter.minNote , onset:onset+3) = 1;
+    sheetMatrixTest (notePitch * 2 - basicParameter.minNote + 1, onset+4:offset) = 1;
     %sheetMatrix (notePitch, onset+1:onset+4) = 2 ^ (nmat(i,5)/15);
 end
 
@@ -28,7 +31,7 @@ for j = 1 :size(sheetMatrixTest,2)
 end
 
 
-Gtest = sheetMatrixTest(basicParameter.minNote-1:basicParameter.maxNote,:);
+Gtest = sheetMatrixTest(basicParameter.minNote-1:size(sheetMatrixTest,1),:);
 Bcopy = B;
 
 
