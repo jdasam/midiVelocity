@@ -12,7 +12,7 @@ basicParameter = [];
 basicParameter.sr = sr;
 basicParameter.nfft = nfft;
 basicParameter.velMod = 12;
-%basicParameter.window = window;
+basicParameter.window = window;
 %basicParameter.hopSize = nfft;
 
 %%

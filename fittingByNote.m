@@ -1,12 +1,14 @@
-function [fittingArray, errorByNote] = fittingByNote(Gtest, xdata, basicParameter)
+function [fittingArray, errorByNote, ydata, nmatTest] = fittingByNote(Gtest, xdata, basicParameter)
 
 nmat = basicParameter.MIDI;
 ydata = zeros(basicParameter.velMod, basicParameter.maxNote - basicParameter.minNote +1);
+GtestSum = sum(Gtest,1);
+
 
 for i = 1: basicParameter.maxNote - basicParameter.minNote +1
     velIndex = 1;
     for j = (i-1)*basicParameter.velMod + 1: i*basicParameter.velMod
-        index = ceil( nmat(j,6) * basicParameter.sr / basicParameter.nfft);
+        index =  ceil( ( nmat(j,6) * basicParameter.sr - basicParameter.window/2)  / basicParameter.nfft);
          
         pianoKeyInMatrix = 2 +  (nmat(j,4) - basicParameter.minNote) * 2;
         %pianoKeyInMatrix = nmat(j,4) - (basicParameter.minNote - 2);
@@ -15,7 +17,8 @@ for i = 1: basicParameter.maxNote - basicParameter.minNote +1
         if index < 1
             index = 1;
         end
-        ydata(velIndex,i) = max(Gtest(pianoKeyInMatrix,index:index+3));
+        %ydata(velIndex,i) = max( GtestSum(1, index:index+3) );
+        ydata(velIndex,i) = max( Gtest(pianoKeyInMatrix,index:index+3));
         
         velIndex = velIndex + 1;
     end

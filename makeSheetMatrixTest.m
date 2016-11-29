@@ -10,7 +10,7 @@ sheetMatrixTest = zeros(size(sheetMatrix));
 for i = 1 : length(nmat)
     notePitch = nmat(i,4);
     sampleIndex = nmat(i,6) * basicParameter.sr;
-    if sampleIndex < window/2
+    if sampleIndex < basicParameter.window/2
         onset = 1;
     else
         onset = ceil( ( sampleIndex - basicParameter.window /2 )/ basicParameter.nfft) + 1;

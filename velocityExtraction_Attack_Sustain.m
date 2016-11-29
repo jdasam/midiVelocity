@@ -12,12 +12,13 @@ basicParameter = [];
 basicParameter.sr = sr;
 basicParameter.nfft = nfft;
 basicParameter.velMod = 12;
+basicParameter.noteLength = 1.5;
 basicParameter.beta = 1;
 basicParameter.window = window;
 %basicParameter.hopSize = nfft;
 
 %%
-[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrixAS('newScale12.mid', basicParameter, Y, basicParameter.velMod,1.5);
+[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrixAnS('newScale12.mid', basicParameter, Y);
 
 
 %%
@@ -31,11 +32,11 @@ Y(Y==0) = 0.0000001;
 [G, B] = basisNMF(Y, sheetMatrix, basicParameter.beta);
 
 %%
-[sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAS(sheetMatrix,Y, B, basicParameter);
+[sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
 %%
 % fitting 
 xdata = linspace(10,120,basicParameter.velMod)'; %velocity saved in original midi file
-[fittingArray, errorByNote] = fittingByNote(Gtest, xdata, basicParameter);
+[fittingArray, errorByNote, ydata, nmatTest] = fittingByNote(Gtest, xdata, basicParameter);
 
 
 %% 
