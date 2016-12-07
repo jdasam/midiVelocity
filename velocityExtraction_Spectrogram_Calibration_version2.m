@@ -1,4 +1,4 @@
-[d1,sr] = audioread('piano12velScaleYamaha.wav');
+[d1,sr] = audioread('pianoScale12staccato2.mp3');
 d1 = (d1(:,1) + d1(:,2))/2 ;
     
 nfft = 2048;
@@ -16,7 +16,7 @@ basicParameter.window = window;
 %basicParameter.hopSize = nfft;
 
 %%
-[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrix('newScale12.mid', nfft, Y, basicParameter.velMod,1.5);
+[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrix('pianoScale12staccato2.mid', nfft, Y, basicParameter.velMod, 2);
 
 basicParameter.beta = 1;
 
@@ -35,7 +35,7 @@ Y(Y==0) = 0.0000001;
 %%
 % fitting 
 xdata = linspace(10,120,basicParameter.velMod)'; %velocity saved in original midi file
-[fittingArray, errorByNote] = fittingByNote(Gtest, xdata, basicParameter);
+[fittingArray, errorByNote, ydata, nmatTest] = fittingByNote(Gtest, xdata, basicParameter);
 
 
 %% 
@@ -59,7 +59,7 @@ lowB(401:4097,:) = 0.1 ^ 10;
 %%
 
 tic
-filename = 'Beethoven_Op027No1-01_003_20090916-SMD';
+filename = 'Haydn_Hob017No4_003_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
  
@@ -105,15 +105,15 @@ hold off; plot(midiRef(:,5)); hold on; plot(midiVel(:,5))
 
 for i = 1 : length(midiRef)
     index = ceil( midiRef(i,6) * basicParameter.sr / basicParameter.nfft);
-    pitch = midiRef(i,4) - 20;
+    pitch = midiRef(i,4) - 19;
     
     if index < 1
         index = 1;
     end
 
     dataIndex = min(find(resultData.ySMD(:,pitch)==0));
-    resultData.ySMD(dataIndex,pitch) = max(Gx(pitch,index-2:index+2));
-    resultData.xSMD(dataIndex,pitch) = midiRef(i,5);     
+    resultData.ySMD(dataIndex,pitch-1) = max(Gx(pitch,index-2:index+2));
+    resultData.xSMD(dataIndex,pitch-1) = midiRef(i,5);     
 end
 
 %%

@@ -1,7 +1,4 @@
-function [midiVel, Gx, f, error, f2] = velocityExtractionModified(audioFilename, MIDIFilename, B, fittingArray, basicParameter)
-
-
-
+function [midiVel, Gx, f, error, f2] = velocityExtractionTemporalContinuity(audioFilename, MIDIFilename, B, fittingArray, basicParameter)
 
 [d2,sr] = audioread(audioFilename);
 d2 = (d2(:,1) + d2(:,2))/2;
@@ -19,16 +16,16 @@ midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
 
 
 % midiPitch - 19 ( ref scale's first note is 21, and this is second coloumn of B)
-sheetMatrixMidi = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
-sheetMatrixMidiRoll = zeros(basicParameter.maxNote-19, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
+sheetMatrixMidi = zeros(basicParameter.maxNote-basicParameter.minNote+2, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
+%sheetMatrixMidiRoll = zeros(basicParameter.maxNote-basicParameter.minNote+2, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
 
 for i = 1 : length(midiRef)
-    notePitch = midiRef(i,4) - 19;
+    notePitch = midiRef(i,4) - basicParameter.minNote+2;
     sampleIndex = midiRef(i,6) * sr;
     if sampleIndex < window/2
         onset = 1;
     else
-        onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize) + 1;
+        onset = ceil( ( sampleIndex - window /2 )/ basicParameter.hopSize);
     end
     offset = ceil( midiRef(i,7) * sr / basicParameter.hopSize) + 1;
     sheetMatrixMidi(notePitch, onset:offset) = 1;
@@ -39,7 +36,7 @@ for i = 1 : length(midiRef)
         sheetMatrixMidi(notePitch, onset:onset+2) = 10 * [1, 0.6, 0.3];
     end
     
-    sheetMatrixMidiRoll(notePitch, onset:offset) = 1;
+    %sheetMatrixMidiRoll(notePitch, onset:offset) = 1;
     
 end
 

@@ -1,4 +1,4 @@
-[d1,sr] = audioread('piano12velScaleYamaha.wav');
+[d1,sr] = audioread('pianoScale12staccato2.mp3');
 d1 = (d1(:,1) + d1(:,2))/2 ;
     
 nfft = 2048;
@@ -7,21 +7,27 @@ noverlap = window - nfft;
 
 [s, f, t] = spectrogram (d1, window, noverlap);
 Y = abs(s);
-
+%%
 basicParameter = [];
 basicParameter.sr = sr;
 basicParameter.nfft = nfft;
 basicParameter.velMod = 12;
-basicParameter.noteLength = 1.5;
+basicParameter.noteLength = 2;
+basicParameter.noteSoundRatio = 0.7;
+basicParameter.attackLengthRatio = 0.07;
+basicParameter.attackLengthFrame = 3;
 basicParameter.beta = 1;
 basicParameter.window = window;
+basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 %basicParameter.hopSize = nfft;
 
 %%
-[sheetMatrix, basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = makeSheetMatrixAnS('newScale12.mid', basicParameter, Y);
+[basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
+
+[sheetMatrix] = makeSheetMatrixAnSfixed(basicParameter, Y);
 
 
-%%
+%
 if size(Y,2) > size(sheetMatrix,2)
 
     Y(:, length(sheetMatrix) + 1 : length(Y) ) = [];
@@ -29,14 +35,15 @@ end
 Y(Y==0) = 0.0000001;
 
 % calculate Basis matrix
-[G, B] = basisNMF(Y, sheetMatrix, basicParameter.beta);
+[G, B] = basisNMFAnS(Y, sheetMatrix, basicParameter.beta);
 
-%%
+%
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
-%%
-% fitting 
+%
+
+% fitting   
 xdata = linspace(10,120,basicParameter.velMod)'; %velocity saved in original midi file
-[fittingArray, errorByNote, ydata, nmatTest] = fittingByNote(Gtest, xdata, basicParameter);
+[fittingArray, errorByNote, ydata, nmatTest] = fittingByNoteAS(Gtest, xdata, basicParameter);
 
 
 %% 
@@ -52,15 +59,11 @@ resultData.ySMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 
 basicParameter = rmfiled(basicParameter, 'targetVelMean');
 basicParameter = rmfiled(basicParameter, 'targetVelRange');
 
-%%
-lowB = B;
-lowB(401:4097,:) = 0.1 ^ 10;
-
 
 %%
 
 tic
-filename = 'Beethoven_Op027No1-01_003_20090916-SMD';
+filename = 'Haydn_Hob017No4_003_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
  
@@ -68,13 +71,68 @@ MP3Filename =  strcat(filename, '.mp3');
 %basicParameter.targetVelRange = 30; %
 basicParameter.hopSize = 2048;
 
-[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionTemporalContinuity(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
+[Gx] = velocityExtractionAnS(MP3Filename, MIDIFilename, B, basicParameter);
 
 %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
 %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
 
 toc
 
+%%
+% fitting
+
+%
+
+ydataSMD = zeros(1000, 88);
+xdataSMD = zeros(1000, 88);
+%%
+midiRef = readmidi_java(MIDIFilename,true);
+
+
+for i = 1 : length(midiRef)
+    pitch = midiRef(i,4);
+    index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
+
+    dataIndex = min(find(ydataSMD(:,pitch-basicParameter.minNote+1)==0));
+
+    ydataSMD(dataIndex,pitch-basicParameter.minNote+1) = max(Gx(2 + (pitch - basicParameter.minNote) * 2,index:index+4));
+    xdataSMD(dataIndex,pitch-basicParameter.minNote+1) = midiRef(i,5);
+end
+
+%%
+
+fitType=fittype('(a*x+b)');
+fittingArraySMD = zeros(3, 88); % a, b, rsquare
+
+
+
+%%
+
+
+
+for i = 1: 88
+    if max(find(xdataSMD(:,i))) > 5
+        dataSize = min(find(xdataSMD(:,i)==0)) -1;
+        [fit1, gof] = fit(xdataSMD(1:dataSize,i), log(ydataSMD(1:dataSize,i)), fitType , 'StartPoint', [1 1]);
+        fittingArraySMD(:, i) = [fit1.a; fit1.b; gof.rsquare];
+    end
+    
+end
+
+%%
+
+for i = 1: 88
+    if max(find(xdataSMD(:,i))) > 5
+        dataSize = min(find(xdataSMD(:,i)==0)) -1;
+        [fit1, gof] = fit(xdataSMD(1:dataSize,i), log(ydataSMD(1:dataSize,i)), fitType , 'StartPoint', [1 1]);
+        test = lasso(xdataSMD(1:dataSize,i),log(ydataSMD(1:dataSize,i)));
+    end
+    
+end
+
+
+
+%%
 %resultData.title(size(resultData.title, 1)+1,1) = filename;
 resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
 resultData.drParameter(:,size(resultData.drParameter,2)+1) = [basicParameter.dr.a1; basicParameter.dr.b1; basicParameter.dr.c1];

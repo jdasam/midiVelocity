@@ -2,30 +2,31 @@ function [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y,
 
 
 
-
 nmat = basicParameter.MIDI;
 sheetMatrixTest = zeros(size(sheetMatrix));
 minNote = basicParameter.minNote;
 
 
-for i = 1: length(Y)
-   timeSecond = (i+1) * basicParameter.nfft / basicParameter.sr;
-   noteNumber = floor(timeSecond/basicParameter.velMod/basicParameter.noteLength);
-   meanVolume = mean(sum(Y(:,i)));
+sheetMatrixTest = makeSheetMatrixAnSfixed(basicParameter, Y);
 
-   if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * 0.1
-        sheetMatrixTest(noteNumber * 2 + 1 + minNote, i) = 1;
-   end
-   if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * 0.8
-        %rmsVolume = abs(sqrt(sum(Y(:,i) .^2)));
-        sheetMatrixTest(noteNumber * 2 + minNote, i) = 1;
-            %sheetMatrix (noteNumber+minNote, i) = rmsVolume;
-            %sheetMatrix(noteNumber + minNote, i) = 1;
-   else 
-        sheetMatrixTest(minNote-1, i) = 1;
-           
-   end
-end
+% for i = 1: length(Y)
+%    timeSecond = (i+2) * basicParameter.nfft / basicParameter.sr;
+%    noteNumber = floor(timeSecond/basicParameter.velMod/basicParameter.noteLength);
+%    meanVolume = mean(sum(Y(:,i)));
+% 
+%    if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * basicParameter.attackLengthRatio
+%         sheetMatrixTest(noteNumber * 2 + 1 + minNote, i) = 1;
+%    end
+%    if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * basicParameter.noteSoundRatio
+%         %rmsVolume = abs(sqrt(sum(Y(:,i) .^2)));
+%         sheetMatrixTest(noteNumber * 2 + minNote, i) = 1;
+%             %sheetMatrix (noteNumber+minNote, i) = rmsVolume;
+%             %sheetMatrix(noteNumber + minNote, i) = 1;
+%    else 
+%         sheetMatrixTest(minNote-1, i) = 1;
+%            
+%    end
+% end
 
 
 
@@ -82,7 +83,7 @@ betaDivergence = betaDivergenceMatrix(Y, Xhat, basicParameter.beta)
 
 
  
-for i = 1:15
+for i = 1:30
 
     Gtest = Gtest .* ( Bcopy' * (Y .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))));
     Gtest(find(isnan(Gtest)))=0;

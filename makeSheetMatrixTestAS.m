@@ -5,30 +5,51 @@ function [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAS(sheetMatrix,Y, 
 
 nmat = basicParameter.MIDI;
 sheetMatrixTest = zeros(size(sheetMatrix));
+minNote = basicParameter.minNote;
 
+for i = 1: length(Y)
+   timeSecond = (i+1) * basicParameter.nfft / basicParameter.sr;
+   noteNumber = floor(timeSecond/basicParameter.velMod/basicParameter.noteLength);
+   meanVolume = mean(sum(Y(:,i)));
 
-
-for i = 1 : length(nmat)
-    notePitch = nmat(i,4);
-    sampleIndex = nmat(i,6) * basicParameter.sr;
-    if sampleIndex < basicParameter.window/2
-        onset = 1;
-    else
-        onset = ceil( ( sampleIndex - basicParameter.window /2 )/ basicParameter.nfft) + 1;
-    end
-    offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft) + 1;
-    
-    
-    sheetMatrixTest (notePitch * 2 - basicParameter.minNote , onset:onset+3) = 1;
-    sheetMatrixTest (notePitch * 2 - basicParameter.minNote + 1, onset+4:offset) = 1;
-    %sheetMatrix (notePitch, onset+1:onset+4) = 2 ^ (nmat(i,5)/15);
+   if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * basicParameter.attackLengthRatio
+        sheetMatrixTest(noteNumber * 2  + minNote, i) = 1;
+   elseif mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * basicParameter.noteSoundRatio
+        %rmsVolume = abs(sqrt(sum(Y(:,i) .^2)));
+        sheetMatrixTest(noteNumber * 2 + 1 + minNote, i) = 1;
+            %sheetMatrix (noteNumber+minNote, i) = rmsVolume;
+            %sheetMatrix(noteNumber + minNote, i) = 1;
+   else 
+        sheetMatrixTest(minNote-1, i) = 1;
+   end
 end
 
-for j = 1 :size(sheetMatrixTest,2)
-    if sum(sheetMatrixTest(:,j)) == 0
-        sheetMatrixTest(basicParameter.minNote-1, j) = 1;
-    end
-end
+
+  
+
+
+
+% for i = 1 : length(nmat)
+%     notePitch = nmat(i,4);
+%     sampleIndex = nmat(i,6) * basicParameter.sr;
+%     if sampleIndex < basicParameter.window/2
+%         onset = 1;
+%     else
+%         onset = ceil( ( sampleIndex - basicParameter.window /2 )/ basicParameter.nfft) + 1;
+%     end
+%     offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft) + 1;
+%     
+%     
+%     sheetMatrixTest (notePitch * 2 - basicParameter.minNote , onset:onset+3) = 1;
+%     sheetMatrixTest (notePitch * 2 - basicParameter.minNote + 1, onset+4:offset) = 1;
+%     %sheetMatrix (notePitch, onset+1:onset+4) = 2 ^ (nmat(i,5)/15);
+% end
+% 
+% for j = 1 :size(sheetMatrixTest,2)
+%     if sum(sheetMatrixTest(:,j)) == 0
+%         sheetMatrixTest(basicParameter.minNote-1, j) = 1;
+%     end
+% end
 
 
 Gtest = sheetMatrixTest(basicParameter.minNote-1:size(sheetMatrixTest,1),:);

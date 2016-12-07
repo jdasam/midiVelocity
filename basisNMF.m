@@ -18,7 +18,7 @@ betaDivergence = betaDivergenceMatrix(Y, Yhat, beta)
 
 
 
-for i = 1:15
+for i = 1:3
     B = B .* ((Y .* (Yhat .^(beta-2) ) * G') ./ ((Yhat .^ (beta-1)) * G'));
     %B = betaNormC(B,beta); 
     %B = normc(B);

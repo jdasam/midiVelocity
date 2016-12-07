@@ -17,7 +17,7 @@ for i = 1: length(Y)
    timeSecond = i * nfft / 44100;
    noteNumber = floor(timeSecond/velPerNote/secPerNote);
    
-   if mod(timeSecond,1) <= 0.8
+   if mod(timeSecond,secPerNote) <= 1.4
         meanVolume = mean(sum(Y(:,i)));
         %rmsVolume = abs(sqrt(sum(Y(:,i) .^2)));
         if noteNumber < 108

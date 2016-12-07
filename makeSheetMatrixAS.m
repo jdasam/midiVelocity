@@ -1,4 +1,4 @@
-function [sheetMatrix, minNote, maxNote, nmat] = makeSheetMatrixAS(MIDIFilename, basicParameter, Y, velPerNote, secPerNote)
+function [sheetMatrix, minNote, maxNote, nmat] = makeSheetMatrixAS(MIDIFilename, basicParameter, Y)
 
 
 % Rewrite MIDI with fixed times
@@ -15,12 +15,12 @@ sheetMatrix = zeros(maxNote * 2 - minNote + 1, length(Y));
 
 for i = 1: length(Y)
    timeSecond = (i+1) * basicParameter.nfft / basicParameter.sr;
-   noteNumber = floor(timeSecond/velPerNote/secPerNote);
+   noteNumber = floor(timeSecond/basicParameter.velMod/basicParameter.noteLength);
    meanVolume = mean(sum(Y(:,i)));
 
-   if mod(timeSecond, secPerNote) <= secPerNote * 0.1
+   if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * basicParameter.attackLengthRatio
         sheetMatrix (noteNumber * 2 + minNote, i) = meanVolume;
-   else if mod(timeSecond, secPerNote) <= secPerNote * 0.8
+   else if mod(timeSecond, basicParameter.noteLength) <= basicParameter.noteLength * basicParameter.noteSoundRatio
         %rmsVolume = abs(sqrt(sum(Y(:,i) .^2)));
         sheetMatrix (noteNumber * 2 + 1 + minNote, i) = meanVolume;
             %sheetMatrix (noteNumber+minNote, i) = rmsVolume;
