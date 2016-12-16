@@ -36,6 +36,69 @@ Y(Y==0) = 0.0000001;
 % fitting 
 xdata = linspace(10,120,basicParameter.velMod)'; %velocity saved in original midi file
 [fittingArray, errorByNote, ydata, nmatTest] = fittingByNote(Gtest, xdata, basicParameter);
+%%
+
+dataSet = getFileListWithExtension('*.mp3');
+
+
+ydataSMD = zeros(5000, 88);
+xdataSMD = zeros(5000, 88);
+
+for j = 1:length(dataSet)
+    
+    filename = char(dataSet(j));
+    MIDIFilename = strcat(filename,'.mid');
+    MP3Filename =  strcat(filename, '.mp3');
+
+    Gx = velocityExtractionModifiedNoFit(MP3Filename, MIDIFilename, B, basicParameter);
+
+    midiRef = readmidi_java(MIDIFilename,true);
+
+    for i = 1 : length(midiRef)
+        pitch = midiRef(i,4);
+        index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
+
+        dataIndex = min(find(ydataSMD(:,pitch-basicParameter.minNote+1)==0));
+
+        ydataSMD(dataIndex,pitch-basicParameter.minNote+1) = max(Gx(2 + (pitch - basicParameter.minNote),index:index+3));
+        xdataSMD(dataIndex,pitch-basicParameter.minNote+1) = midiRef(i,5);
+    end
+
+
+end
+
+
+%%
+
+fittingArraySMD = zeros(2,88);
+
+for i = 1: 88
+    if max(find(xdataSMD(:,i))) > 5
+        dataSize = min(find(xdataSMD(:,i)==0)) -1;
+        [lassoAll, stats] = lasso(xdataSMD(1:max(find(xdataSMD(:,i))),i), log(ydataSMD(1:max(find(xdataSMD(:,i))),i)), 'CV', 5);
+        fittingArraySMD(:, i) = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
+    end
+end
+
+
+%
+fitMin = min(find(fittingArraySMD(1,:)));
+fitMax = max(find(fittingArraySMD(1,:)));
+
+
+for j = 1:88
+    if fittingArraySMD(1,j) == 0
+        if j < fitMin
+           fittingArraySMD(:,j) =  fittingArraySMD(:,fitMin);
+        else
+           fittingArraySMD(:,j) =  fittingArraySMD(:,fitMax);
+        end
+    end
+end
+
+basicParameter.fittingArray = fittingArraySMD;
+
+
 
 
 %% 
@@ -44,6 +107,8 @@ resultData.title = {};
 resultData.drParameter = [];
 resultData.error = [];
 resultData.velTruth = [];
+resultData.errorByNote = {};
+resultData.compareRefVel = {};
 resultData.xSMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
 resultData.ySMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
 
@@ -56,10 +121,46 @@ lowB = B;
 lowB(401:4097,:) = 0.1 ^ 10;
 
 
-%%
+%% Test 
+
+resultData = [];
+resultData.title = {};
+resultData.drParameter = [];
+resultData.error = [];
+resultData.velTruth = [];
+resultData.errorByNote = {};
+resultData.compareRefVel = {};
+
+for i = 1:length(dataSet)
+    
+    filename = char(dataSet(i));
+
+    tic
+    %filename = 'Beethoven_Op027No1-02_003_20090916-SMD';
+    MIDIFilename = strcat(filename,'.mid');
+    MP3Filename =  strcat(filename, '.mp3');
+
+    %basicParameter.targetVelMean = 45; %
+    %basicParameter.targetVelRange = 30; %
+    basicParameter.hopSize = 2048;
+
+    [Gx, midiVel, tempError, tempErrorByNote, tempCompare] = velocityExtractionModifiedFit(MP3Filename, MIDIFilename, B, basicParameter);
+
+    %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
+    %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
+
+    toc
+
+    resultData.errorByNote{size(resultData.errorByNote,2)+1} = tempErrorByNote(:, basicParameter.minNote:length(tempErrorByNote)) ;
+    resultData.compareRefVel{size(resultData.compareRefVel,2)+1} = tempCompare;
+    resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
+    resultData.error(:,size(resultData.error,2)+1) = tempError;
+end
+
+%% Old version
 
 tic
-filename = 'Haydn_Hob017No4_003_20090916-SMD';
+filename = 'Beethoven_Op027No1-02_003_20090916-SMD';
 MIDIFilename = strcat(filename,'.mid');
 MP3Filename =  strcat(filename, '.mp3');
  
@@ -111,7 +212,7 @@ for i = 1 : length(midiRef)
         index = 1;
     end
 
-    dataIndex = min(find(resultData.ySMD(:,pitch)==0));
+    dataIndex = min(find(resultData.ySMD(:,pitch-1)==0));
     resultData.ySMD(dataIndex,pitch-1) = max(Gx(pitch,index-2:index+2));
     resultData.xSMD(dataIndex,pitch-1) = midiRef(i,5);     
 end

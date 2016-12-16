@@ -1,12 +1,13 @@
-function [Gx] = velocityExtractionAnS(audioFilename, MIDIFilename, B, basicParameter)
+function [Gx, midiVel, error] = velocityExtractionAnS(audioFilename, MIDIFilename, B, basicParameter)
 
 [d2,sr] = audioread(audioFilename);
 d2 = (d2(:,1) + d2(:,2))/2;
 
 
-nfft = 2048;
-window = 8192;
-noverlap = window - basicParameter.hopSize;
+nfft = basicParameter.nfft;
+window = basicParameter.window;
+noverlap = window - basicParameter.nfft;
+fittingArray = basicParameter.fittingArray;
 [s2, f, t] = spectrogram (d2, window, noverlap);
 X = abs(s2);
 
@@ -136,6 +137,131 @@ for i = 1:50
     
 
 end
+
+
+
+% evaluate the result
+midiVel = readmidi_java(MIDIFilename,true);
+
+gainData = zeros(length(midiVel),1);
+testVector = zeros(length(midiVel),1);
+
+
+for i = 1:length(midiVel)
+    
+    pitch = midiVel(i,4);
+    sampleIndex = midiVel(i,6) * sr;
+    if sampleIndex < window/2
+        index = 1;
+    else
+        index = ceil( ( midiVel(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
+    end
+    
+        
+    gainCalculated = max(Gx(2 + (pitch - basicParameter.minNote) * 2,index:index+3));
+    gainData(i) = gainCalculated;
+    
+    
+    coefA = fittingArray(1, pitch-basicParameter.minNote+1);
+    coefB = fittingArray(2, pitch-basicParameter.minNote+1);
+
+    midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA) ; 
+    midiVelNorm(i) = log(gainCalculated);
+    %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
+    if midiVel(i,5) < 0
+        midiVel(i,5) = 1;
+    end
+    if midiVel(i,5) > 127
+        midiVel(i,5) = 127;
+    end
+    
+    
+end
+% gainDB = 20 * log10(gainData + 0.000001);
+% 
+% 
+% 
+% histData = histogram(gainDB, ceil(max(gainDB)) - floor(min(gainDB)));
+% f = fit(linspace(floor(min(gainDB)),ceil(max(gainDB)), ceil(max(gainDB)) - floor(min(gainDB)))', histData.Values','gauss1');
+% histDataMIDI = histogram(midiRef(:,5), max(midiRef(:,5)) - min(midiRef(:,5)) + 1);
+% f2 = fit(linspace(min(midiRef(:,5)),max(midiRef(:,5)), histDataMIDI.NumBins)', histDataMIDI.Values','gauss1');
+% 
+% 
+% estimatedVelMean = 2.0163 * f.b1 - 56.3573;
+% estimatedVelRange = 2.2909 * f.c1 + 2.8077;
+% 
+% if ~isfield(basicParameter, 'targetVelMean'); basicParameter.targetVelMean = f2.b1; end
+% if ~isfield(basicParameter, 'targetVelRange'); basicParameter.targetVelRange = f2.c1; end
+% 
+% targetGainMean =  (basicParameter.targetVelMean + 56.3573) / 2.0163;
+% targetGainRange = (basicParameter.targetVelRange - 2.8077) / 2.2909;
+% compA = targetGainRange/ f.c1;
+% compB = f.b1 - targetGainMean;
+
+
+
+
+% if midiVel(10,7) > midiVel(10,6) %if offset is still absolute time, not duration.
+%     midiVel(:,7) = midiRef(:,7) - midiVel(:,6);
+% end
+% 
+% midiVel(midiVel(:,7) < 0, 7) = 0.04;
+% 
+
+% calculate error
+errorMatrix = zeros(length(midiVel),2);
+
+for i = 1: length(midiVel)
+    errorMatrix(i) = midiRef(i,4);
+    errorMatrix(i,2) = abs(midiRef(i,5) - midiVel(i,5));% / midiRef(i,5);
+end
+
+error = sum(errorMatrix(:,2)) / length(errorMatrix); % error
+errorSTD =std(errorMatrix(:,2));
+%errorSTD = sqrt(sum((errorMatrix(:,2) - error).^2) / length(errorMatrix)); % error std
+
+
+errorPerNote = zeros(2, max(errorMatrix(:,1)));
+
+
+for i = 1 : length(errorMatrix)
+    errorPerNote(1,errorMatrix(i,1)) = errorPerNote(1,errorMatrix(i,1)) + errorMatrix(i,2);
+    errorPerNote(2,errorMatrix(i,1)) = errorPerNote(2,errorMatrix(i,1)) + 1;
+end
+
+
+result = errorPerNote(1,:) ./ errorPerNote(2,:);
+
+
+
+OutputName = strcat(MIDIFilename, 'velocity.mid');
+%writemidi_seconds(midiVel,OutputName);
+
+%hold off; plot(midiRef(:,5)); hold on; plot(midiVel(:,5), 'r'); hold off
+
+%subplot(3,1,1); imagesc(db(X([1:200],r)+0.00001)); axis xy ; subplot(3,1,2); imagesc(Gx(:,r)); ; axis xy; subplot(3,1,3); imagesc(sheetMatrixMidiRoll(:,r)); ; axis xy
+%hist(20*log10(gainData.^2+0.00001), 100)
+
+
+%intensityRef = betaNormC(2 .^ (midiRef(:,5) * 0.04),2);
+%intensityVel = betaNormC(gainData,2);
+
+intensityRef = betaNormC(midiRef(:,5),2);
+intensityVel = betaNormC(midiVel(:,5),2);
+
+
+
+
+normalizedError = sum( abs( intensityRef - intensityVel) ./ intensityRef ) / length(intensityRef);
+normalizedSTD = std(abs( intensityRef - intensityVel) ./ intensityRef );
+error = [error; errorSTD; normalizedError; normalizedSTD];
+
+
+
+plot(betaDivVector)
+
+
+
 
 
 

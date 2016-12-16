@@ -18,9 +18,12 @@ for i = 1: basicParameter.maxNote - basicParameter.minNote +1
             index = 1;
         end
         %ydata(velIndex,i) = max( GtestSum(1, index:index+3) );
-        ydata(velIndex,i) = max( Gtest(pianoKeyInMatrix,index:index+4));
+
+        ydata(velIndex,i) = max( Gtest(pianoKeyInMatrix,index:index+3) );
+
         
         velIndex = velIndex + 1;
+        
     end
     
 end

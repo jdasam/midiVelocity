@@ -1,9 +1,9 @@
-function sheetMatrix = midi2Matrix(nmat, audioLength, basicParameter)
+function sheetMatrix = midi2Matrix(nmat, specLength, basicParameter)
 
     minNote = basicParameter.minNote;
     maxNote = basicParameter.maxNote;
 
-    sheetMatrix = zeros(maxNote * 2 - minNote + 1, audioLength);
+    sheetMatrix = zeros(maxNote * 2 - minNote + 1, specLength);
 
     for i = 1 : length(nmat)
         notePitch = nmat(i,4);
@@ -14,6 +14,10 @@ function sheetMatrix = midi2Matrix(nmat, audioLength, basicParameter)
             onset = ceil( ( sampleIndex - basicParameter.window /2 )/ basicParameter.nfft);
         end
         offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft) + 1;
+        
+        if offset > specLength
+           offset = specLength; 
+        end
 
         sheetMatrix (notePitch * 2 - minNote, onset:offset) = 1;
         sheetMatrix (notePitch * 2 - minNote + 1, onset:onset+basicParameter.attackLengthFrame-1) = 1;

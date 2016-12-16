@@ -1,8 +1,8 @@
-function [sheetMatrix, minNote, maxNote, nmat] = makeSheetMatrixAS(MIDIFilename, basicParameter, Y)
+function [sheetMatrix, minNote, maxNote, nmat] = makeSheetMatrixAS(basicParameter, Y)
 
 
 % Rewrite MIDI with fixed times
-nmat = readmidi_java(MIDIFilename,true);
+nmat = readmidi_java(basicParameter.MIDIFilename,true);
 nmat(:,7) = nmat(:,6) + nmat(:,7);
 noteArray = unique(nmat(:,4));
 
