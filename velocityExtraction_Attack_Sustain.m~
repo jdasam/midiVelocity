@@ -45,10 +45,6 @@ dataSet = getFileListWithExtension('*.mp3');
 
 
 
-%%
-
-
-
 ydataSMD = zeros(5000, 88);
 xdataSMD = zeros(5000, 88);
 
@@ -75,8 +71,6 @@ for j = 1:length(dataSet)
 
 end
 
-
-%%
 
 fittingArraySMD = zeros(2,88);
 
@@ -115,20 +109,15 @@ resultData.errorByNote = {};
 resultData.compareRefVel = {};
 %resultData.xSMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
 %resultData.ySMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
-
 %%
-basicParameter = rmfiled(basicParameter, 'targetVelMean');
-basicParameter = rmfiled(basicParameter, 'targetVelRange');
 
-
-
-%%
 dataSet = getFileListWithExtension('*.mp3');
-
-for i=1:length(dataSet)
+basicParameter.attackLengthFrame = 3;
+basicParameter.alpha = 1000000;
+for i=1:1%length(dataSet)
     tic
-    filename = char(dataSet(i));
-    %filename = 'Chopin_Op028-15_006_20100611-SMD';
+    %filename = char(dataSet(i));
+    filename = 'Skryabin_Op008No8_003_20090916-SMD';
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
@@ -149,6 +138,7 @@ for i=1:length(dataSet)
     resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 
+    plot(Gx(139,:))
 end
 %%
 

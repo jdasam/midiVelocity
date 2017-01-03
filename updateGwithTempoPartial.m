@@ -7,7 +7,7 @@ function updatedG = updateGwithTempoPartial(G, X, Bcopy, Xhat, beta, alpha)
     tempB2 = Bcopy(:,90:end);
     
     updatedG1 = tempG1 .* ( (tempB1' * (X .* (Xhat .^(beta-2) )) )  ./ (tempB1' * (Xhat .^ (beta-1))) );
-    updatedG2 = updateGwithTempo(tempG2,X,tempB2,Xhat,beta,alpha);
+    updatedG2 = updateGwithForcedSustain(tempG2,X,tempB2,Xhat,beta,alpha,tempG1(2:89,:));
 
     updatedG(1:89,:) = updatedG1;
     updatedG(90:177,:) = updatedG2;

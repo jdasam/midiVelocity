@@ -16,7 +16,7 @@ midiRef = readmidi_java(MIDIFilename,true);
 midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
 
 
-sheetMatrixMidi = midi2Matrix(midiRef, size(X,2), basicParameter);
+sheetMatrixMidi = midi2Matrix(midiRef, length(X), basicParameter);
 
 % midiPitch - 19 ( ref scale's first note is 21, and this is second coloumn of B)
 % sheetMatrixMidi = zeros(basicParameter.maxNote-basicParameter.minNote+2, ceil(midiRef(length(midiRef), 7) * sr/basicParameter.hopSize));
@@ -118,12 +118,23 @@ Xhat = sqrt(Bcopy.^2 * Gx.^2);
 
 
 betaDivVector = zeros(50);
-
+C = 1;
+t = eye(size(Bcopy,2));
 for i = 1:50
-
+    
+    th1(:,1) = Gx(:,1);
+    for j = 1:size( Gx,2)-1
+        th1(:,j+1) = Gx(:,j+1) .* (C + t'*Gx(:,j));
+    end
+    Gx = th1;
+    
+    
     %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-    Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter.beta, basicParameter.alpha);
-    %Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
+    %Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter.beta, basicParameter.alpha);
+    Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
+    
+
+    
     %Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* (Xhat.^2 .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * (Xhat.^2 .^ (basicParameter.beta-1))));
     %Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
 

@@ -122,6 +122,7 @@ lowB(401:4097,:) = 0.1 ^ 10;
 
 
 %% Test 
+dataSet = getFileListWithExtension('*.mp3');
 
 resultData = [];
 resultData.title = {};

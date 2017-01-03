@@ -7,8 +7,8 @@ function updatedG = updateGwithTempo(G, X, Bcopy, Xhat, beta, alpha)
     
     tempTerm = bsxfun(@times, 2*size(G,2)*G, sum( (G(:,2:size(G,2))-rightShiftedG(:,2:size(G,2)) ).^2  ,2));
     
-    costTminus = bsxfun(@rdivide, 2*size(G,2)+rightShiftedG+leftShiftedG, sum(G.^2,2)) + bsxfun(@rdivide, tempTerm, sum(G.^2,2).^2) ;
-    updatedG = G .* ( (Bcopy' * (X .* (Xhat .^(beta-2) )) + alpha * costTplus )  ./ (Bcopy' * (Xhat .^ (beta-1))) + alpha * costTminus );
+    costTminus = bsxfun(@rdivide, 2*size(G,2)*(rightShiftedG+leftShiftedG), sum(G.^2,2)) + bsxfun(@rdivide, tempTerm, sum(G.^2,2).^2) ;
+    updatedG = G .* ( (Bcopy' * (X .* (Xhat .^(beta-2) )) + alpha * costTminus )  ./ (Bcopy' * (Xhat .^ (beta-1)) + alpha * costTplus) );
 
 
    

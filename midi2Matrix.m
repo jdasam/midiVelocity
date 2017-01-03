@@ -13,7 +13,7 @@ function sheetMatrix = midi2Matrix(nmat, specLength, basicParameter)
         else
             onset = ceil( ( sampleIndex - basicParameter.window /2 )/ basicParameter.nfft);
         end
-        offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft) + 1;
+        offset = ceil( nmat(i,7) * basicParameter.sr / basicParameter.nfft) -1;
         
         if offset > specLength
            offset = specLength; 
