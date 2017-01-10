@@ -1,43 +1,59 @@
-function fittingArraySMD = trainBasisFromFolder(B, basicParameter)
+function [B updatedG] = trainBasisFromFolder(basicParameter)
 
 dataSet = getFileListWithExtension('*.mp3');
 
-for j = 1:length(dataSet)
-    
-    filename = char(dataSet(j));
-    MIDIFilename = strcat(filename,'.mid');
-    MP3Filename =  strcat(filename, '.mp3');
-    
-    
-    sheetMatrixTemporal = midi2Matrix();
+Xtotal = [];
+sheetMatrixTotal = [];
 
-end
+window = basicParameter.window;
+noverlap = basicParameter.noverlap;
 
+if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
-fittingArraySMD = zeros(2,88);
+    for j = 1:length(dataSet)
 
-for i = 1: 88
-    if max(find(xdataSMD(:,i))) > 5
-        dataSize = min(find(xdataSMD(:,i)==0)) -1;
-        [lassoAll, stats] = lasso(xdataSMD(1:max(find(xdataSMD(:,i))),i), log(ydataSMD(1:max(find(xdataSMD(:,i))),i)), 'CV', 5);
-        fittingArraySMD(:, i) = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
+        filename = char(dataSet(j));
+        MIDIFilename = strcat(filename,'.mid');
+        MP3Filename =  strcat(filename, '.mp3');
+
+        Xtemp = audio2spectrogram(MP3Filename, basicParmaeter);
+
+        Xtotal = horzcat(Xtotal, Xtemp);
+
+        nmat = readmidi_java(MIDIFilename, true);
+        nmat(:,7) = nmat(:,6) + nmat(:,7);
+
+        sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter);
+        sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
+
     end
-end
 
+    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, 100);
 
-%
-fitMin = min(find(fittingArraySMD(1,:)));
-fitMax = max(find(fittingArraySMD(1,:)));
+    
+    
+elseif strcmp(basicParameter.scale, 'erbt')
+    for j = 1:length(dataSet)
 
+        filename = char(dataSet(j));
+        MIDIFilename = strcat(filename,'.mid');
+        MP3Filename =  strcat(filename, '.mp3');
 
-for j = 1:88
-    if fittingArraySMD(1,j) == 0
-        if j < fitMin
-           fittingArraySMD(:,j) =  fittingArraySMD(:,fitMin);
-        else
-           fittingArraySMD(:,j) =  fittingArraySMD(:,fitMax);
-        end
+        [Xtemp, f, alen] = audio2erbt(MP3Filename, basicParameter);
+
+        Xtotal = horzcat(Xtotal, Xtemp);
+
+        nmat = readmidi_java(MIDIFilename, true);
+        nmat(:,7) = nmat(:,6) + nmat(:,7);
+
+        sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter);
+        sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
+
     end
-end
+
+    sheetMatrixTotalCopy = sheetMatrixTotal(21:end,:);
+    sheetMatrixTotal = vertcat(sheetMatrixTotalCopy, sheetMatrixTotal(20,:));
+    
+    [updatedG B] = erbtHarmclusNMF(Xtotal, sheetMatrixTotal, 250,f,alen, basicParameter);
 
 end

@@ -11,17 +11,23 @@ for j = 1:length(dataSet)
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
-    [Gx] = velocityExtractionAnSpower(MP3Filename, MIDIFilename, B, basicParameter);
+    [Gx] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
 
     midiRef = readmidi_java(MIDIFilename,true);
+    midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
 
     for i = 1 : length(midiRef)
         pitch = midiRef(i,4);
-        index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
-
+        index = onsetTime2frame(midiRef(i,6), basicParameter);
+        %index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
+        
         dataIndex = min(find(ydataSMD(:,pitch-basicParameter.minNote+1)==0));
-
-        ydataSMD(dataIndex,pitch-basicParameter.minNote+1) = max(Gx(2 + (pitch - basicParameter.minNote) * 2,index:index+3));
+        if basicParameter.rankMode == 1;
+            gainTemp = max(Gx(2 + pitch - basicParameter.minNote, index:index+basicParameter.searchRange));            
+        elseif basicParameter.rankMode == 2;
+            gainTemp = max(Gx(2 + (pitch - basicParameter.minNote) * 2,index:index+basicParameter.searchRange));
+        end
+        ydataSMD(dataIndex,pitch-basicParameter.minNote+1) = gainTemp;
         xdataSMD(dataIndex,pitch-basicParameter.minNote+1) = midiRef(i,5);
     end
 

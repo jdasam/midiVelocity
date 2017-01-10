@@ -132,7 +132,7 @@ resultData.velTruth = [];
 resultData.errorByNote = {};
 resultData.compareRefVel = {};
 
-for i = 1:length(dataSet)
+for i = 1:1%length(dataSet)
     
     filename = char(dataSet(i));
 

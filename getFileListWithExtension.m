@@ -1,6 +1,6 @@
 function dataSet = getFileListWithExtension(extension)
 
-dataSet = cell(2,1);
+dataSet = cell(1,1);
 fileList = dir(extension);
 
 for i = 1:length(fileList)

@@ -1,44 +1,51 @@
-[d1,sr] = audioread('pianoScale12staccato2.mp3');
-d1 = (d1(:,1) + d1(:,2))/2 ;
-    
-nfft = 2048;
-window = nfft * 4;
-noverlap = window - nfft;
-
-[s, f, t] = spectrogram (d1, window, noverlap);
-Y = abs(s);
-Y(Y==0) = 0.0000001;
-%
 basicParameter = [];
-basicParameter.sr = sr;
-basicParameter.nfft = nfft;
+basicParameter.sr = 22050;
+basicParameter.nfft = 512; %2048;
+basicParameter.window =  512;%basicParameter.nfft * 4;
+basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
 basicParameter.velMod = 12;
 basicParameter.noteLength = 2;
 basicParameter.noteSoundRatio = 0.7;
 basicParameter.attackLengthRatio = 0.07;
 basicParameter.attackLengthFrame = 3;
-basicParameter.beta = 1;
-basicParameter.window = window;
+basicParameter.beta = 1.5;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
-basicParameter.alpha = 0;
+basicParameter.alpha = 10;
+basicParameter.rankMode = 1; % rank1: 88, rank2: 176
+basicParameter.spectrumMode = 'linear'; % linear, power
+basicParameter.minNote = 21;
+basicParameter.maxNote = 108;
+basicParameter.weightOnAttack = true;
+basicParameter.Gfixed = true;
+basicParameter.searchRange = 4;
+basicParameter.scale = 'erbt';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
 
+basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, 0.25);
+
 %%
+
+Y = audio2spectrogram('pianoScale12Staccato2.mp3', basicParameter);
+
+%%
+
 [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
 
 sheetMatrix = midi2Matrix(basicParameter.MIDI, length(Y), basicParameter);
-
+sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
 
 % calculate Basis matrix
-[G, B] = basisNMFAnSpower(Y, sheetMatrix, basicParameter.beta);
+[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
 
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
 % fitting   
 xdata = linspace(10,120,basicParameter.velMod)'; %velocity saved in original midi file
 [fittingArray, errorByNote, ydata, nmatTest] = fittingByNoteAS(Gtest, xdata, basicParameter);
+%%
 
+[B, updatedG] = trainBasisFromFolder(basicParameter);
 
 %%
 basicParameter.fittingArray = trainFitFolder(B, basicParameter);
@@ -55,11 +62,9 @@ resultData.errorByNote = {};
 resultData.compareRefVel = {};
 %resultData.xSMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
 %resultData.ySMD = zeros(3000, basicParameter.maxNote - basicParameter.minNote + 1);
-%%
+%
 
 dataSet = getFileListWithExtension('*.mp3');
-basicParameter.attackLengthFrame = 4;
-basicParameter.alpha = 500;
 for i=1:length(dataSet)
     tic
     filename = char(dataSet(i));
@@ -71,7 +76,7 @@ for i=1:length(dataSet)
     %basicParameter.targetVelRange = 30; %
     %basicParameter.hopSize = 2048;
 
-    [Gx, midiVel, tempError, tempErrorByNote, tempCompare] = velocityExtractionAnSpowerTemporal(MP3Filename, MIDIFilename, B, basicParameter);
+    [Gx, midiVel, tempError, tempErrorByNote, tempCompare] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
 
     %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
     %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
@@ -83,8 +88,6 @@ for i=1:length(dataSet)
     resultData.compareRefVel{size(resultData.compareRefVel,2)+1} = tempCompare;
     resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
     resultData.error(:,size(resultData.error,2)+1) = tempError;
-
-    plot(Gx(127,:))
 end
 %%
 
