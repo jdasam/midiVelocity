@@ -16,7 +16,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         MIDIFilename = strcat(filename,'.mid');
         MP3Filename =  strcat(filename, '.mp3');
 
-        Xtemp = audio2spectrogram(MP3Filename, basicParmaeter);
+        Xtemp = audio2spectrogram(MP3Filename, basicParameter);
 
         Xtotal = horzcat(Xtotal, Xtemp);
 
@@ -54,6 +54,6 @@ elseif strcmp(basicParameter.scale, 'erbt')
     sheetMatrixTotalCopy = sheetMatrixTotal(21:end,:);
     sheetMatrixTotal = vertcat(sheetMatrixTotalCopy, sheetMatrixTotal(20,:));
     
-    [updatedG B] = erbtHarmclusNMF(Xtotal, sheetMatrixTotal, 250,f,alen, basicParameter);
+    [updatedG B] = erbtHarmclusNMF(Xtotal, sheetMatrixTotal, false, 250,f,alen, basicParameter, false);
 
 end

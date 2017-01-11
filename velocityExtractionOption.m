@@ -74,9 +74,9 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
 elseif strcmp(basicParameter.scale, 'erbt')
     Bcopy= B;
-    [Gx Bcopy] = erbtHarmclusNMF(X, Gx, Bcopy, 250,f,alen, basicParameter, true); 
+    [Gx Bcopy] = erbtHarmclusNMF(X, Gx, false , 250,f,alen, basicParameter, false); 
     
-    Gx = vercat(Gx(end,:),Gx);
+    Gx = vertcat(Gx(end,:),Gx);
     Gx(end,:) = [];
 end
 
@@ -120,7 +120,7 @@ end
 [error, errorPerNoteResult, refVelCompare] = calculateError(midiRef, midiVel);
 
 
-plot(betaDivVector)
+%plot(betaDivVector)
 
 
 

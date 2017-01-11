@@ -1,7 +1,7 @@
 basicParameter = [];
-basicParameter.sr = 22050;
-basicParameter.nfft = 512; %2048;
-basicParameter.window =  512;%basicParameter.nfft * 4;
+basicParameter.sr = 44100; %
+basicParameter.nfft = 2048; %2048, erbt 512;
+basicParameter.window =  8192; % basicParameter.nfft * 4, erbt 512;
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
 basicParameter.velMod = 12;
 basicParameter.noteLength = 2;
@@ -26,7 +26,7 @@ basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, bas
 
 %%
 
-Y = audio2spectrogram('pianoScale12Staccato2.mp3', basicParameter);
+Y = audio2spectrogram('pianoScale12Staccato2_443equal.mp3', basicParameter); %most simliart SMD: 443equal 
 
 %%
 
@@ -37,7 +37,7 @@ sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter)
 
 % calculate Basis matrix
 [G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
-
+B = betaNormC(B,1);
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
 % fitting   

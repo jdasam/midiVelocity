@@ -36,6 +36,7 @@ function [A U]= erbtHarmclusNMF(X, A, U, F,f,alen, basicParameter, uFixed)
     for n=1:nbnotes,
         clusfreq(cpos(n)+1:cpos(n)+nclus(n))=((.00437*partfreq(ppos(n)+1)*fs+1)*exp(clusspace/9.26*(0:nclus(n)-1))-1)/(.00437*fs);
     end
+    
     if ~uFixed
         V=zeros(F,nbclus);   %cluster spectra
         B=zeros(nbclus,nbcomp);  %cluster weights
@@ -56,6 +57,7 @@ function [A U]= erbtHarmclusNMF(X, A, U, F,f,alen, basicParameter, uFixed)
         end
         U = horzcat(U,ones(F,1));
     end
+    U(find(isnan(U)))=0;
     %%% Performing NMF updates %%%
     %A=ones(nbnotes*nbcomp,N);
     Y=U*A;
@@ -93,6 +95,7 @@ function [A U]= erbtHarmclusNMF(X, A, U, F,f,alen, basicParameter, uFixed)
                     B(cpos(n)+1:cpos(n)+nclus(n),:)=B(cpos(n)+1:cpos(n)+nclus(n),:).*(V(:,cpos(n)+1:cpos(n)+nclus(n)).'*XYA(:,(0:nbcomp-1)*nbnotes+n))./(V(:,cpos(n)+1:cpos(n)+nclus(n)).'*YA(:,(0:nbcomp-1)*nbnotes+n,:)+realmin);
                     U(:,(0:nbcomp-1)*nbnotes+n)=V(:,cpos(n)+1:cpos(n)+nclus(n))*B(cpos(n)+1:cpos(n)+nclus(n),:);
                 end
+                U(find(isnan(U)))=0;
                 Y=U*A;
                 switch beta
                     case 0,
