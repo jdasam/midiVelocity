@@ -96,7 +96,7 @@ for i=1:length(dataSet)
     resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 end
-%
+%%
 
 plot(Gx(29,:))
 hold on

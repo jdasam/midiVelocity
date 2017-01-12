@@ -27,6 +27,7 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
     end
           
     for i = 1 : length(nmat)
+        attMargin = basicParameter.attackLengthFrame - 1;  
         notePitch = nmat(i,4);
         onset = onsetTime2frame(nmat(i,6), basicParameter);
 
@@ -39,6 +40,11 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
         if offset > specLength
            offset = specLength; 
         end
+        
+        if onset+attMargin > offset
+            attMargin = offset-onset;
+        end
+        
        
 
         if basicParameter.rankMode == 2

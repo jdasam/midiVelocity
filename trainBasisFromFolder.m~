@@ -24,15 +24,13 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         nmat = readmidi_java(MIDIFilename, true);
         nmat(:,7) = nmat(:,6) + nmat(:,7);
 
-        sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, false, true);
-        sheetMatrixAttackTemp = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, true, false);
+        sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter);
+        sheetMatrixAttackTemp = midi2MatrixOption(nmat, size(Xtemp,
         sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
-        sheetMatrixAttack = horzcat(sheetMatrixAttack, sheetMatrixAttackTemp);
 
     end
 
-
-    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, 100, false, sheetMatrixAttack);
+    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, 100, false);
 
     
     
