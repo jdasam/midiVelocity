@@ -12,13 +12,13 @@ basicParameter.searchRange = 9;
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
-basicParameter.alpha = 10;
+basicParameter.alpha = 200;
 basicParameter.rankMode = 1; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1.5; 
 %basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
-basicParameter.weightOnAttack = false;
+basicParameter.weightOnAttack = true;
 basicParameter.Gfixed = true;
 basicParameter.scale = 'stft';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
@@ -34,7 +34,7 @@ Y = audio2spectrogram('pianoScale12Staccato2_443equal.mp3', basicParameter); %mo
 [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
 
 sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
-sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
+%sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
 
 %
 % calculate Basis matrix
@@ -72,10 +72,10 @@ resultData.compareRefVel = {};
 %
 
 dataSet = getFileListWithExtension('*.mp3');
-for i=1:1%length(dataSet)
+for i=1:length(dataSet)
     tic
-    %filename = char(dataSet(i));
-    filename = 'harmonicExampleVer2';
+    filename = char(dataSet(i));
+    %filename = 'harmonicExampleVer2';
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 

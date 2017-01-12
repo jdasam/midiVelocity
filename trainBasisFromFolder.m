@@ -28,7 +28,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
     end
 
-    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, 100);
+    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, 100, false);
 
     
     
