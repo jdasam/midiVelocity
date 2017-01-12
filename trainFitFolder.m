@@ -30,8 +30,8 @@ for j = 1:length(dataSet)
         dataIndex = min(find(ydataSMD(:,basisIndex-1)==0));
         gainTemp = max(Gx(basisIndex, index:indexEnd)); 
 
-        ydataSMD(dataIndex,basisIndex-basicParameter.minNote+1) = gainTemp;
-        xdataSMD(dataIndex,basisIndex-basicParameter.minNote+1) = midiRef(i,5);
+        ydataSMD(dataIndex,basisIndex-1) = gainTemp;
+        xdataSMD(dataIndex,basisIndex-1) = midiRef(i,5);
     end
 
 

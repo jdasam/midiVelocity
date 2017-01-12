@@ -4,19 +4,20 @@ basicParameter.sr = 44100; %
 basicParameter.nfft = 1024; %2048, erbt 512;
 basicParameter.window =  8192; % 8192, erbt 512;
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
-basicParameter.attackLengthFrame = 7;
-basicParameter.searchRange = 5;
+=basicParameter.attackLengthFrame = 9;
+basicParameter.searchRange = 11;
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
 basicParameter.alpha = 200;
-basicParameter.rankMode = 2; % rank1: 88, rank2: 176
+basicParameter.rankMode = 1; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1.3; 
 %basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
-basicParameter.weightOnAttack = false;
-basicParameter.Gfixed = false;
+basicParameter.weightOnAttack = true;
+basicParameter.Gfixed = true;
+basicParameter.scale = 'stft';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;
@@ -37,11 +38,11 @@ Y = audio2spectrogram('pianoScale12Staccato2_443equal.mp3', basicParameter); %mo
 [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
 
 sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
-%sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
+sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
 
 %
 % calculate Basis matrix
-[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 100, basicParameter.Gfixed);
+[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
 B = betaNormC(B,basicParameter.beta);
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
@@ -75,8 +76,8 @@ resultData.compareRefVel = {};
 dataSet = getFileListWithExtension('*.mp3');
 for i=1:1%length(dataSet)
     tic
-    %filename = char(dataSet(i));
-    filename = 'harmonicExampleVer2';
+    filename = char(dataSet(i));
+    %filename = 'harmonicExampleVer2';
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
@@ -98,7 +99,7 @@ for i=1:1%length(dataSet)
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 end
 
-%
+%%
 
 plot(Gx(29,:))
 hold on

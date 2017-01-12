@@ -53,7 +53,11 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
         end
         
         if weightOnAttack
-            sheetMatrix(basisIndex, onset:onset+attMargin*2) = weightMatrix;
+            if onset+attMargin*2>offset
+                sheetMatrix(basisIndex, onset:offset) = weightMatrix(1:offset-onset+1);
+            else
+                sheetMatrix(basisIndex, onset:onset+attMargin*2) = weightMatrix;
+            end
         end
         
         %sheetMatrix (notePitch, onset+1:onset+4) = 2 ^ (nmat(i,5)/15);

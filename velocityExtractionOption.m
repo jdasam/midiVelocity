@@ -94,8 +94,8 @@ for i = 1:length(midiVel)
 
     gainCalculated = max(Gx(basisIndex, index:indexEnd));
     
-    coefA = fittingArray(1, basisIndex-basicParameter.minNote+1);
-    coefB = fittingArray(2, basisIndex-basicParameter.minNote+1);
+    coefA = fittingArray(1, basisIndex-1);
+    coefB = fittingArray(2, basisIndex-1);
 
     midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA) ; 
     midiVelNorm(i) = log(gainCalculated);
