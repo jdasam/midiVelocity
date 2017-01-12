@@ -1,25 +1,26 @@
 basicParameter = [];
 basicParameter.sr = 44100; %
-basicParameter.nfft = 2048; %2048, erbt 512;
+basicParameter.nfft = 1024; %2048, erbt 512;
 basicParameter.window =  8192; % basicParameter.nfft * 4, erbt 512;
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
 basicParameter.velMod = 12;
 basicParameter.noteLength = 2;
 basicParameter.noteSoundRatio = 0.7;
 basicParameter.attackLengthRatio = 0.07;
-basicParameter.attackLengthFrame = 3;
-basicParameter.beta = 1.5;
+basicParameter.attackLengthFrame = 5;
+basicParameter.searchRange = 8;
+basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
 basicParameter.alpha = 10;
 basicParameter.rankMode = 1; % rank1: 88, rank2: 176
-basicParameter.spectrumMode = 'linear'; % linear, power
+basicParameter.spectrumMode = 1.5; 
+%basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
-basicParameter.weightOnAttack = true;
+basicParameter.weightOnAttack = false;
 basicParameter.Gfixed = true;
-basicParameter.searchRange = 4;
-basicParameter.scale = 'erbt';  % midi, erbt, stft
+basicParameter.scale = 'stft';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
 
 basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, 0.25);
@@ -32,12 +33,13 @@ Y = audio2spectrogram('pianoScale12Staccato2_443equal.mp3', basicParameter); %mo
 
 [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
 
-sheetMatrix = midi2Matrix(basicParameter.MIDI, length(Y), basicParameter);
-sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
+sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
+%sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
 
+%
 % calculate Basis matrix
-[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
-B = betaNormC(B,1);
+[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 100, basicParameter.Gfixed);
+B = betaNormC(B,basicParameter.beta);
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
 % fitting   
@@ -65,10 +67,10 @@ resultData.compareRefVel = {};
 %
 
 dataSet = getFileListWithExtension('*.mp3');
-for i=1:length(dataSet)
+for i=1:1%length(dataSet)
     tic
-    filename = char(dataSet(i));
-    %filename = 'Skryabin_Op008No8_003_20090916-SMD';
+    %filename = char(dataSet(i));
+    filename = 'harmonicExampleVer2';
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
@@ -89,6 +91,17 @@ for i=1:length(dataSet)
     resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 end
+%
+plot(Gx(56,:))
+hold on
+plot(Gx(80,:))
+plot(Gx(94,:))
+plot(Gx(104,:))
+%plot(Gx(112,:))
+hold off
+
+
+[Gx(80,30), Gx(80,192), Gx(80,265), Gx(80,353)]
 %%
 
 

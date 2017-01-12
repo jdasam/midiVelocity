@@ -32,11 +32,13 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
 
     Bcopy = B;
-    if strcmp(basicParameter.spectrumMode, 'linear')
-       Xhat = Bcopy * Gx;
-    elseif strcmp(basicParameter.spectrumMode, 'power')
-       Xhat = sqrt(Bcopy.^2 * Gx.^2);
-    end
+    Xhat = (Bcopy.^basicParameter.spectrumMode * Gx.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
+
+%     if strcmp(basicParameter.spectrumMode, 'linear')
+%        Xhat = Bcopy * Gx;
+%     elseif strcmp(basicParameter.spectrumMode, 'power')
+%        Xhat = sqrt(Bcopy.^2 * Gx.^2);
+%     end
 
     betaDivVector = zeros(50);
 
@@ -46,7 +48,10 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
 
     for i = 1:50
-
+        Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
+        Bcopy = betaNormC(Bcopy,basicParameter.beta);
+        Bcopy(find(isnan(Bcopy)))=0;
+        
         %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
         if basicParameter.rankMode == 1
             Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
@@ -55,6 +60,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         end
         Gx(find(isnan(Gx)))=0;
 
+        Xhat = (Bcopy.^basicParameter.spectrumMode * Gx.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
 
         %Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
         %Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* (Xhat.^2 .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * (Xhat.^2 .^ (basicParameter.beta-1))));
@@ -62,11 +68,11 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         %Bcopy = betaNormC(Bcopy,basicParameter.beta);
         %Bcopy(find(isnan(Bcopy)))=0;
 
-        if strcmp(basicParameter.spectrumMode, 'linear')
-           Xhat = Bcopy * Gx;
-        elseif strcmp(basicParameter.spectrumMode, 'power')
-           Xhat = sqrt(Bcopy.^2 * Gx.^2);
-        end
+%         if strcmp(basicParameter.spectrumMode, 'linear')
+%            Xhat = Bcopy * Gx;
+%         elseif strcmp(basicParameter.spectrumMode, 'power')
+%            Xhat = sqrt(Bcopy.^2 * Gx.^2);
+%         end
         %Xhat = Bcopy * Gx;
         %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
         %betaDivVector(i) = betaDivergence;
