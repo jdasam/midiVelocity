@@ -18,7 +18,7 @@ function updatedG = updateGwithForcedSustain(G, X, Bcopy, Xhat, beta, alpha, Att
     
     T = size(G,2);
     %sigma = sum(G.^4,2) / T;
-    sigma = sum(G.^2,2) / T;
+    sigma = sum( (G.*-Attack).^2,2) / T;
     %tempCostByRow = sum(differenceA.^2 .* differenceB.^2 .* boolMat, 2);
     tempCostByRow = sum(differenceA.^2 .* boolMat, 2);
 

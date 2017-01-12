@@ -13,6 +13,7 @@ fittingArray = basicParameter.fittingArray;
 % Rewrite MIDI with fixed times
 midiRef = readmidi_java(MIDIFilename,true);
 midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
+basicParameter.MIDI = midiRef;
 
 sheetMatrixMidi = midi2MatrixOption(midiRef, size(X,2), basicParameter, false, basicParameter.weightOnAttack);
 
@@ -42,31 +43,33 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
     betaDivVector = zeros(50);
 
-    Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-    Bcopy = betaNormC(Bcopy,basicParameter.beta);
-    Bcopy(find(isnan(Bcopy)))=0;
-
+%     Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
+%     Bcopy = betaNormC(Bcopy,basicParameter.beta);
+%     Bcopy(find(isnan(Bcopy)))=0;
+% 
 
     for i = 1:50
-        Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-        Bcopy = betaNormC(Bcopy,basicParameter.beta);
-        Bcopy(find(isnan(Bcopy)))=0;
-        
-        %Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-        if basicParameter.rankMode == 1
-            Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
-        elseif basicParameter.rankMode == 2
-            Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter.beta, basicParameter.alpha);
-        end
+
+        Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter);
         Gx(find(isnan(Gx)))=0;
+
+%         
+%         Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
+%         Bcopy = betaNormC(Bcopy,basicParameter.beta);
+%         Bcopy(find(isnan(Bcopy)))=0;
+        
+        %         if basicParameter.rankMode == 1
+%             Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
+%         elseif basicParameter.rankMode == 2
+%             Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter);
+%         end
 
         Xhat = (Bcopy.^basicParameter.spectrumMode * Gx.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
 
         %Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
         %Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* (Xhat.^2 .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * (Xhat.^2 .^ (basicParameter.beta-1))));
         %Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
-        %Bcopy = betaNormC(Bcopy,basicParameter.beta);
-        %Bcopy(find(isnan(Bcopy)))=0;
+
 
 %         if strcmp(basicParameter.spectrumMode, 'linear')
 %            Xhat = Bcopy * Gx;
