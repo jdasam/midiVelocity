@@ -7,31 +7,19 @@ basicParameter.velMod = 12;
 basicParameter.noteLength = 2;
 basicParameter.noteSoundRatio = 0.7;
 basicParameter.attackLengthRatio = 0.07;
-basicParameter.attackLengthFrame = 7;
-<<<<<<< Updated upstream
-basicParameter.searchRange = 8;
-=======
+basicParameter.attackLengthFrame = 8;
 basicParameter.searchRange = 9;
->>>>>>> Stashed changes
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
-basicParameter.alpha = 10;
-basicParameter.rankMode = 1; % rank1: 88, rank2: 176
-<<<<<<< Updated upstream
+basicParameter.alpha = 200;
+basicParameter.rankMode = 2; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1.5; 
 %basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
-basicParameter.weightOnAttack = false;
-=======
-basicParameter.spectrumMode = 2; 
-%basicParameter.spectrumMode = 'linear'; % linear, power
-basicParameter.minNote = 21;
-basicParameter.maxNote = 108;
 basicParameter.weightOnAttack = true;
->>>>>>> Stashed changes
-basicParameter.Gfixed = true;
+basicParameter.Gfixed = false;
 basicParameter.scale = 'stft';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
 
@@ -46,19 +34,11 @@ Y = audio2spectrogram('pianoScale12Staccato2_443equal.mp3', basicParameter); %mo
 [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
 
 sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
-<<<<<<< Updated upstream
-=======
 %sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
->>>>>>> Stashed changes
-sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
 
 %
 % calculate Basis matrix
-<<<<<<< Updated upstream
-[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
-=======
 [G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 100, basicParameter.Gfixed);
->>>>>>> Stashed changes
 B = betaNormC(B,basicParameter.beta);
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
@@ -75,14 +55,11 @@ basicParameter.fittingArray = trainFitFolder(B, basicParameter);
 
 
 %% 
-<<<<<<< Updated upstream
-basicParameter.spectrumMode = 1.5;
-basicParameter.alpha = 200;
+basicParameter.spectrumMode = 1;
+basicParameter.alpha = 100000;
 basicParameter.weightOnAttack = true;
 
 
-=======
->>>>>>> Stashed changes
 resultData = [];
 resultData.title = {};
 resultData.drParameter = [];
@@ -95,17 +72,10 @@ resultData.compareRefVel = {};
 %
 
 dataSet = getFileListWithExtension('*.mp3');
-<<<<<<< Updated upstream
 for i=1:1%length(dataSet)
     tic
     %filename = char(dataSet(i));
     filename = 'harmonicExampleVer2';
-=======
-for i=1:length(dataSet)
-    tic
-    filename = char(dataSet(i));
-    %filename = 'harmonicExampleVer2';
->>>>>>> Stashed changes
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
@@ -127,7 +97,14 @@ for i=1:length(dataSet)
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 end
 %
-<<<<<<< Updated upstream
+plot(Gx(56,:))
+hold on
+plot(Gx(80,:))
+plot(Gx(94,:))
+plot(Gx(104,:))
+%plot(Gx(112,:))
+hold off
+%%
 
 plot(Gx(29,:))
 hold on
@@ -139,21 +116,9 @@ hold off
 [Gx(29,385), Gx(29,548), Gx(29,644)]
 
 %%
-=======
->>>>>>> Stashed changes
-plot(Gx(56,:))
-hold on
-plot(Gx(80,:))
-plot(Gx(94,:))
-plot(Gx(104,:))
-%plot(Gx(112,:))
-hold off
 
 
-<<<<<<< Updated upstream
-=======
-[Gx(80,30), Gx(80,192), Gx(80,265), Gx(80,353)]
->>>>>>> Stashed changes
+
 %%
 
 

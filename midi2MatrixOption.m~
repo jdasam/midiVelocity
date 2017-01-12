@@ -19,14 +19,14 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
 
     
     if basicParameter.rankMode == 2 % Two basis per Key, Attack and Sustain
-        sheetMatrix = zeros( (maxNote - minNote + 1) *2 + 1, specLength);
+        sheetMatrix = zeros(maxNote * 2 - minNote + 1, specLength);
     else % One basis per key
-        sheetMatrix = zeros(maxNote-minNote + 2, specLength);
+        sheetMatrix = zeros(maxNote, specLength);
     end
           
     for i = 1 : length(nmat)
         attMargin = basicParameter.attackLengthFrame - 1;  
-        basisIndex = nmat(i,4) - minNote + 2;
+        notePitch = nmat(i,4);
         onset = onsetTime2frame(nmat(i,6), basicParameter);
 
         if attackOnly
@@ -46,14 +46,31 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
        
 
         if basicParameter.rankMode == 2
-            sheetMatrix(basisIndex, onset:offset) = 1;
-            sheetMatrix(basisIndex + (maxNote - minNote +1) , onset:onset+attMargin) = 1;
+            sheetMatrix(notePitch * 2 - minNote, onset:offset) = 1;
+            sheetMatrix(notePitch * 2 - minNote + 1, onset:onset+attMargin) = 1;
         else
-            sheetMatrix(basisIndex, onset:offset) = 1;
+            sheetMatrix(notePitch, onset:offset) = 1;
         end
         
         if weightOnAttack
-            sheetMatrix(basisIndex, onset:onset+attMargin*2) = weightMatrix;
+            if basicParameter.rankMode == 2
+                sheetMatrix(notePitch * 2 - minNote, onset:onset+attMargin*2) = weightMatrix;
+%                 if onset > attMargin
+%                     sheetMatrix(notePitch * 2 - minNote, onset-attMargin:onset+attMargin) = weightMatrix;
+%                     sheetMatrix(notePitch * 2 - minNote + 1, onset-attMargin:onset+attMargin) = weightMatrix;
+% 
+%                 else
+%                     sheetMatrix(notePitch * 2 - minNote, onset:onset+attMargin) = weightMatrix(attMargin+1:end);
+%                 end
+            else
+                sheetMatrix(notePitch, onset:onset+attMargin*2) = weightMatrix;
+%                 if onset > attMargin
+%                     sheetMatrix(notePitch, onset-attMargin:onset+attMargin) = weightMatrix;
+%                 else
+%                     sheetMatrix(notePitch, onset:onset+attMargin) = weightMatrix(attMargin+1:end);
+%                 end
+            end
+
         end
         
         %sheetMatrix (notePitch, onset+1:onset+4) = 2 ^ (nmat(i,5)/15);
@@ -63,7 +80,7 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
     % if there is no note in the column, fill it with noise basis
     for j = 1 :size(sheetMatrix,2)
         if sum(sheetMatrix(:,j)) == 0
-            sheetMatrix(1, j) = 1;
+            sheetMatrix(minNote-1, j) = 1;
         end
     end
 

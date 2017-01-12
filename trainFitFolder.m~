@@ -17,7 +17,7 @@ for j = 1:length(dataSet)
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
 
     for i = 1 : length(midiRef)
-        basisIndex = midiRef(i,4) - basicParameter.minNote +2;
+        pitch = midiRef(i,4) - basicParameter.minNote +2;
         index = onsetTime2frame(midiRef(i,6), basicParameter);
         
         indexEnd = index + basicParameter.searchRange;
@@ -27,11 +27,11 @@ for j = 1:length(dataSet)
         
         %index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
         
-        dataIndex = min(find(ydataSMD(:,basisIndex-1)==0));
-        gainTemp = max(Gx(basisIndex, index:indexEnd)); 
+        dataIndex = min(find(ydataSMD(:,pitch-basicParameter.minNote+1)==0));
+        gainTemp = max(Gx(pitch, index:indexEnd)); 
 
-        ydataSMD(dataIndex,basisIndex-basicParameter.minNote+1) = gainTemp;
-        xdataSMD(dataIndex,basisIndex-basicParameter.minNote+1) = midiRef(i,5);
+        ydataSMD(dataIndex,pitch-basicParameter.minNote+1) = gainTemp;
+        xdataSMD(dataIndex,pitch-basicParameter.minNote+1) = midiRef(i,5);
     end
 
 

@@ -13,13 +13,13 @@ basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
 basicParameter.alpha = 200;
-basicParameter.rankMode = 1; % rank1: 88, rank2: 176
+basicParameter.rankMode = 2; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1.5; 
 %basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
 basicParameter.weightOnAttack = true;
-basicParameter.Gfixed = true;
+basicParameter.Gfixed = false;
 basicParameter.scale = 'stft';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
 
@@ -38,7 +38,7 @@ sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
 
 %
 % calculate Basis matrix
-[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
+[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 100, basicParameter.Gfixed);
 B = betaNormC(B,basicParameter.beta);
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
@@ -55,8 +55,8 @@ basicParameter.fittingArray = trainFitFolder(B, basicParameter);
 
 
 %% 
-basicParameter.spectrumMode = 1.5;
-basicParameter.alpha = 200;
+basicParameter.spectrumMode = 1;
+basicParameter.alpha = 0;
 basicParameter.weightOnAttack = true;
 
 
@@ -72,10 +72,10 @@ resultData.compareRefVel = {};
 %
 
 dataSet = getFileListWithExtension('*.mp3');
-for i=1:length(dataSet)
+for i=1:1%length(dataSet)
     tic
-    filename = char(dataSet(i));
-    %filename = 'harmonicExampleVer2';
+    %filename = char(dataSet(i));
+    filename = 'harmonicExampleVer2';
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
@@ -96,7 +96,8 @@ for i=1:length(dataSet)
     resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 end
-%%
+
+%
 
 plot(Gx(29,:))
 hold on
@@ -106,18 +107,6 @@ plot(Gx(53,:))
 hold off
 [Gx(41,30), Gx(41,192), Gx(41,265), Gx(41,353), Gx(41,547), Gx(41, 644)]
 [Gx(29,385), Gx(29,548), Gx(29,644)]
-
-%%
-plot(Gx(56,:))
-hold on
-plot(Gx(80,:))
-plot(Gx(94,:))
-plot(Gx(104,:))
-%plot(Gx(112,:))
-hold off
-
-
-%%
 
 
 %%

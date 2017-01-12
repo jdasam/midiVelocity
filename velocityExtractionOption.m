@@ -20,7 +20,7 @@ sheetMatrixMidi = midi2MatrixOption(midiRef, size(X,2), basicParameter, false, b
 
 % Calculate Gx
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
-    Gx = sheetMatrixMidi(basicParameter.minNote-1:size(sheetMatrixMidi,1),:);
+    Gx = sheetMatrixMidi;
 
 elseif strcmp(basicParameter.scale, 'erbt')
     sheetMatrixTotalCopy = sheetMatrixMidi(basicParameter.minNote:end,:);
@@ -64,12 +64,6 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         %Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* (Xhat.^2 .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * (Xhat.^2 .^ (basicParameter.beta-1))));
         %Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
 
-
-        if strcmp(basicParameter.spectrumMode, 'linear')
-           Xhat = Bcopy * Gx;
-        elseif strcmp(basicParameter.spectrumMode, 'power')
-           Xhat = sqrt(Bcopy.^2 * Gx.^2);
-        end
         %Xhat = Bcopy * Gx;
         %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
         %betaDivVector(i) = betaDivergence;
@@ -90,7 +84,7 @@ midiVel = readmidi_java(MIDIFilename,true);
 
 for i = 1:length(midiVel)
     
-    pitch = midiVel(i,4);
+    basisIndex = midiVel(i,4) - basicParameter.minNote +2;
     
     index = onsetTime2frame(midiVel(i,6),basicParameter);
     indexEnd = index + basicParameter.searchRange;
@@ -98,16 +92,10 @@ for i = 1:length(midiVel)
         indexEnd = size(Gx,2);
     end
 
+    gainCalculated = max(Gx(basisIndex, index:indexEnd));
     
-    if basicParameter.rankMode == 1
-        gainCalculated = max(Gx(2 + pitch - basicParameter.minNote, index:indexEnd));
-    elseif basicParameter.rankMode == 2
-        gainCalculated = max(Gx(2 + (pitch - basicParameter.minNote) * 2,index:indexEnd));
-    end
-    
-    
-    coefA = fittingArray(1, pitch-basicParameter.minNote+1);
-    coefB = fittingArray(2, pitch-basicParameter.minNote+1);
+    coefA = fittingArray(1, basisIndex-basicParameter.minNote+1);
+    coefB = fittingArray(2, basisIndex-basicParameter.minNote+1);
 
     midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA) ; 
     midiVelNorm(i) = log(gainCalculated);

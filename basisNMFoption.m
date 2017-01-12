@@ -1,4 +1,4 @@
-function [G B] = basisNMFoption(X, sheetMatrix, basicParameter, iteration, Gfixed, attackMatrix)
+function [G B] = basisNMFoption(X, G, basicParameter, iteration, Gfixed, attackMatrix)
 
 if nargin < 6
     attackMatrix = false;
@@ -7,7 +7,6 @@ end
 beta = basicParameter.beta;
 betaDivVector =[];
 
-G = sheetMatrix(basicParameter.minNote-1:end,:);
 B = rand(size(X,1), size(G,1));
 
 Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
