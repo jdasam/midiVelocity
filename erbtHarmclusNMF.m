@@ -60,7 +60,7 @@ function [A U]= erbtHarmclusNMF(X, A, U, F,f,alen, basicParameter, uFixed)
     U(find(isnan(U)))=0;
     %%% Performing NMF updates %%%
     %A=ones(nbnotes*nbcomp,N);
-    Y=U*A;
+    Y= (U.^basicParameter.spectrumMode * A.^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode);
     gconverged=0; dist=inf;
     while ~gconverged,
         gprevdist=dist;
@@ -68,9 +68,13 @@ function [A U]= erbtHarmclusNMF(X, A, U, F,f,alen, basicParameter, uFixed)
         lconverged=0;
         while ~lconverged,
             lprevdist=dist;
-            A=A.*(U.'*(X.*Y.^(beta-2)))./(U.'*(Y.^(beta-1)));
+            tempA=vertcat(A(89,:),A(1:88,:));
+            tempU=horzcat(U(:,89),U(:,1:88));
+            tempA = updateGwithTempoPartial(tempA, X, tempU, Y, basicParameter);
+            A = vertcat(tempA(2:89,:),tempA(1,:));
+            %A=A.*(U.'*(X.*Y.^(beta-2)))./(U.'*(Y.^(beta-1)));
             A(find(isnan(A))) = 0;
-            Y=U*A;
+            Y= (U.^basicParameter.spectrumMode * A.^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode);
             switch beta
                 case 0,
                     dist=sum(sum(X./Y-log(X./Y)-1));
@@ -96,7 +100,7 @@ function [A U]= erbtHarmclusNMF(X, A, U, F,f,alen, basicParameter, uFixed)
                     U(:,(0:nbcomp-1)*nbnotes+n)=V(:,cpos(n)+1:cpos(n)+nclus(n))*B(cpos(n)+1:cpos(n)+nclus(n),:);
                 end
                 U(find(isnan(U)))=0;
-                Y=U*A;
+                Y= (U.^basicParameter.spectrumMode * A.^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode);
                 switch beta
                     case 0,
                         dist=sum(sum(X./Y-log(X./Y)-1));

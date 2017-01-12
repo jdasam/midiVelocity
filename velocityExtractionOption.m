@@ -23,8 +23,8 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     Gx = sheetMatrixMidi;
 
 elseif strcmp(basicParameter.scale, 'erbt')
-    sheetMatrixTotalCopy = sheetMatrixMidi(basicParameter.minNote:end,:);
-    Gx = vertcat(sheetMatrixTotalCopy, sheetMatrixMidi(basicParameter.minNote-1,:));
+    sheetMatrixTotalCopy = sheetMatrixMidi(2:end,:);
+    Gx = vertcat(sheetMatrixTotalCopy, sheetMatrixMidi(1,:));
 end
 
 

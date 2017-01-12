@@ -1,27 +1,30 @@
 basicParameter = [];
+basicParameter.scale = 'erbt';  % midi, erbt, stft
 basicParameter.sr = 44100; %
 basicParameter.nfft = 1024; %2048, erbt 512;
-basicParameter.window =  8192; % basicParameter.nfft * 4, erbt 512;
+basicParameter.window =  8192; % 8192, erbt 512;
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
-basicParameter.velMod = 12;
-basicParameter.noteLength = 2;
-basicParameter.noteSoundRatio = 0.7;
-basicParameter.attackLengthRatio = 0.07;
-basicParameter.attackLengthFrame = 8;
-basicParameter.searchRange = 9;
+basicParameter.attackLengthFrame = 7;
+basicParameter.searchRange = 5;
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
 basicParameter.alpha = 200;
 basicParameter.rankMode = 2; % rank1: 88, rank2: 176
-basicParameter.spectrumMode = 1.5; 
+basicParameter.spectrumMode = 1.3; 
 %basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
-basicParameter.weightOnAttack = true;
+basicParameter.weightOnAttack = false;
 basicParameter.Gfixed = false;
-basicParameter.scale = 'stft';  % midi, erbt, stft
 %basicParameter.hopSize = nfft;
+if strcmp(basicParameter.scale, 'erbt')
+    basicParameter.weightOnAttack = false;
+    basicParameter.rankMode = 1;
+    basicParameter.sr=22050;
+    basicParameter.nfft = 512; 
+    basicParameter.window =  512;
+end
 
 basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, 0.25);
 
@@ -55,10 +58,8 @@ basicParameter.fittingArray = trainFitFolder(B, basicParameter);
 
 
 %% 
-basicParameter.spectrumMode = 1;
-basicParameter.alpha = 0;
-basicParameter.weightOnAttack = true;
-
+basicParamter.spectrumMode = 1;
+basicParameter.alpha=0;
 
 resultData = [];
 resultData.title = {};
@@ -105,8 +106,8 @@ plot(Gx(41,:))
 plot(Gx(48,:))
 plot(Gx(53,:))
 hold off
-[Gx(41,30), Gx(41,192), Gx(41,265), Gx(41,353), Gx(41,547), Gx(41, 644)]
-[Gx(29,385), Gx(29,548), Gx(29,644)]
+% [Gx(41,30), Gx(41,192), Gx(41,265), Gx(41,353), Gx(41,547), Gx(41, 644)]
+% [Gx(29,385), Gx(29,548), Gx(29,644)]
 
 
 %%
