@@ -4,7 +4,7 @@ function onsetFrame = onsetTime2frame(time, basicParameter)
     if sampleIndex < basicParameter.window
         onsetFrame = 1;
     else
-        onsetFrame = ceil( ( sampleIndex - basicParameter.window )/ basicParameter.nfft) + 1;
+        onsetFrame = ceil( ( sampleIndex - basicParameter.window )/ basicParameter.nfft) + basicParameter.onsetFine;
     end
 
 

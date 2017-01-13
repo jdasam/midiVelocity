@@ -37,36 +37,20 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     
     betaDivVector = zeros(50);
 
-%     Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-%     Bcopy = betaNormC(Bcopy,basicParameter.beta);
-%     Bcopy(find(isnan(Bcopy)))=0;
-% 
 
     for i = 1:50
 
         Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter);
         Gx(find(isnan(Gx)))=0;
-
-%         
-%         Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
-%         Bcopy = betaNormC(Bcopy,basicParameter.beta);
-%         Bcopy(find(isnan(Bcopy)))=0;
         
-        %         if basicParameter.rankMode == 1
-%             Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
-%         elseif basicParameter.rankMode == 2
-%             Gx = updateGwithTempoPartial(Gx, X, Bcopy, Xhat, basicParameter);
-%         end
+        if i < basicParameter.updateBnumber
+            Bcopy = Bcopy .* ((X .* (Xhat .^(basicParameter.beta-2) ) * Gx') ./ ((Xhat .^ (basicParameter.beta-1)) * Gx'));
+            Bcopy = betaNormC(Bcopy,basicParameter.beta);
+            Bcopy(find(isnan(Bcopy)))=0;            
+        end
 
         Xhat = (Bcopy.^basicParameter.spectrumMode * Gx.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
 
-        %Gx = Gx .* ( Bcopy' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (Bcopy' * (Xhat .^ (basicParameter.beta-1))  ));
-        %Gx = Gx .* ( Bcopy'.^2 * (X.^2 .* (Xhat.^2 .^(basicParameter.beta-2) )) ./ (Bcopy.^2 * (Xhat.^2 .^ (basicParameter.beta-1))));
-        %Gx = Gx .* sqrt ( (Bcopy'.^2 * (X .* (Xhat .^ -2))) ./ (Bcopy'.^2 * Xhat .^ 0));
-
-        %Xhat = Bcopy * Gx;
-        %betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
-        %betaDivVector(i) = betaDivergence;
     end
 
 elseif strcmp(basicParameter.scale, 'erbt')

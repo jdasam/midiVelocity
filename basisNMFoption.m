@@ -1,11 +1,13 @@
 function [G B] = basisNMFoption(X, G, basicParameter, iteration, Gfixed, attackMatrix)
 
+alphaSave = basicParameter.alpha;
+basicParameter.alpha = 0;
+
 if nargin < 6
     attackMatrix = false;
 end
 
 beta = basicParameter.beta;
-betaDivVector =[];
 
 B = rand(size(X,1), size(G,1));
 
@@ -15,7 +17,6 @@ Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/b
 % elseif strcmp(basicParameter.spectrumMode, 'power')
 %     Yhat = sqrt(B.^2 * G.^2);
 % end
-betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(X, Xhat, beta);
 
 %[B, G, cost] = beta_nmf_H(Y, beta, 10, B, G);
 
@@ -26,9 +27,7 @@ for i = 1:iteration
     
     
     if Gfixed
-        if basicParameter.rankMode == 2
-            
-        end
+
     else
         B = betaNormC(B,beta); 
         B(find(isnan(B)))=0;
@@ -50,7 +49,7 @@ for i = 1:iteration
     %betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(Y, Yhat, beta);
 end  
 
-figure();
-plot(betaDivVector);
+basicParameter.alpha = alphaSave;
+
 
 end

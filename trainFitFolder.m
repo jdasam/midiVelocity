@@ -27,7 +27,7 @@ fittingArray = zeros(2,88);
 for i = 1: 88
     if max(find(xdata(:,i))) > 5
         dataSize = min(find(xdata(:,i)==0)) -1;
-        [lassoAll, stats] = lasso(xdata(1:max(find(xdata(:,i))),i), log(ydata(1:max(find(xdata(:,i))),i)), 'CV', 10);
+        [lassoAll, stats] = lasso(xdata(1:max(find(xdata(:,i))),i), log(ydata(1:max(find(xdata(:,i))),i)), 'CV', 5);
         fittingArray(:, i) = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
     end
 end
