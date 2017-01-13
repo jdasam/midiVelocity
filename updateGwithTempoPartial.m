@@ -11,9 +11,7 @@ function updatedG = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, tempA
             tempAttackMatrix = midi2MatrixOption(basicParameter.MIDI, size(X,2), basicParameter, true, false);
         end
         updatedG = updateGwithTempoExceptAttack(G,X,B,Xhat,beta,alpha,tempAttackMatrix);
-        %updatedG = updateGwithForcedSustain(G,X,B,Xhat,beta,alpha,tempAttackMatrix(20:108,:));
-        
-        
+     
     elseif basicParameter.rankMode == 2
     
         tempG1 = G(1:89,:);

@@ -1,4 +1,4 @@
-[d1,sr] = audioread('pianoScale12staccato2.mp3');
+[d1,sr] = audioread('pianoScale12staccato2_440stretch.mp3');
 d1 = (d1(:,1) + d1(:,2))/2 ;
     
 nfft = 2048;

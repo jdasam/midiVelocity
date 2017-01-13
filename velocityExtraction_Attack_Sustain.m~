@@ -1,41 +1,22 @@
 basicParameter = [];
-basicParameter.scale = 'erbt';  % midi, erbt, stft
+basicParameter.scale = 'stft';  % midi, erbt, stft
 basicParameter.sr = 44100; %
 basicParameter.nfft = 1024; %2048, erbt 512;
 basicParameter.window =  8192; % 8192, erbt 512;
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
-<<<<<<< Updated upstream
 basicParameter.attackLengthFrame = 7;
-basicParameter.searchRange = 5;
-=======
-basicParameter.velMod = 12;
-basicParameter.noteLength = 2;
-basicParameter.noteSoundRatio = 0.7;
-basicParameter.attackLengthRatio = 0.07;
-basicParameter.attackLengthFrame = 9;
-basicParameter.searchRange = 11;
->>>>>>> Stashed changes
+basicParameter.searchRange = 13;
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.fittingArray = zeros(2,88);
-basicParameter.alpha = 200;
-<<<<<<< Updated upstream
+basicParameter.alpha = 0;
 basicParameter.rankMode = 2; % rank1: 88, rank2: 176
-=======
-basicParameter.rankMode = 1; % rank1: 88, rank2: 176
->>>>>>> Stashed changes
-basicParameter.spectrumMode = 1.3; 
+basicParameter.spectrumMode = 1; 
 %basicParameter.spectrumMode = 'linear'; % linear, power
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
-<<<<<<< Updated upstream
-basicParameter.weightOnAttack = false;
-basicParameter.Gfixed = false;
-=======
 basicParameter.weightOnAttack = true;
 basicParameter.Gfixed = true;
-basicParameter.scale = 'stft';  % midi, erbt, stft
->>>>>>> Stashed changes
 %basicParameter.hopSize = nfft;
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;
@@ -49,7 +30,7 @@ basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, bas
 
 %%
 
-Y = audio2spectrogram('pianoScale12Staccato2_443equal.mp3', basicParameter); %most simliart SMD: 443equal 
+Y = audio2spectrogram('pianoScale12Staccato2_440stretch.mp3', basicParameter); %most simliart SMD: 443equal 
 
 %%
 
@@ -60,7 +41,7 @@ sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter)
 
 %
 % calculate Basis matrix
-[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 5, basicParameter.Gfixed);
+[G, B] = basisNMFoption(Y, sheetMatrix, basicParameter, 100, basicParameter.Gfixed);
 B = betaNormC(B,basicParameter.beta);
 %% Test backward
 [sheetMatrixTest, Gtest, Bcopy] = makeSheetMatrixTestAnS(sheetMatrix,Y, B, basicParameter);
@@ -77,21 +58,14 @@ basicParameter.fittingArray = trainFitFolder(B, basicParameter);
 
 
 %% 
-<<<<<<< Updated upstream
-basicParamter.spectrumMode = 1;
-basicParameter.alpha=0;
-=======
-basicParameter.spectrumMode = 2;
-basicParameter.alpha = 0;
-basicParameter.weightOnAttack = true;
-basicParameter.attackLengthFrame=8;
-basicParameter.searchRange = 11;
-
->>>>>>> Stashed changes
+% basicParameter.alpha = 0;
+% basicParameter.weightOnAttack=true;
+% basicParameter.attackLengthFrame = 9;
+% basicParameter.searchRange = 13;
 
 resultData = [];
 resultData.title = {};
-resultData.drParameter = [];
+resultData.drParameter = [];    
 resultData.error = [];
 resultData.velTruth = [];
 resultData.errorByNote = {};
@@ -101,10 +75,10 @@ resultData.compareRefVel = {};
 %
 
 dataSet = getFileListWithExtension('*.mp3');
-for i=1:1%length(dataSet)
+for i=1:length(dataSet)
     tic
     filename = char(dataSet(i));
-    %filename = 'harmonicExampleVer2';
+    %filename = 'Rachmaninov_Op039No1_002_20090916-SMD';
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
@@ -112,7 +86,7 @@ for i=1:1%length(dataSet)
     %basicParameter.targetVelRange = 30; %
     %basicParameter.hopSize = 2048;
 
-    [Gx, midiVel, tempError, tempErrorByNote, tempCompare] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
+    [Gx, midiVel, tempError, tempErrorByNote, tempCompare, maxIndexVector] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
 
     %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionModified(MP3Filename, MIDIFilename, B, fittingArrayVer2, basicParameter);
     %[midiVel, Gx, basicParameter.dr, basicParameter.error, basicParameter.velTruth] = velocityExtractionBasic(MP3Filename, MIDIFilename, B, fittingArraySMDsimple, basicParameter);
@@ -126,11 +100,20 @@ for i=1:1%length(dataSet)
     resultData.error(:,size(resultData.error,2)+1) = tempError;
 end
 
-<<<<<<< Updated upstream
-%
-=======
 %%
->>>>>>> Stashed changes
+% rachmaninoff op. 39 no. 1 
+plot(Gx(6,3097:3150));
+hold on
+plot(Gx(18,3097:3150));
+plot(Gx(34,3097:3150));
+plot(Gx(39,3097:3150));
+plot(Gx(41,3097:3150));
+plot(Gx(42,3097:3150));
+plot(Gx(46,3097:3150));
+
+hold off
+
+%%
 
 plot(Gx(29,:))
 hold on
@@ -138,13 +121,8 @@ plot(Gx(41,:))
 plot(Gx(48,:))
 plot(Gx(53,:))
 hold off
-<<<<<<< Updated upstream
 % [Gx(41,30), Gx(41,192), Gx(41,265), Gx(41,353), Gx(41,547), Gx(41, 644)]
 % [Gx(29,385), Gx(29,548), Gx(29,644)]
-=======
-[Gx(41,30), Gx(41,192), Gx(41,265), Gx(41,353), Gx(41,547), Gx(41, 644)]
-[Gx(29,385), Gx(29,548), Gx(29,644)]
->>>>>>> Stashed changes
 
 
 %%

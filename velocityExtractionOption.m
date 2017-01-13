@@ -1,4 +1,4 @@
-function [Gx, midiVel, error, errorPerNoteResult, refVelCompare] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
+function [Gx, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     X = audio2spectrogram(audioFilename, basicParameter);
@@ -79,7 +79,8 @@ end
 
 % evaluate the result
 midiVel = readmidi_java(MIDIFilename,true);
-
+midiVel(:,7) = midiVel(:,6) + midiVel(:,7);
+maxIndexVector = zeros(size(midiVel,1),1);
 
 
 for i = 1:length(midiVel)
@@ -87,12 +88,20 @@ for i = 1:length(midiVel)
     basisIndex = midiVel(i,4) - basicParameter.minNote +2;
     
     index = onsetTime2frame(midiVel(i,6),basicParameter);
+    offset = ceil( (midiVel(i,7) * basicParameter.sr) / basicParameter.nfft);
+    
     indexEnd = index + basicParameter.searchRange;
     if indexEnd > size(Gx,2)
         indexEnd = size(Gx,2);
     end
+    
+    if indexEnd > offset
+        indexEnd = offset;
+    end
+    
 
-    gainCalculated = max(Gx(basisIndex, index:indexEnd));
+    [gainCalculated, maxIndex] = max(Gx(basisIndex, index:indexEnd));
+    maxIndexVector(i) = maxIndex;
     
     coefA = fittingArray(1, basisIndex-1);
     coefB = fittingArray(2, basisIndex-1);

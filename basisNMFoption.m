@@ -23,18 +23,20 @@ betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(X, Xhat, beta);
 
 for i = 1:iteration
     B = B .* ((X .* (Xhat .^(beta-2) ) * G') ./ ((Xhat .^ (beta-1)) * G'));
-    B = betaNormC(B,beta); 
+    
     
     if Gfixed
         if basicParameter.rankMode == 2
             
         end
     else
+        B = betaNormC(B,beta); 
+        B(find(isnan(B)))=0;
         G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
         G(find(isnan(G)))=0;
     end
 
-    B(find(isnan(B)))=0;
+    
     G(find(isnan(G)))=0;
 
     %B = normc(B);
