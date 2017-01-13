@@ -1,9 +1,59 @@
-function fittingArraySMD = trainFitFolder(B, basicParameter)
+function fittingArray = trainFitFolder(B, basicParameter, dir)
 
+if nargin<3
+   dir = pdw; 
+end
+
+if ischar(dir)
+    dirCell={};
+    dirCell{1}=dir;
+    dir = dirCell;
+end
+
+
+ydata = zeros(10000, 88);
+xdata = zeros(10000, 88);
+
+
+for i = 1:length(dir)
+    tempDir = dir{i};
+    [xdata, ydata] = folderNMF(tempDir, xdata, ydata, B, basicParameter);
+end
+
+
+
+fittingArray = zeros(2,88);
+
+for i = 1: 88
+    if max(find(xdata(:,i))) > 5
+        dataSize = min(find(xdata(:,i)==0)) -1;
+        [lassoAll, stats] = lasso(xdata(1:max(find(xdata(:,i))),i), log(ydata(1:max(find(xdata(:,i))),i)), 'CV', 10);
+        fittingArray(:, i) = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
+    end
+end
+
+
+%
+fitMin = min(find(fittingArray(1,:)));
+fitMax = max(find(fittingArray(1,:)));
+
+
+for j = 1:88
+    if fittingArray(1,j) == 0
+        if j < fitMin
+           fittingArray(:,j) =  fittingArray(:,fitMin);
+        else
+           fittingArray(:,j) =  fittingArray(:,fitMax);
+        end
+    end
+end
+
+end
+
+function [xdata, ydata] = folderNMF(dir, xdata, ydata, B, basicParameter)
+
+cd(dir);
 dataSet = getFileListWithExtension('*.mp3');
-
-ydataSMD = zeros(5000, 88);
-xdataSMD = zeros(5000, 88);
 
 for j = 1:length(dataSet)
     
@@ -27,41 +77,11 @@ for j = 1:length(dataSet)
         
         %index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
         
-        dataIndex = min(find(ydataSMD(:,basisIndex-1)==0));
+        dataIndex = min(find(ydata(:,basisIndex-1)==0));
         gainTemp = max(Gx(basisIndex, index:indexEnd)); 
 
-        ydataSMD(dataIndex,basisIndex-1) = gainTemp;
-        xdataSMD(dataIndex,basisIndex-1) = midiRef(i,5);
-    end
-
-
-end
-
-
-fittingArraySMD = zeros(2,88);
-
-for i = 1: 88
-    if max(find(xdataSMD(:,i))) > 5
-        dataSize = min(find(xdataSMD(:,i)==0)) -1;
-        [lassoAll, stats] = lasso(xdataSMD(1:max(find(xdataSMD(:,i))),i), log(ydataSMD(1:max(find(xdataSMD(:,i))),i)), 'CV', 5);
-        fittingArraySMD(:, i) = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
+        ydata(dataIndex,basisIndex-1) = gainTemp;
+        xdata(dataIndex,basisIndex-1) = midiRef(i,5);
     end
 end
-
-
-%
-fitMin = min(find(fittingArraySMD(1,:)));
-fitMax = max(find(fittingArraySMD(1,:)));
-
-
-for j = 1:88
-    if fittingArraySMD(1,j) == 0
-        if j < fitMin
-           fittingArraySMD(:,j) =  fittingArraySMD(:,fitMin);
-        else
-           fittingArraySMD(:,j) =  fittingArraySMD(:,fitMax);
-        end
-    end
-end
-
 end
