@@ -9,6 +9,154 @@ resultName = 'first';
 
 autoVelExtractSystem (basicParameter, dirSet, resultName)
 
+%%
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+resultName = 'alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.weightOnAttack = true;
+resultName = 'weightOnAttack';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.spectrumMode = 1.3;
+resultName = 'specMode1.3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.spectrumMode = 1.5;
+resultName = 'specMode1.3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.spectrumMode = 1.8;
+resultName = 'specMode1.8';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = 1;
+resultName = 'onsetFine1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = 2;
+resultName = 'onsetFine2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = 3;
+resultName = 'onsetFine3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = -1;
+resultName = 'onsetFine-1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = -2;
+resultName = 'onsetFine-2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = -3;
+resultName = 'onsetFine-3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = 1;
+resultName = 'offsetFine1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = 2;
+resultName = 'offsetFine2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = 3;
+resultName = 'offsetFine3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = -1;
+resultName = 'offsetFine-1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = -2;
+resultName = 'offsetFine-2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = -3;
+resultName = 'offsetFine-3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 10;
+resultName = 'alpha10';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 50;
+resultName = 'alpha50';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 100;
+resultName = 'alpha100';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 300;
+resultName = 'alpha300';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.updateBnumber = 1;
+resultName = 'updateBnumber1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.updateBnumber = 10;
+resultName = 'updateBnumber10';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.updateBnumber = 50;
+resultName = 'updateBnumber50';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+basicParameter.weightOnAttack = true;
+basicParameter.attackLengthFrame = 5;
+resultName = 'weightAttack_attackFrame5_alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+basicParameter.weightOnAttack = true;
+basicParameter.attackLengthFrame = 10;
+resultName = 'weightAttack_attackFrame5_alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+basicParameter.weightOnAttack = true;
+basicParameter.attackLengthFrame = 15;
+resultName = 'weightAttack_attackFrame5_alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
 
 %%
 

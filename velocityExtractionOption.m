@@ -72,7 +72,7 @@ for i = 1:length(midiVel)
     basisIndex = midiVel(i,4) - basicParameter.minNote +2;
     
     index = onsetTime2frame(midiVel(i,6),basicParameter);
-    offset = ceil( (midiVel(i,7) * basicParameter.sr) / basicParameter.nfft);
+    offset = ceil( (midiVel(i,7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
     
     indexEnd = index + basicParameter.searchRange;
     if indexEnd > size(Gx,2)

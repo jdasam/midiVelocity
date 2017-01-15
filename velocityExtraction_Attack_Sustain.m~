@@ -1,41 +1,162 @@
-basicParameter = [];
-basicParameter.scale = 'stft';  % midi, erbt, stft
-basicParameter.sr = 44100; %
-basicParameter.nfft = 1024; %2048, erbt 512;
-basicParameter.window =  8192; % 8192, erbt 512;
-basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
-basicParameter.attackLengthFrame = 7;
-basicParameter.searchRange = 13;
-basicParameter.beta = 1;
-basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
-basicParameter.fittingArray = zeros(2,88);
+basicParameter = basicParameterInitialize();
 
+dirSet = {};
+dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/setA';
+dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/setB';
+dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/setC';
+%%
+resultName = 'first';
 
-basicParameter.basisSource = 'scale'; %scale, data
-basicParameter.alpha = 0;
-basicParameter.rankMode = 1; % rank1: 88, rank2: 176
-basicParameter.spectrumMode = 1.5; 
+autoVelExtractSystem (basicParameter, dirSet, resultName)
+
+%%
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+resultName = 'alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
 basicParameter.weightOnAttack = true;
-basicParameter.Gfixed = true;
+resultName = 'weightOnAttack';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
 
-%basicParameter.spectrumMode = 'linear'; % linear, power
-basicParameter.minNote = 21;
-basicParameter.maxNote = 108;
+basicParameter = basicParameterInitialize();
+basicParameter.spectrumMode = 1.3;
+resultName = 'specMode1.3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
 
-basicParameter.iteration = 100;
-if basicParameter.rankMode == 1 & basicParameter.Gfixed
-    basicParameter.iteration =5;
-end
 
-if strcmp(basicParameter.scale, 'erbt')
-    basicParameter.weightOnAttack = false;
-    basicParameter.rankMode = 1;
-    basicParameter.sr=22050;
-    basicParameter.nfft = 512; 
-    basicParameter.window =  512;
-end
+basicParameter = basicParameterInitialize();
+basicParameter.spectrumMode = 1.5;
+resultName = 'specMode1.3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
 
-basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, 0.25);
+
+basicParameter = basicParameterInitialize();
+basicParameter.spectrumMode = 1.8;
+resultName = 'specMode1.8';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = 1;
+resultName = 'onsetFine1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = 2;
+resultName = 'onsetFine2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = 3;
+resultName = 'onsetFine3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = -1;
+resultName = 'onsetFine-1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = -2;
+resultName = 'onsetFine-2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.onsetFine = -3;
+resultName = 'onsetFine-3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = 1;
+resultName = 'offsetFine1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = 2;
+resultName = 'offsetFine2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = 3;
+resultName = 'offsetFine3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = -1;
+resultName = 'offsetFine-1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = -2;
+resultName = 'offsetFine-2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.offsetFine = -3;
+resultName = 'offsetFine-3';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 10;
+resultName = 'alpha10';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 50;
+resultName = 'alpha50';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 100;
+resultName = 'alpha100';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 300;
+resultName = 'alpha300';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.updateBnumber = 1;
+resultName = 'updateBnumber1';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.updateBnumber = 10;
+resultName = 'updateBnumber10';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.updateBnumber = 50;
+resultName = 'updateBnumber50';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+basicParameter.weightOnAttack = true;
+basicParameter.attackLengthFrame = 5;
+resultName = 'weightAttack_attackFrame5_alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+basicParameter.weightOnAttack = true;
+basicParameter.attackLengthFrame = 10;
+resultName = 'weightAttack_attackFrame5_alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.alpha = 20;
+basicParameter.weightOnAttack = true;
+basicParameter.attackLengthFrame = 15;
+resultName = 'weightAttack_attackFrame5_alpha20';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
 
 %%
 

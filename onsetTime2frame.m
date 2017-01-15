@@ -8,4 +8,7 @@ function onsetFrame = onsetTime2frame(time, basicParameter)
     end
 
 
+    if onsetFrame < 1
+        onsetFrame = 1;
+    end
 end
