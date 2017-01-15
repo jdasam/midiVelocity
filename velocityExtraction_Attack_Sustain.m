@@ -10,6 +10,42 @@ resultName = 'first';
 autoVelExtractSystem (basicParameter, dirSet, resultName)
 
 %%
+basicParameter = basicParameterInitialize();
+basicParameter.rankMode = 2;
+resultName = 'rankMode2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.rankMode = 2;
+basisParameter.spectrumMode = 1.5;
+resultName = 'rankMode2spectrum15';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.rankMode = 2;
+basisParameter.spectrumMode = 2;
+resultName = 'rankMode2spectrum2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
+resultName = 'basisSourceData';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
+basicParameter.rankMode = 2;
+resultName = 'basisSourceDataRankMode2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
+basicParameter.alpha = 20;
+resultName = 'basisSourceDataRankMode2';
+autoVelExtractSystem (basicParameter, dirSet, resultName);
+
+%%
 
 basicParameter = basicParameterInitialize();
 basicParameter.alpha = 20;
