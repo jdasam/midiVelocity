@@ -1,4 +1,4 @@
-function [error, errorPerNoteResult, refVelCompare] = calculateError(midiRef, midiVel)
+function [error, errorPerNoteResult, refVelCompare] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec)
 
 errorMatrix = zeros(length(midiVel),3);
 
@@ -26,8 +26,10 @@ errorRelSTD = std(errorMatrix(:,3));
 %intensityRef = betaNormC(2 .^ (midiRef(:,5) * 0.04),2);
 %intensityVel = betaNormC(gainData,2);
 
-intensityRef = betaNormC(midiRef(:,5),2);
-intensityVel = betaNormC(midiVel(:,5),2);
+% intensityRef = betaNormC(midiRef(:,5),2);
+% intensityVel = betaNormC(midiVel(:,5),2);
+intensityRef = betaNormC(gainFromVelVec,2);
+intensityVel = betaNormC(gainCalculatedVec,2);
 
 
 normalizedError = sum( abs( intensityRef - intensityVel) ./ intensityRef ) / length(intensityRef);
@@ -45,6 +47,7 @@ errorPerNoteResult = errorPerNote(1,:) ./ errorPerNote(2,:);
 refVelCompare = zeros(length(midiRef), 3);
 refVelCompare(:,1:2) = midiRef(:,4:5);
 refVelCompare(:,3) = midiVel(:,5);
+
 
 
 

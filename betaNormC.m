@@ -3,7 +3,7 @@ function resultMatrix = betaNormC(inputMatrix, beta)
 resultMatrix = zeros(size(inputMatrix));
 
 if beta == 0;
-    beta = 2;
+    beta = 1;
 end
 
 

@@ -1,7 +1,11 @@
-function [B updatedG] = trainBasisFromFolder(basicParameter, dir)
+function [B updatedG] = trainBasisFromFolder(basicParameter, dir, initialB)
 
 if nargin<2
-   dir = pdw; 
+   dir = pwd; 
+end
+
+if nargin<3
+    initialB = false;
 end
 
 if ischar(dir)
@@ -25,7 +29,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         [Xtotal, sheetMatrixTotal, sheetMatrixAttack] = dataPrepFolder(tempDir, Xtotal, sheetMatrixTotal, sheetMatrixAttack, basicParameter);
     end
 
-    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, 100, false, sheetMatrixAttack);
+    [updatedG B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, basicParameter.iterationData, false, sheetMatrixAttack, initialB, 'data');
 
     
     
@@ -33,57 +37,45 @@ elseif strcmp(basicParameter.scale, 'erbt')
     
     for i = 1:length(dir)
         tempDir = dir{i};
-        cd(tempDir)
-        dataSet = getFileListWithExtension('*.mp3');
-
-        for j = 1:length(dataSet)
-
-            filename = char(dataSet(j));
-            MIDIFilename = strcat(filename,'.mid');
-            MP3Filename =  strcat(filename, '.mp3');
-
-            [Xtemp, f, alen] = audio2erbt(MP3Filename, basicParameter);
-
-            Xtotal = horzcat(Xtotal, Xtemp);
-
-            nmat = readmidi_java(MIDIFilename, true);
-            nmat(:,7) = nmat(:,6) + nmat(:,7);
-
-            sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter);
-            sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
-
-        end
+        [Xtotal, sheetMatrixTotal, sheetMatrixAttack, f, alen] = dataPrepFolder(tempDir, Xtotal, sheetMatrixTotal, sheetMatrixAttack, basicParameter);
     end
 
     sheetMatrixTotalCopy = sheetMatrixTotal(2:end,:);
     sheetMatrixTotal = vertcat(sheetMatrixTotalCopy, sheetMatrixTotal(1,:));
+    sheetMatrixAttack = vertcat(sheetMatrixAttack(2:end,:), sheetMatrixAttack(1,:));
     
-    [updatedG B] = erbtHarmclusNMF(Xtotal, sheetMatrixTotal, false, 250,f,alen, basicParameter, false);
+
+    [updatedG B] = erbtHarmclusNMF(Xtotal, sheetMatrixTotal, false, 250,f,alen, basicParameter, false, sheetMatrixAttack);
 
 end
 
 end
 
 
-function [Xtotal, sheetMatrixTotal, sheetMatrixAttack] = dataPrepFolder(dir, Xtotal, sheetMatrixTotal, sheetMatrixAttack, basicParameter)
+function [Xtotal, sheetMatrixTotal, sheetMatrixAttack, f, alen] = dataPrepFolder(dir, Xtotal, sheetMatrixTotal, sheetMatrixAttack, basicParameter)
 cd(dir)
 dataSet = getFileListWithExtension('*.mp3');
-for j = 1:length(dataSet)
-    filename = char(dataSet(j));
-    MIDIFilename = strcat(filename,'.mid');
-    MP3Filename =  strcat(filename, '.mp3');
 
-    Xtemp = audio2spectrogram(MP3Filename, basicParameter);
+    for j = 1:length(dataSet)
+        filename = char(dataSet(j));
+        MIDIFilename = strcat(filename,'.mid');
+        MP3Filename =  strcat(filename, '.mp3');
 
-    Xtotal = horzcat(Xtotal, Xtemp);
+        if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
+            Xtemp = audio2spectrogram(MP3Filename, basicParameter);
+        elseif strcmp(basicParameter.scale, 'erbt')
+            [Xtemp, f, alen] = audio2erbt(MP3Filename, basicParameter);
+        end
 
-    nmat = readmidi_java(MIDIFilename, true);
-    nmat(:,7) = nmat(:,6) + nmat(:,7);
+        Xtotal = horzcat(Xtotal, Xtemp);
 
-    sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, false, true);
-    sheetMatrixAttackTemp = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, true, false);
-    sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
-    sheetMatrixAttack = horzcat(sheetMatrixAttack, sheetMatrixAttackTemp);
-end
+        nmat = readmidi_java(MIDIFilename, true);
+        nmat(:,7) = nmat(:,6) + nmat(:,7);
+
+        sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, false, true);
+        sheetMatrixAttackTemp = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, true, false);
+        sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
+        sheetMatrixAttack = horzcat(sheetMatrixAttack, sheetMatrixAttackTemp);
+    end
 
 end

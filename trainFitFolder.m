@@ -1,7 +1,7 @@
 function fittingArray = trainFitFolder(B, basicParameter, dir)
 
 if nargin<3
-   dir = pdw; 
+   dir = pwd; 
 end
 
 if ischar(dir)
@@ -69,17 +69,26 @@ for j = 1:length(dataSet)
     for i = 1 : length(midiRef)
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         index = onsetTime2frame(midiRef(i,6), basicParameter);
-        
+        offset = ceil( (midiRef(i,7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
+
         indexEnd = index + basicParameter.searchRange;
+        
+        if indexEnd > offset
+            indexEnd = offset;
+        end
+
         if indexEnd > size(Gx,2)
             indexEnd = size(Gx,2);
         end
-        
+
+
         %index = ceil( ( midiRef(i,6) * basicParameter.sr - basicParameter.window /2 )/ basicParameter.nfft);
+        
+        
         
         dataIndex = min(find(ydata(:,basisIndex-1)==0));
         gainTemp = max(Gx(basisIndex, index:indexEnd)); 
-
+        
         ydata(dataIndex,basisIndex-1) = gainTemp;
         xdata(dataIndex,basisIndex-1) = midiRef(i,5);
     end

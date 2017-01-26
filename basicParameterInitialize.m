@@ -19,17 +19,24 @@ basicParameter.rankMode = 1; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1; 
 basicParameter.weightOnAttack = false;
 basicParameter.Gfixed = false;
+basicParameter.harmConstrain = false;
 basicParameter.onsetFine = 0;
 basicParameter.offsetFine = 0;
 basicParameter.updateBnumber = 0;
+basicParameter.harmBoundary = 0.5;
+basicParameter.GpartialUpdate = false;
+basicParameter.BpartialUpdate = false;
+basicParameter.useInitialB = false;
+basicParameter.GpreUpdate = 0;
 
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
 basicParameter.fittingArray = zeros(2,88);
 
-basicParameter.iteration = 100;
+basicParameter.iterationScale = 100;
+basicParameter.iterationData = 100;
 if basicParameter.rankMode == 1 & basicParameter.Gfixed
-    basicParameter.iteration =5;
+    basicParameter.iterationScale =5;
 end
 
 
