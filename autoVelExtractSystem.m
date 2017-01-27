@@ -1,4 +1,4 @@
-function autoVelExtractSystem (basicParameter, dirSet, resultName)
+function autoVelExtractSystem (basicParameter, subSet, resultName)
 resultData = [];
 resultData.title = {};
 resultData.drParameter = [];
@@ -33,23 +33,50 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     B = betaNormC(B,basicParameter.beta);
 
     if strcmp(basicParameter.basisSource, 'scale')
-        for i = 1:length(dirSet)
-            dirEval = dirSet{i};
-            dirTrain = dirSet;
-            dirTrain(i) = [];
+        for s = 1:length(subSet)
+            dirSet = findFoldersInFolder(subSet{s});
+            for i = 1:length(dirSet)
+                dirEval = dirSet{i};
+                dirTrain = dirSet;
+                dirTrain(i) = [];
 
-            basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
-            resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
+                basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
+                resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
+            end                                   
         end
-
-
+        
     elseif strcmp(basicParameter.basisSource, 'data')
+        for s = 1:length(subSet)
+            dirSet = findFoldersInFolder(subSet{s});
+            for i = 1:length(dirSet)
+                dirEval = dirSet{i};
+                dirTrain = dirSet;
+                dirTrain(i) = [];
+
+                Bdata = trainBasisFromFolder(basicParameter, dirTrain, B);
+
+                for j =1:size(Bdata,2)
+                    if sum(Bdata(:,j)) == 0
+                        Bdata(:,j) = B(:,j);
+                    end
+                end
+                B = Bdata;
+
+                basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
+                resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
+            end    
+        end
+    end
+
+elseif strcmp(basicParameter.scale, 'erbt')
+    for s = 1:length(subSet)
+    dirSet = findFoldersInFolder(subSet{s});
         for i = 1:length(dirSet)
             dirEval = dirSet{i};
             dirTrain = dirSet;
             dirTrain(i) = [];
 
-            Bdata = trainBasisFromFolder(basicParameter, dirTrain, B);
+            Bdata = trainBasisFromFolder(basicParameter, dirTrain);
 
             for j =1:size(Bdata,2)
                 if sum(Bdata(:,j)) == 0
@@ -60,27 +87,8 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
             basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
             resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
-        end               
+        end    
     end
-
-elseif strcmp(basicParameter.scale, 'erbt')
-    for i = 1:length(dirSet)
-        dirEval = dirSet{i};
-        dirTrain = dirSet;
-        dirTrain(i) = [];
-
-        Bdata = trainBasisFromFolder(basicParameter, dirTrain);
-
-        for j =1:size(Bdata,2)
-            if sum(Bdata(:,j)) == 0
-                Bdata(:,j) = B(:,j);
-            end
-        end
-        B = Bdata;
-
-        basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
-        resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
-    end      
 end
 
 
