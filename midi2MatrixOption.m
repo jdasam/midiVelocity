@@ -30,7 +30,11 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
         onset = onsetTime2frame(nmat(i,6), basicParameter);
 
         if attackOnly
-            offset = onset+attMargin+basicParameter.offsetFine;
+            if basicParameter.attackExceptRange
+                offset = onset+basicParameter.attackExceptRange;
+            else    
+                offset = onset+attMargin+basicParameter.offsetFine;
+            end
         else
             offset = ceil( (nmat(i,7) * basicParameter.sr) / basicParameter.nfft) ;
         end
@@ -73,4 +77,9 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
     if size(sheetMatrix,2) > specLength
        sheetMatrix(:,specLength+1:end) = []; 
     end
+    
+    if basicParameter.rankMode == 2 & attackOnly
+       sheetMatrix= sheetMatrix(1:maxNote-minNote + 2,:);
+    end
+    
 end
