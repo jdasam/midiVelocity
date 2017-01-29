@@ -1,7 +1,7 @@
 resultList ={};
 
-% resultCodeList = {'Basic', 'R2Gf', 'R2GfHc','R2GfHcUbn5','R2GfHcGpr5Ubn5', 'Bd', 'BdHc' ,'BdR2', 'BdR2GfHc', 'BdR2HcUibGpr5Id10'};
-resultCodeList = {'BdR2GfHcUibId10','BdR2S2GfHcUibId10', 'BdR2S2GfHcUibId10A10', 'BdR2S2GfHcUibId10A100'};
+ resultCodeList = {'Bd' ,'BdR2', 'BdHc', 'BdR2GfHc' ,'BdR2GfHcUibId10', 'R1', 'R2', 'R2Gf', 'R2Hc', 'R2GfHc', 'R2GfHcUbn5', 'R2GfHcGpr5Ubn5'};
+%resultCodeList = {'BdR2GfHcUibId10','BdR2S2GfHcUibId10','BdR2S2GfHcUibId10A1' , 'BdR2S2GfHcUibId10A10', 'BdR2S2GfHcUibId10A100', 'R2S2GfHcGpr5Ubn5', 'R2S2GfHcGpr5Ubn5A10', 'R2S2GfHcGpr5Ubn5A100'};
 
 
 
@@ -28,14 +28,15 @@ barGraph(1).FaceColor = 'k';
 barGraph(2).FaceColor = 'w';
 barGraph(2).LineWidth = 2;
 
-ylim([3 6])
+ylim([3 11])
+xlim([0 length(resultCodeList)+1])
 %hold on;
 %h=errorbar(resultAverage(:,1:2),resultAverage(:,3:4),'c'); set(h,'linestyle','none')
 %hold off
 
 
 
-set(gca, 'XTickLabel', resultCodeList, 'XTickLabelMode','manual', 'FontName', 'Times', 'FontSize', 10)
+set(gca, 'XTickLabel', resultCodeList, 'FontName', 'Times', 'FontSize', 10)
 
 
 %%

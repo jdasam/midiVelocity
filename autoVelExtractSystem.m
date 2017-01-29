@@ -47,6 +47,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         
     elseif strcmp(basicParameter.basisSource, 'data')
         for s = 1:length(subSet)
+            Bscale = B;
             dirSet = findFoldersInFolder(subSet{s});
             for i = 1:length(dirSet)
                 dirEval = dirSet{i};
@@ -65,6 +66,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
             end    
+            B = Bscale;
         end
     end
 
