@@ -37,8 +37,10 @@ for i = 2:numberOfTotalKey + 1
 end
 
 if basicParameter.rankMode == 2
-    W(:,numberOfTotalKey + 2:end) = rand(size(W(:,numberOfTotalKey + 2:end)));
+    %W(:,numberOfTotalKey + 2:end) = rand(size(W(:,numberOfTotalKey + 2:end)));
+    W(:,numberOfTotalKey + 2:end) = ones(size(W(:,numberOfTotalKey + 2:end)));
 end
+
 
 
 

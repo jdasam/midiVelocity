@@ -108,8 +108,8 @@ if basicParameter.fittingArray(1,1)
 
         logGainFromVel = exp(midiVel(i,5) * coefA + coefB);
         midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA);
-        gainFromVelVec(i) = logGainFromVel ^0.3;
-        gainCalculatedVec(i) = gainCalculated ^0.3;
+        gainFromVelVec(i) = logGainFromVel ^0.6;
+        gainCalculatedVec(i) = gainCalculated ^0.6;
         %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
         if midiVel(i,5) < 0
             midiVel(i,5) = 1;

@@ -11,7 +11,7 @@ basicParameter.searchRange = 13;
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.defaultFolderDir = '/Users/Da/Documents/MATLAB/midiVelocityGit';
-basicParameter.resultFolderDir = '/Users/Da/Documents/MATLAB/midiVelocityGit/result';
+basicParameter.resultFolderDir = '/Users/Da/Dropbox/midiVelocityResult';
 
 basicParameter.basisSource = 'scale'; %scale, data
 basicParameter.alpha = 0;
@@ -28,6 +28,7 @@ basicParameter.GpartialUpdate = false;
 basicParameter.BpartialUpdate = false;
 basicParameter.useInitialB = false;
 basicParameter.GpreUpdate = 0;
+basicParameter.attackExceptRange= basicParameter.attackLengthFrame;
 
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
