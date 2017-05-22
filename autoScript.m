@@ -3,7 +3,26 @@ dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
 dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
 dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
 %%
+basicParameter = basicParameterInitialize();
+basicParameter.rankMode = 2;
+basicParameter.spectrumMode = 2;
+basicParameter.Gfixed = true;
+basicParameter.GpreUpdate = 10;
 
+basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain)
+
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
+basicParameter.rankMode = 3;
+basicParameter.Gfixed = true;
+basicParameter.iterationScale = 10;
+resultName = 'BdR3Gf';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+
+%%
 basicParameter = basicParameterInitialize();
 basicParameter.basisSource = 'data';
 basicParameter.rankMode = 2;

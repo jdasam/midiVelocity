@@ -20,15 +20,25 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
     
     if basicParameter.rankMode == 2 % Two basis per Key, Attack and Sustain
         sheetMatrix = zeros( (maxNote - minNote + 1) *2 + 1, specLength);
+    elseif basicParameter.rankMode == 3
+        sheetMatrix = zeros( (maxNote - minNote + 1) *3 + 1, specLength);
     else % One basis per key
         sheetMatrix = zeros(maxNote-minNote + 2, specLength);
+
     end
           
     for i = 1 : length(nmat)
         attMargin = basicParameter.attackLengthFrame - 1;  
         basisIndex = nmat(i,4) - minNote + 2;
         onset = onsetTime2frame(nmat(i,6), basicParameter);
-    
+        if isfield(basicParameter, 'fExt')
+            if basicParameter.fExt
+                onset = onset - basicParameter.fExt;
+                if onset < 1
+                    onset = 1;
+                end 
+            end
+        end
         
         if attackOnly
             if basicParameter.attackExceptRange
@@ -38,7 +48,13 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
             end
         else
             offset = ceil( (nmat(i,7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
+            if isfield(basicParameter, 'bExt')
+                if basicParameter.bExt
+                    offset = offset + basicParameter.bExt;
+                end
+            end
         end
+            
 
         if offset > specLength
            offset = specLength; 
@@ -47,10 +63,22 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
 
         if basicParameter.rankMode == 2
             sheetMatrix(basisIndex, onset:offset) = 1;
+            onset = onsetTime2frame(nmat(i,6), basicParameter);
             if onset+attMargin > offset
                 attMargin = offset-onset;
             end
             sheetMatrix(basisIndex + (maxNote - minNote +1) , onset:onset+attMargin) = 1;
+        elseif basicParameter.rankMode == 3
+            sheetMatrix(basisIndex, onset: min(onset+basicParameter.searchRange, offset)) = 1;
+            if onset+attMargin > offset
+                attMargin = offset-onset;
+            end
+            sheetMatrix(basisIndex + (maxNote - minNote +1) , onset:onset+attMargin) = 1;            
+            if onset+basicParameter.searchRange < offset
+                sheetMatrix(basisIndex + (maxNote - minNote +1) * 2, onset+basicParameter.searchRange+1:offset) = 1;
+            end
+            
+        
         else
             sheetMatrix(basisIndex, onset:offset) = 1;
         end

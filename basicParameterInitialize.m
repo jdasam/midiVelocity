@@ -36,7 +36,7 @@ basicParameter.fittingArray = zeros(2,88);
 
 basicParameter.iterationScale = 100;
 basicParameter.iterationData = 100;
-if basicParameter.rankMode == 1 & basicParameter.Gfixed
+if basicParameter.rankMode == 1 && basicParameter.Gfixed
     basicParameter.iterationScale =5;
 end
 
