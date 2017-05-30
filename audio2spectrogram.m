@@ -1,6 +1,6 @@
-function X = audio2spectrogram(audioFilename, basicParameter)
+function [X, sr] = audio2spectrogram(audioFilename, basicParameter)
 
-d1 = audioread(audioFilename);
+[d1, sr] = audioread(audioFilename);
 
 if size(d1,2) == 2
     d1 = (d1(:,1) + d1(:,2))/2;

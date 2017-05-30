@@ -1,7 +1,7 @@
 function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
-    X = audio2spectrogram(audioFilename, basicParameter);
+    [X, basicParameter.sr] = audio2spectrogram(audioFilename, basicParameter);
     if strcmp(basicParameter.scale, 'midi')
     X = basicParameter.map_mx * X;
     end
@@ -49,10 +49,10 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     end
     if isfield(basicParameter, 'transcription')
         if basicParameter.transcription
-            B = rand(size(X,1), size(G,1));
-            if basicParameter.harmConstrain
-                B = initializeWwithHarmonicConstraint(basicParameter);
-            end
+%             B = rand(size(X,1), size(G,1));
+%             if basicParameter.harmConstrain
+%                 B = initializeWwithHarmonicConstraint(basicParameter);
+%             end
         end
     end
 
@@ -163,16 +163,19 @@ end
 
 if isfield(basicParameter, 'transcription')
     Gsheet= G;
-    Bsheet= B;
+    Bsheet= B;        
+    temporalConstraintDummy = zeros(size(G));
+
     if basicParameter.transcription
         G = rand(size(Gsheet));
         
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
 
-  
+        
 
         for i = 1:50
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+            
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
@@ -189,16 +192,14 @@ if isfield(basicParameter, 'transcription')
        
 
 
-        for i = 1:length(midiVel)
-            basisIndex = midiVel(i,4) - basicParameter.minNote + 2;
-
-            [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiVel(i,:), G, basicParameter);
-            midiVel(i,6) = onset * basicParameter.nfft / basicParameter.sr;
-            midiVl(i,7) = offset * basicParameter.nfft / basicParameter.sr;
-
-
-
-        end
+%         for i = 1:length(midiVel)
+%             basisIndex = midiVel(i,4) - basicParameter.minNote + 2;
+% 
+%             [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiVel(i,:), G, basicParameter);
+%             midiVel(i,6) = onset * basicParameter.nfft / basicParameter.sr;
+%             midiVl(i,7) = offset * basicParameter.nfft / basicParameter.sr;
+% 
+%         end
 
         Grand = G;
         Brand = B;
@@ -208,13 +209,15 @@ if isfield(basicParameter, 'transcription')
         basicAlt = basicParameter;
         basicAlt.fExt = 100;
         basicAlt.bExt = 100;
+        basicAlt.attackLengthFrame = basicParameter.attackLengthFrame - basicAlt.onsetFine;
+
         G =  midi2MatrixOption(midiRef, size(X,2), basicAlt, false, false);
         
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
 
  
         for i = 1:50
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
@@ -230,21 +233,18 @@ if isfield(basicParameter, 'transcription')
         end
         Ghyb = G;
         Bhyb = B;
+        
+        
+        
+        
         B = Bsheet;       
-
-        
-        
-        basicAlt = basicParameter;
-        basicAlt.fExt = 100;
-        basicAlt.bExt = 100;
-        basicAlt.attackLengthFrame = basicParameter.attackLengthFrame - basicAlt.onsetFine;
-        G =  midi2MatrixOption(midiRef, size(X,2), basicAlt, false, false);
+        G =  rand(size(Gsheet));
         
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
 
  
         for i = 1:50
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             
@@ -256,13 +256,13 @@ if isfield(basicParameter, 'transcription')
         Bhyb2 = B;
         
         
-        B = Bsheet;
+        B = initializeWwithHarmonicConstraint(basicParameter);
         G =  midi2MatrixOption(midiRef, size(X,2), basicParameter, false, false);
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
 
  
         for i = 1:50
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
@@ -276,6 +276,32 @@ if isfield(basicParameter, 'transcription')
              
         Ghyb3 = G;
         Bhyb3 = B;
+        
+        
+        
+        B = initializeWwithHarmonicConstraint(basicParameter);
+        G = rand(size(Gsheet));
+        
+        Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+        for i = 1:50
+            
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
+            Gnew(find(isnan(Gnew)))=0;
+            G=Gnew;
+            specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
+            sigma = 0.5;
+            Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+            Bnew = betaNormC(Bnew,basicParameter.beta);
+            Bnew(find(isnan(Bnew)))=0;
+            B= Bnew;
+
+            
+            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+
+        end
+        
+        Brand2 = B;
+        Grand2 = G;
         
         
 
