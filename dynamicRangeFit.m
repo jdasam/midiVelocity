@@ -1,10 +1,10 @@
-filename = 'Bavouzet, Jean-Efflam';
+filename = 'Pollini, Maurizio';
 MIDIFilename = strcat(filename,'.mid');
-MP3Filename =  strcat(filename, '.wav');
+MP3Filename =  strcat(filename, '.mp3');
 % basicParameter.nfft = 441;
 % basicParameter.searchRange = 50;
 basicParameter.targetMedian = 65;
-basicParameter.targetRange = 18;
+basicParameter.targetRange = 25;
 basicParameter.spectrumRank = 2;
 % basicParameter.onsetFine = 10;
 % basicParameter.threshold = 0.001;

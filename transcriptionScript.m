@@ -1,3 +1,20 @@
+load('/Users/Da/Documents/MATLAB/midiVelocityGit/BdR2GfHc.mat')
+
+
+histData = zeros(15,4);
+for i = 1:15
+    histData(i,1) = resultData.histogramData{1,i}.f.b1;
+    histData(i,2) = resultData.histogramData{1,i}.f.c1;
+    histData(i,3) = resultData.histogramData{1,i}.f2.b1;
+    histData(i,4) = resultData.histogramData{1,i}.f2.c1;
+    
+end
+[lassoAll, stats] = lasso(histData(:,1), histData(:,3), 'CV', 5);
+basicParameter.dynMed = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
+[lassoAll, stats] = lasso(histData(:,2), histData(:,4), 'CV', 5);
+basicParameter.dynRan = [lassoAll(stats.IndexMinMSE); stats.Intercept(stats.IndexMinMSE);];
+
+%%
 tp1 = 40;
 tp1ind= max(find(xdata(:,tp1)));
 scatter(xdata(1:tp1ind,tp1),log(ydata(1:tp1ind,tp1)),  'o')
@@ -31,31 +48,63 @@ basicParameter.iterationScale = 5;
 
 autoVelExtractSystem(basicParameter, {pwd}, 'test') 
 %%
+dataSet = getFileListWithExtension(strcat('*.',option.audioExtension));
+for dataIndex = 1 : length(dataSet)
+    fileName = dataSet{dataIndex};
+    velocityCSVname = strcat(fileName, '_vel.csv');
 
+    if exist(velocityCSVname, 'file')
+        continue
+    end
+    
+%     fileName = 'Cortot, Alfred';
+    audioFilename = strcat(fileName, '.mp3');
+    MIDIFilename = strcat(fileName, '.mid');
+    basicParameter.nfft = 1024;
+    basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
+    basicParameter.searchRange = 0.5;
+    % basicParameter.attackExceptRange = 14;
+    basicParameter.attackLengthSecond = 0.4;
+    basicParameter.attackExceptRange = 0.4;
+    basicParameter.fExtSecond = 0.3;
+    basicParameter.bExtSecond = 0.5;
+    basicParameter.updateBnumber = 50;
+    basicParameter.GpreUpdate = 5;
 
+    basicParameter.targetMedian = 65;
+    basicParameter.targetRange = 25;
 
-fileName = 'Horowitz, Vladimir';
-audioFilename = strcat(fileName, '.mp3');
-MIDIFilename = strcat(fileName, '.mid');
-basicParameter.transcription = true;
-basicParameter.rankMode = 2;
-basicParameter.alpha = 0.1;
-basicParameter.harmBoundary = 1;
-basicParameter.harmConstrain = true;
-basicParameter.Gfixed = true;
-basicParameter.iterationScale = 5;
-basicParameter.updateBnumber = 50;
-basicParameter.onsetFine = 2;
+    basicParameter.transcription = false;
+    basicParameter.threshold = 5;
+    basicParameter.rankMode = 2;
+    basicParameter.alpha = 1;
+    basicParameter.harmBoundary = 1;
+    basicParameter.harmConstrain = true;
+    basicParameter.Gfixed = true;
+    basicParameter.iterationScale = 5;
+    basicParameter.updateBnumber = 50;
+    basicParameter.onsetFine = 0;
 
-velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
+    saveName = strcat(fileName, '_AMT.mid');
+    [Gx, midiVel] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter);
+    csvwrite(velocityCSVname, midiVel(:,5)');
+    writemidi_seconds(midiVel, saveName);
+end
 
 %%
 t1 = 1;
-t2 = 200;
+t2 = 500;
 p1 = 20;
 p2 = 60;
 
+subplot(2,1,1)
+imagesc(G(p1:p2,t1:t2))
+axis xy
 
+subplot(2,1,2)
+imagesc(Ghyb4(p1:p2,t1:t2))
+axis xy
+%%
 figure(1)
 subplot(4,1,1)
 imagesc(Gsheet(p1:p2,t1:t2) + Gsheet(p1+88:p2+88,t1:t2) * 0.5) 
@@ -80,14 +129,54 @@ imagesc( (Grand2(p1:p2,t1:t2 ) + Grand2(p1+88:p2+88,t1:t2)*0.5 ).^0.7 )
 axis xy
 
 %%
+t1 = 1;
+t2 = 200;
+p1 = 20;
+p2 = 60;
+
+subNum = 8;
+
+figure(1)
+subplot(subNum,1,1)
+imagesc(Gsheet(p1:p2,t1:t2)) 
+axis xy
+subplot(subNum,1,2)
+imagesc(Grand(p1:p2,t1:t2))
+axis xy
+subplot(subNum,1,3)
+imagesc(Ghyb(p1:p2,t1:t2))
+axis xy
+subplot(subNum,1,4)
+imagesc(Ghyb2(p1:p2,t1:t2))
+axis xy
+subplot(subNum,1,5)
+imagesc(Ghyb3(p1:p2,t1:t2))
+axis xy
+
+subplot(subNum,1,6)
+imagesc( (Grand2(p1:p2,t1:t2 )))
+axis xy
+
+subplot(subNum,1,7)
+imagesc( (Ghyb4(p1:p2,t1:t2 )))
+axis xy
+
+subplot(subNum,1,8)
+imagesc( (X(10:120,t1:t2 )))
+axis xy
+
+%%
 figure(2)
-tpitch = 43+88;
+tpitch = 40;
 h1 = 1;
 h2 = 700;
 
 plot(Bsheet(h1:h2,tpitch));
 hold on
 plot(Brand2(h1:h2,tpitch));
+% plot(B(h1:h2,tpitch));
+
+% plot(test(h1:h2,tpitch));
 % plot(Bhyb(h1:h2,tpitch));
 % plot(Bhyb3(h1:h2,tpitch));
 
