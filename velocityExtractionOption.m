@@ -111,7 +111,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
         
     end
-    D = sum(betaDivergence(X, Xhat, basicParameter.beta))
+%     D = sum(betaDivergence(X, Xhat, basicParameter.beta))
 
 
 elseif strcmp(basicParameter.scale, 'erbt')
