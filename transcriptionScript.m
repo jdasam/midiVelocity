@@ -49,7 +49,7 @@ basicParameter.iterationScale = 5;
 autoVelExtractSystem(basicParameter, {pwd}, 'test') 
 %%
 dataSet = getFileListWithExtension(strcat('*.','mp3'));
-for dataIndex = 1 : 2%length(dataSet)
+for dataIndex = 1 : 1%length(dataSet)
     fileName = dataSet{dataIndex};
     velocityCSVname = strcat(fileName, '_vel.csv');
 

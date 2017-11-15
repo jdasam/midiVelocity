@@ -1,4 +1,4 @@
-function D = betaDivergence(x, xhat, beta)
+function D = betaDivergenceMatrix(x, xhat, beta)
 D = 0;    
 if beta ==1
     D = x .* log(x./xhat) - x + xhat;
