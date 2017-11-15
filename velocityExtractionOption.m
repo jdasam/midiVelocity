@@ -18,9 +18,9 @@ basicParameter.MIDI = midiRef;
 
 if isfield(basicParameter, 'fExtSecond')
     if basicParameter.fExtSecond
-        basicParameter.fExt = ceil(basicParameter.fExtSecond / basicParameter.nfft * basicParameter.sr); % forward Extension
-        basicParameter.bExt = ceil(basicParameter.bExtSecond / basicParameter.nfft * basicParameter.sr); % backward Extnsion
-        basicParameter.attackLengthFrame = basicParameter.attackLengthFrame + basicParameter.fExt;
+%         basicParameter.fExt = ceil(basicParameter.fExtSecond / basicParameter.nfft * basicParameter.sr); % forward Extension
+%         basicParameter.bExt = ceil(basicParameter.bExtSecond / basicParameter.nfft * basicParameter.sr); % backward Extnsion
+%         basicParameter.attackLengthSecond = basicParameter.attackLengthSecond + basicParameter.fExtSecond;
     end
 end
 
@@ -133,7 +133,7 @@ if basicParameter.fittingArray(1,1)
     
     histogramData = [];
 %     [histogramData.histData, histogramData.histMIDI, histogramData.f, histogramData.f2]= makeHistogram(MIDIFilename, G, basicParameter);
-    [~, ~, histogramData.f, histogramData.f2]= makeHistogram(MIDIFilename, G, basicParameter);
+    [~, ~, histogramData.f]= makeHistogram(MIDIFilename, G, basicParameter);
 
     if isfield(basicParameter, 'targetMedian')
         targetGain = (basicParameter.targetMedian-basicParameter.dynMed(2))/basicParameter.dynMed(1);
@@ -321,13 +321,47 @@ if isfield(basicParameter, 'transcription')
 %         
 %         Brand2 = B;
 %         Grand2 = G;
+
+        basicAlt = basicParameter;
+        basicAlt.window = 2048;
+        basicAlt.noverlap = basicAlt.window - basicAlt.nfft;
+        basicAlt.fExt = ceil(basicParameter.fExtSecond / basicParameter.nfft * basicParameter.sr); % forward Extension
+        basicAlt.bExt = ceil(basicParameter.bExtSecond / basicParameter.nfft * basicParameter.sr);
+        
+        B = initializeWwithHarmonicConstraint(basicAlt);
+        X8k = X;
+        [X, basicAlt.sr] = audio2spectrogram(audioFilename, basicAlt);
+        G =  midi2MatrixOption(midiRef, size(X,2), basicAlt, false, false);
+
+        Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+        for i = 1:50
+
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
+            Gnew(find(isnan(Gnew)))=0;
+            G=Gnew;
+            specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
+            sigma = 0.5;
+            Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+            Bnew = betaNormC(Bnew,basicParameter.beta);
+            Bnew(find(isnan(Bnew)))=0;
+            B= Bnew;
+            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+
+        end
+        
+        B2k = B;
+        G2k = G;
+        X = X8k;
+        
         
         
         basicAlt = basicParameter; % make alternative basicParameter
         basicAlt.fExt = ceil(basicParameter.fExtSecond / basicParameter.nfft * basicParameter.sr); % forward Extension
         basicAlt.bExt = ceil(basicParameter.bExtSecond / basicParameter.nfft * basicParameter.sr); % backward Extnsion
-        basicAlt.attackLengthFrame = basicParameter.attackLengthFrame + basicAlt.fExt;
+%         basicAlt.attackLengthFrame = basicParameter.attackLengthFrame + basicAlt.fExt;
+        basicAlt.attackLengthSecond = basicParameter.attackLengthSecond + basicAlt.fExtSecond;
 
+        B= Bsheet;
         G =  midi2MatrixOption(midiRef, size(X,2), basicAlt, false, false); % make matrix G with extended note length
 
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;

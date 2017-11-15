@@ -1,4 +1,4 @@
-function [] = getVelocityFolder(dirFolder, basicParameter, audioExtension)
+function [] = getVelocityFolder(dirFolder, B, basicParameter, audioExtension)
 
 cd(dirFolder);
 dataSet = getFileListWithExtension(strcat('*.', audioExtension));
@@ -10,7 +10,9 @@ for dataIndex = 1 : length(dataSet)
     if exist(velocityCSVname, 'file')
         continue
     end
-    
+    if strcmp(fileName, 'midi')
+        continue
+    end
 %     fileName = 'Cortot, Alfred';
     audioFilename = strcat(fileName, '.mp3');
     MIDIFilename = strcat(fileName, '.mid');
@@ -42,6 +44,10 @@ for dataIndex = 1 : length(dataSet)
 %     saveName = strcat(fileName, '_AMT.mid');
     [Gx, midiVel] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter);
     csvwrite(velocityCSVname, midiVel(:,5)');
+    
+    dirPiece = strsplit(dirFolder, 'sourceFiles');
+        csvwrite(strcat( '/Users/Da/Dropbox/performScoreDemo', dirPiece{2} ,'/', velocityCSVname ), midiVel(:,5)' );
+    
 %     writemidi_seconds(midiVel, saveName);
 end
 

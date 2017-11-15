@@ -48,8 +48,8 @@ basicParameter.iterationScale = 5;
 
 autoVelExtractSystem(basicParameter, {pwd}, 'test') 
 %%
-dataSet = getFileListWithExtension(strcat('*.',option.audioExtension));
-for dataIndex = 1 : length(dataSet)
+dataSet = getFileListWithExtension(strcat('*.','mp3'));
+for dataIndex = 1 : 2%length(dataSet)
     fileName = dataSet{dataIndex};
     velocityCSVname = strcat(fileName, '_vel.csv');
 
@@ -57,7 +57,11 @@ for dataIndex = 1 : length(dataSet)
         continue
     end
     
-%     fileName = 'Cortot, Alfred';
+    if strcmp(fileName, 'midi')
+        continue
+    end
+    
+    fileName = 'Lisiecki, Jan';
     audioFilename = strcat(fileName, '.mp3');
     MIDIFilename = strcat(fileName, '.mid');
     basicParameter.nfft = 1024;
@@ -74,7 +78,7 @@ for dataIndex = 1 : length(dataSet)
     basicParameter.targetMedian = 65;
     basicParameter.targetRange = 25;
 
-    basicParameter.transcription = false;
+    basicParameter.transcription = true;
     basicParameter.threshold = 5;
     basicParameter.rankMode = 2;
     basicParameter.alpha = 1;
@@ -94,15 +98,19 @@ end
 %%
 t1 = 1;
 t2 = 500;
-p1 = 20;
+p1 = 15;
 p2 = 60;
 
-subplot(2,1,1)
+subplot(3,1,1)
 imagesc(G(p1:p2,t1:t2))
 axis xy
 
-subplot(2,1,2)
+subplot(3,1,2)
 imagesc(Ghyb4(p1:p2,t1:t2))
+axis xy
+
+subplot(3,1,3)
+imagesc(G2k(p1:p2,t1:t2))
 axis xy
 %%
 figure(1)

@@ -1,10 +1,10 @@
 % plot W, H, updated H
 timeStart = 80;
-timeEnd = 200;
+timeEnd = 500;
 frequencyStart = 1;
 frequencyEnd = 300; 
-xTicSec = [0:0.5 :(timeEnd-timeStart) * 1024/44100];
-xScaleBin = xTicSec * 44100 / 1024;
+xTicSec = [0:0.5 :(timeEnd-timeStart) * 441/44100];
+xScaleBin = xTicSec * 44100 / 441;
 yTicFreq = [0 : 500 : frequencyEnd * 44100/8192];
 yScaleBin = yTicFreq / 44100 * 8192;
 
@@ -16,18 +16,19 @@ Gfigure = [];
 
 Gcopy = G;
 Bcopy = B;
-sheetMatrixCopy = sheetMatrixMidi;
+sheetMatrixCopy = predict;
 Binitial = initializeWwithHarmonicConstraint(basicParameter);
 Binitial = betaNormC(Binitial, basicParameter.beta);
 
-%%
-sheetMatrixCopy = predict';
-sheetMatrixCopy(sheetMatrixCopy < 0.5) = 0;
-sheetMatrixCopy(sheetMatrixCopy >=0.5 ) = 1;
+%
+sheetMatrixMidi = predict(:,13:end)';
+sheetMatrixMidi(sheetMatrixMidi < 0.5) = 0;
+sheetMatrixMidi(sheetMatrixMidi >=0.5 ) = 1;
+sheetMatrixMidi = [zeros(1, size(sheetMatrixMidi,2)); sheetMatrixMidi ];
+imagesc(sheetMatrixMidi(:, 1: timeEnd))
 
-imagesc(sheetMatrixCopy(:, 1: timeEnd))
 
-%%
+%
 
 if basicParameter.rankMode == 2
     tempG = zeros(size(G));
@@ -35,17 +36,11 @@ if basicParameter.rankMode == 2
     tempSheet = zeros(size(sheetMatrixMidi));
     
     for i = 2:size(G,1)
-        if i<90
-            tempB(:,(i-1)*2) = B(:,i);
-            tempBinitial(:,(i-1)*2) = Binitial(:,i);
-            tempG((i-1)*2,:) = G(i,:);
-            tempSheet((i-1)*2,:) = sheetMatrixMidi(i,:);
-        else
-            tempB(:,(i-89)*2+1) = B(:,i);
-            tempBinitial(:,(i-89)*2+1) = Binitial(:,i);
-            tempG((i-89)*2+1,:) = G(i,:);
-            tempSheet((i-89)*2+1,:) = sheetMatrixMidi(i,:);
-        end
+        tempB(:,(i-1)*2) = B(:,i);
+        tempBinitial(:,(i-1)*2) = Binitial(:,i);
+        tempG((i-1),:) = G(i,:);
+        tempSheet(i-1,:) = sheetMatrixMidi(i,:);
+
         
     end
     G = tempG;
@@ -55,7 +50,7 @@ if basicParameter.rankMode == 2
 end
 
 
-
+%
 for i = 2:size(sheetMatrixMidi,1)    
     if sum(sheetMatrixMidi(i,timeStart:timeEnd))
         if basicParameter.rankMode == 1
@@ -72,7 +67,7 @@ end
 
 G = Gcopy;
 B = Bcopy;
-sheetMatrixMidi = sheetMatrixCopy;
+% sheetMatrixMidi = sheetMatrixCopy;
 
 
 %
@@ -80,49 +75,63 @@ close all
 
 
 fig1 = figure(1);
-set(fig1, 'PaperUnits', 'points', 'PaperPosition', [0 0 3000 600])
+set(fig1, 'PaperUnits', 'points', 'PaperPosition', [0 0 3000 1500])
 
 % subplot(2,1,1)
 % imagesc((X(1:300, timeStart:timeEnd)).^(1/4))
 % axis 'xy'
-% colormap(flipud(gray))
 colormap(flipud(gray))
+% colormap(flipud(hot))
 
+% 
+% subplot(1,4,1)
+% imagesc(BiniFigure(frequencyStart:frequencyEnd,:).^0.3)
+% set(gca,'XTick',[1:1:length(noteList)], 'XTickLabel',noteList, 'YTick',yScaleBin, 'YTickLabel',yTicFreq, 'FontSize', 20)
+% axis 'xy'
+% xlabel('Midi Pitch', 'FontSize', 35)
+% ylabel('Frequency [Hz]', 'FontSize', 35)
+% title('(a) Initialization of W', 'FontSize', 45, 'FontName', 'Arial')
 
-subplot(1,4,1)
-imagesc(BiniFigure(frequencyStart:frequencyEnd,:).^0.3)
-set(gca,'XTick',[1:1:length(noteList)], 'XTickLabel',noteList, 'YTick',yScaleBin, 'YTickLabel',yTicFreq, 'FontSize', 20)
+subplot(3,1,1)
+imagesc(groundTruthMidi(30:65,timeStart:timeEnd))
+% set(gca,'YTick',[1:1:length(noteList)], 'YTickLabel',noteList,'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25)
+set(gca, 'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25,'YTickLabel',[30:5:65], 'YTick', [0:5:35])
+
 axis 'xy'
-xlabel('Midi Pitch', 'FontSize', 35)
-ylabel('Frequency [Hz]', 'FontSize', 35)
-title('(a) Initialization of W', 'FontSize', 45, 'FontName', 'Arial')
+% xlabel('Time [sec]', 'FontSize', 35)
+ylabel('MIDI Pitch', 'FontSize', 35)
+title('(a) Ground Truth', 'FontSize', 45)
 
 
+subplot(3,1,2)
+% imagesc(sheetFigure)
+imagesc(sheetMatrixMidi(30:65,timeStart:timeEnd))
+% set(gca,'YTick',[1:1:length(noteList)], 'YTickLabel',noteList,'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25)
+set(gca, 'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25,'YTickLabel',[30:5:65], 'YTick', [0:5:35])
 
-subplot(1,4,2)
-imagesc(sheetFigure)
-set(gca,'YTick',[1:1:length(noteList)], 'YTickLabel',noteList,'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25)
+axis 'xy'
+% xlabel('Time [sec]', 'FontSize', 35)
+ylabel('MIDI Pitch', 'FontSize', 35)
+title('(b) Result of AMT', 'FontSize', 45)
+% 
+% subplot(1,4,3)
+% imagesc(Bfigure(frequencyStart:frequencyEnd,:).^0.3)
+% set(gca,'XTick',[1:1:length(noteList)], 'XTickLabel',noteList, 'YTick',yScaleBin, 'YTickLabel',yTicFreq,'FontSize', 20)
+% axis 'xy'
+% xlabel('Midi Pitch', 'FontSize', 35)
+% ylabel('Frequency [Hz]', 'FontSize', 35)
+% title('(c) NMF result of W', 'FontSize', 45)
+
+
+subplot(3,1,3)
+imagesc(G(31:65,timeStart:timeEnd))
+% set(gca,'YTick',[1:1:length(noteList)], 'YTickLabel',noteList,'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25)
+set(gca, 'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25,'YTickLabel',[30:5:65], 'YTick', [0:5:35])
+
 axis 'xy'
 xlabel('Time [sec]', 'FontSize', 35)
-ylabel('Midi Pitch', 'FontSize', 35)
-title('(b) Initialization of H', 'FontSize', 45)
-
-subplot(1,4,3)
-imagesc(Bfigure(frequencyStart:frequencyEnd,:).^0.3)
-set(gca,'XTick',[1:1:length(noteList)], 'XTickLabel',noteList, 'YTick',yScaleBin, 'YTickLabel',yTicFreq,'FontSize', 20)
-axis 'xy'
-xlabel('Midi Pitch', 'FontSize', 35)
-ylabel('Frequency [Hz]', 'FontSize', 35)
-title('(c) NMF result of W', 'FontSize', 45)
-
-
-subplot(1,4,4)
-imagesc(Gfigure)
-set(gca,'YTick',[1:1:length(noteList)], 'YTickLabel',noteList,'XTick',xScaleBin,'XTickLabel',xTicSec, 'FontSize', 25)
-axis 'xy'
-xlabel('Time [sec]', 'FontSize', 35)
-ylabel('Midi Pitch', 'FontSize', 35)
-title('(d) NMF result of H', 'FontSize', 45)
+ylabel('MIDI Pitch', 'FontSize', 35)
+title('(c) NMF result for velocity estimation', 'FontSize', 45)
 
 print('fig1','-dpng','-r0')
 

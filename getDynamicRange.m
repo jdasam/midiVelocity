@@ -1,4 +1,4 @@
-function basicParameter = getDynamicRange(matAddress)
+function [B, basicParameter] = getDynamicRange(matAddress)
 
 
 load(matAddress)

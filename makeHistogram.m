@@ -1,4 +1,4 @@
-function [histData, histMIDI, f, f2]= makeHistogram(MIDIFilename, Gx, basicParameter)
+function [histData, histMIDI, f]= makeHistogram(MIDIFilename, Gx, basicParameter)
 
 
 midi = readmidi_java(MIDIFilename,true);
@@ -20,7 +20,7 @@ gainDB = 20 * log10(gainData + eps);
 histData = histogram(gainDB, ceil(max(gainDB)) - floor(min(gainDB)));
 f = fit(linspace(floor(min(gainDB)),ceil(max(gainDB)), ceil(max(gainDB)) - floor(min(gainDB)))', histData.Values','gauss1');
 histMIDI = histogram(midi(:,5), max(midi(:,5)) - min(midi(:,5)) + 1);
-f2 = fit(linspace(min(midi(:,5)),max(midi(:,5)), histMIDI.NumBins)', histMIDI.Values','gauss1');
+% f2 = fit(linspace(min(midi(:,5)),max(midi(:,5)), histMIDI.NumBins)', histMIDI.Values','gauss1');
 
 % estimatedVelMean = 2.0163 * f.b1 - 56.3573;
 % estimatedVelRange = 2.2909 * f.c1 + 2.8077;
