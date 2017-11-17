@@ -1,7 +1,39 @@
 dirSet = {};
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
+% dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.rankMode = 2;
+basicParameter.spectrumMode = 2;
+basicParameter.Gfixed = true;
+basicParameter.GpreUpdate = 10;
+basicParameter.updateBnumber = 5;
+basicParameter.fExtSecond = 0;
+basicParameter.bExtSecond = 0.5;
+resultName = '1115R2S2GfGpu10Ubn5bExt5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.rankMode = 3;
+basicParameter.spectrumMode = 2;
+basicParameter.Gfixed = true;
+basicParameter.GpreUpdate = 10;
+basicParameter.updateBnumber = 5;
+resultName = '1115R3S2GfGpu10Ubn5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.window = 8192 * 2;
+basicParameter.rankMode = 2;
+basicParameter.spectrumMode = 2;
+basicParameter.Gfixed = true;
+basicParameter.GpreUpdate = 10;
+basicParameter.updateBnumber = 5;
+resultName = '1115R2S2GfGpu10Ubn5W16k';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
 %%
 basicParameter = basicParameterInitialize();
 basicParameter.rankMode = 2;

@@ -14,7 +14,7 @@ end
 if offset > size(G,2)
     offset = size(G,2);
 end
-searchRangeFrame = ceil(basicParameter.searchRange / basicParameter.nfft * basicParameter.sr);
+searchRangeFrame = ceil(basicParameter.searchRangeSecond / basicParameter.nfft * basicParameter.sr);
 indexEnd = index + searchRangeFrame;
 
 if indexEnd > offset

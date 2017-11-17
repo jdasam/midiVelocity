@@ -30,7 +30,7 @@ function updatedG = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, tempA
         updatedG(1:89,:) = updatedG1;
         updatedG(90:177,:) = updatedG2;
     
-    elseif basicParameter.rankMode == 3
+    elseif basicParameter.rankMode >= 3
         updatedG =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) ./ (B' * (Xhat .^ (basicParameter.beta-1))  ));
     end
    

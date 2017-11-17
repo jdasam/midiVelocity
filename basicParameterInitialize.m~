@@ -10,8 +10,8 @@ basicParameter.window =  8192; % 8192, erbt 512;
 basicParameter.attackLengthSecond = 0.4;
 % basicParameter.searchRange = 13;
 basicParameter.searchRangeSecond = 0.8;
-basicParameter.multiRankOverlapSecond = 0.15;
-basicParameter.multiRankHopSecond = 0.0464;
+basicParameter.multiRankOverlapSecond = 0.1;
+basicParameter.
 
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
@@ -28,7 +28,7 @@ basicParameter.harmConstrain = false;
 basicParameter.onsetFine = 0;
 basicParameter.offsetFine = 0;
 basicParameter.updateBnumber = 0;
-basicParameter.harmBoundary = 1;
+basicParameter.harmBoundary = 0.5;
 basicParameter.GpartialUpdate = false;
 basicParameter.BpartialUpdate = false;
 basicParameter.useInitialB = false;
@@ -64,7 +64,8 @@ basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, bas
 
 
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
-basicParameter.searchRangeFrame = ceil(basicParameter.searchRangeSecond / basicParameter.nfft * basicParameter.sr);
-basicParameter.multiRankOverlapFrame = ceil(basicParameter.multiRankOverlapSecond / basicParameter.nfft * basicParameter.sr);
-basicParameter.multiRankHopFrame = ceil(basicParameter.multiRankHopSecond / basicParameter.nfft * basicParameter.sr);
+basicParameter.searchRangeFrame = basicParameter.searchRangeSecond / basicParameter.nfft * basicParameter.sr;
+basicParameter.multiRankOverlapFrame = 0.1;
+
+
 end

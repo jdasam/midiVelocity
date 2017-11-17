@@ -83,13 +83,7 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
             end
         elseif basicParameter.rankMode > 3
             for j=1:basicParameter.rankMode
-                tempBasisIndex = (basisIndex-2) * basicParameter.rankMode +1 + j;
-                tempOnset = onset  + basicParameter.multiRankHopFrame * (j-1);
-                if tempOnset > offset
-                    break
-                end
-                tempOffset = max( tempOnset + basicParameter.multiRankOverlapFrame, offset - basicParameter.multiRankHopFrame * (basicParameter.rankMode-j)); 
-                sheetMatrix( tempBasisIndex , tempOnset:tempOffset  ) =1;
+                sheetMatrix( (basisIndex-2) * basicParameter.rankMode +1 + j , 
             end
    
         else

@@ -98,19 +98,23 @@ end
 %%
 t1 = 1;
 t2 = 500;
-p1 = 15;
+p1 = 10;
 p2 = 60;
 
-subplot(3,1,1)
+subplot(4,1,1)
 imagesc(G(p1:p2,t1:t2))
 axis xy
 
-subplot(3,1,2)
+subplot(4,1,2)
 imagesc(Ghyb4(p1:p2,t1:t2))
 axis xy
 
-subplot(3,1,3)
-imagesc(G2k(p1:p2,t1:t2))
+subplot(4,1,3)
+imagesc(Gwang(p1:p2,t1:t2))
+axis xy
+
+subplot(4,1,4)
+imagesc(Grand2(p1:p2,t1:t2))
 axis xy
 %%
 figure(1)
@@ -204,7 +208,7 @@ plot(log(eB(f1:f2,tp+88)))
 hold off
 
 %%
-test = G  [zeros(size(G,1),1) G(:,1:end-1)];
+% test = G  [zeros(size(G,1),1) G(:,1:end-1)];
 test(isnan(test))=0;
 
 
