@@ -34,7 +34,7 @@ function updatedG = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, tempA
     elseif basicParameter.rankMode >= 3
         [diffMatrixL, diffMatrixR] = multiRankActivationConstraintMatrix (G, basicParameter);
         
-        updatedG =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + 4*alpha2*G );
+        updatedG =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + 4*alpha2*G ));
     end
    
 end

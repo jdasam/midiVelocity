@@ -20,6 +20,7 @@ basicParameter.resultFolderDir = '/Users/Da/Dropbox/midiVelocityResult';
 
 basicParameter.basisSource = 'scale'; %scale, data
 basicParameter.alpha = 0;
+basicParameter.alpha2 = 0;
 basicParameter.rankMode = 1; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1; 
 basicParameter.weightOnAttack = false;
