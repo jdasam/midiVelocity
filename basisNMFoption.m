@@ -85,12 +85,7 @@ else
         B = betaNormC(B,1);
         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
 
-        if strcmp(basicParameter.spectrumMode, 'linear')
-            Yhat = B * G;
-        elseif strcmp(basicParameter.spectrumMode, 'power')
-            Yhat = sqrt(B.^2 * G.^2);
-        end
-        betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(Y, Yhat, beta);
+%         betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(X, Xhat, beta);
     end  
 end
 
