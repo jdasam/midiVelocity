@@ -82,7 +82,7 @@ else
         B = Bnew;
         G = Gnew;
 
-        B = beataNormC(B,1);
+        B = betaNormC(B,1);
         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
 
         if strcmp(basicParameter.spectrumMode, 'linear')
