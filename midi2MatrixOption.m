@@ -12,7 +12,7 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
 %     attMargin = basicParameter.attackLengthFrame - 1;    
     if weightOnAttack
         weightMatrix = ones(1,attMargin*2+1);
-        weightMatrix(1:attMargin) = linspace(3,10,attMargin+1);
+        weightMatrix(1:attMargin+1) = linspace(3,10,attMargin+1);
         weightMatrix(attMargin+1:end) = linspace(10,3,attMargin+1);
     end
     
