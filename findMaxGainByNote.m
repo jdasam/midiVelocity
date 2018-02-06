@@ -1,6 +1,18 @@
-function [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiNote, G, basicParameter)
+function [gainCalculated, maxIndex, onset, offset, onsetClusterData] = findMaxGainByNote(midiNote, G, basicParameter, B)
 
-basisIndex = midiNote(4) - basicParameter.minNote +2;
+if nargin < 4
+    B = zeros(1,size(G,1));
+end
+
+onsetWindowSize = 7; %half of window
+
+if basicParameter.rankMode <= 2
+    basisIndex = midiNote(4) - basicParameter.minNote +2;
+else
+    basisIndex = ( midiNote(4) - basicParameter.minNote ) * basicParameter.rankMode + 2;
+    basisIndexEnd = basisIndex + basicParameter.rankMode - 1;
+
+end
 
 index = onsetTime2frame(midiNote(6),basicParameter);
 offset = ceil( (midiNote(7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
@@ -26,12 +38,30 @@ indexEnd = size(G,2);
 end
 
 
+onsetClusterData = [];
+
 if isfield(basicParameter, 'fExt')
-    [gainCalculated, onset] = max(G(basisIndex, max(index-basicParameter.fExt,1):indexEnd));
+    if basicParameter.rankMode <= 2
+        [gainCalculated, onset] = max(G(basisIndex, max(index-basicParameter.fExt,1):indexEnd));
+    else
+        [gainCalculated, onset] = max((sum(B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, max(index-basicParameter.fExt,1):indexEnd).^basicParameter.spectrumMode)).^(1/basicParameter.spectrumMode));
+        if nargout == 5 && index + onset - basicParameter.fExt + 1 - onsetWindowSize > 0 && index + onset + onsetWindowSize <size(G,2) 
+%             onsetClusterData = G(basisIndex:basisIndexEnd, index + onset - basicParameter.fExt + 1 - 5 : index + onset - basicParameter.fExt + 5);
+            onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, index + onset - basicParameter.fExt + 1 - onsetWindowSize : index + onset - basicParameter.fExt + onsetWindowSize);
+        end
+    end
     maxIndex= onset;
     onset = onset + max(index-basicParameter.fExt,1)+ 1;
 else
-    [gainCalculated, onset] = max(G(basisIndex, index:indexEnd));
+    if basicParameter.rankMode <= 2
+        [gainCalculated, onset] = max(G(basisIndex, index:indexEnd));
+    else
+        [gainCalculated, onset] = max( (sum(B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode)) .^(1/basicParameter.spectrumMode));
+        if nargout == 5 && index + onset + 1 - onsetWindowSize > 0 && index + onset + onsetWindowSize <size(G,2)
+%             onsetClusterData = G(basisIndex:basisIndexEnd, index + onset + 1 - 5 : index + onset + 5);
+            onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, index + onset + 1 - onsetWindowSize : index + onset + onsetWindowSize);
+        end
+    end
     maxIndex= onset;
     onset = onset + index +1;
 end
@@ -39,7 +69,7 @@ end
 
 
 
-if isfield(basicParameter, 'threshold')
+if isfield(basicParameter, 'threshold') && basicParameter.threshold
     offsetNew = min(find(G(basisIndex, index+maxIndex:offset) < basicParameter.threshold)) + index + maxIndex - 1;
     
     if offsetNew

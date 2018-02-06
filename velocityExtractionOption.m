@@ -1,4 +1,4 @@
-function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
+function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData, B, numberOfNotesByError] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     [X, basicParameter.sr] = audio2spectrogram(audioFilename, basicParameter);
@@ -14,6 +14,7 @@ fittingArray = basicParameter.fittingArray;
 
 midiRef = readmidi_java(MIDIFilename,true);
 midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
+midiVel = midiRef;
 basicParameter.MIDI = midiRef;
 
 if isfield(basicParameter, 'fExtSecond')
@@ -34,7 +35,14 @@ sheetMatrixMidi = midi2MatrixOption(midiRef, size(X,2), basicParameter, false, b
 
 % Calculate Gx
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
-    G = sheetMatrixMidi;
+    if isfield(basicParameter, 'softConstraint') && basicParameter.softConstraint
+        G = rand(size(sheetMatrixMidi));
+        softConstraintMatrix = sheetMatrixMidi;
+        softConstraintMatrix(1,:) = 0;
+    else
+        G = sheetMatrixMidi;
+        softConstraintMatrix = zeros(size(G));
+    end
 
 elseif strcmp(basicParameter.scale, 'erbt')
     sheetMatrixTotalCopy = sheetMatrixMidi(2:end,:);
@@ -47,108 +55,131 @@ if basicParameter.BpartialUpdate
 end
 
 
+[G, B] = NMFwithMatrix(G, B, X, basicParameter, basicParameter.iterationPiece, softConstraintMatrix);
 
-if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
-
-    Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-    
-    
-    if basicParameter.GpreUpdate
-       for i = 1:basicParameter.GpreUpdate
-           G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
-           G(find(isnan(G)))=0;
-           Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-       end
-        
-    end
-    if isfield(basicParameter, 'transcription')
-        if basicParameter.transcription
-%             B = rand(size(X,1), size(G,1));
-%             if basicParameter.harmConstrain
-%                 B = initializeWwithHarmonicConstraint(basicParameter);
-%             end
-        end
-    end
-
-    
-    for i = 1:50
-        Bnew = B;
-        Gnew = G;
-
-        temporalConstraintDummy = zeros(size(G));
-        Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter,temporalConstraintDummy);
-        Gnew(find(isnan(Gnew)))=0;
-        
-        if i < basicParameter.updateBnumber
-            if basicParameter.BpartialUpdate
-                tempUpdate = (X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G') .* harmBoolean;
-                tempUpdate(tempUpdate==0) = 1;
-                Bnew = B .* tempUpdate;
-                Bnew = betaNormC(Bnew,basicParameter.beta);
-                Bnew(find(isnan(Bnew)))=0;
-            else
-%                 Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
-                if basicParameter.rankMode == 2;
-                    specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
-                    sigma = 0.5;
-                    Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+% if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
+% 
+%     Xhat = (B.^basicParameter.sp  ectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+%     
+%     
+%     if basicParameter.GpreUpdate
+%        for i = 1:basicParameter.GpreUpdate
+%            Gnew =updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix);
+%            G = Gnew;
+%            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+%        end
+%         
+%     end
+%     if isfield(basicParameter, 'transcription')
+%         if basicParameter.transcription
+% %             B = rand(size(X,1), size(G,1));
+% %             if basicParameter.harmConstrain
+% %                 B = initializeWwithHarmonicConstraint(basicParameter);
+% %             end
+%         end
+%     end
+% 
+%     
+%     for i = 1:50
+%         Bnew = B;
+%         Gnew = G;
+% 
+%         Gnew =updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix);
+%         
+% %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+% %         Gnew(find(isnan(Gnew)))=0;
+%         
+%         if i < basicParameter.updateBnumber
+%             if basicParameter.BpartialUpdate
+%                 tempUpdate = (X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G') .* harmBoolean;
+%                 tempUpdate(tempUpdate==0) = 1;
+%                 Bnew = B .* tempUpdate;
+%                 Bnew = betaNormC(Bnew,basicParameter.beta);
+%                 Bnew(find(isnan(Bnew)))=0;
+%             else
+% %                 Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
+%                 if basicParameter.rankMode == 2;
+%                     specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
+%                     sigma = 0.5;
+%                     Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+% %                     Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
+%                 elseif basicParameter.rankMode >3 ;
+%                     Bnew = updateB(B, G, X, Xhat, basicParameter);
+%                     
+%                     
+%                 else
 %                     Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
-
-                else
-                    Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
-                end
-
-                
-                Bnew = betaNormC(Bnew,basicParameter.beta);
-                Bnew(find(isnan(Bnew)))=0;
-            end
-        end
-
-        B=Bnew;
-        G=Gnew;
-
-        Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-
-        
-    end
-%     D = sum(betaDivergence(X, Xhat, basicParameter.beta))
-
-
-elseif strcmp(basicParameter.scale, 'erbt')
-    [G B] = erbtHarmclusNMF(X, G, B , 250,f,alen, basicParameter, false); 
-    
-    G = vertcat(G(end,:),G);
-    G(end,:) = [];
-end
+%                 end
+% 
+%                 
+%                 Bnew = betaNormC(Bnew,basicParameter.beta);
+%                 Bnew(find(isnan(Bnew)))=0;
+%             end
+%         end
+% 
+%         B=Bnew;
+%         G=Gnew;
+% 
+%         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+% 
+%         
+%     end
+% %     D = sum(betaDivergence(X, Xhat, basicParameter.beta))
+% 
+% 
+% elseif strcmp(basicParameter.scale, 'erbt')
+%     [G B] = erbtHarmclusNMF(X, G, B , 250,f,alen, basicParameter, false); 
+%     
+%     G = vertcat(G(end,:),G);
+%     G(end,:) = [];
+% end
 
 if basicParameter.fittingArray(1,1)
 
     % evaluate the result
-    midiVel = readmidi_java(MIDIFilename,true);
-    midiVel(:,7) = midiVel(:,6) + midiVel(:,7);
+%     midiVel = readmidi_java(MIDIFilename,true);
+%     midiVel(:,7) = midiVel(:,6) + midiVel(:,7);
     maxIndexVector = zeros(size(midiVel,1),1);
     gainFromVelVec = zeros(size(midiVel,1),1);
     gainCalculatedVec = zeros(size(midiVel,1),1);
-
+    
+    onsetClusterArray = {};
+    onsetMatchedVel = [];
     
     histogramData = [];
-%     [histogramData.histData, histogramData.histMIDI, histogramData.f, histogramData.f2]= makeHistogram(MIDIFilename, G, basicParameter);
-    [~, ~, histogramData.f]= makeHistogram(MIDIFilename, G, basicParameter);
+    [histogramData.histData, histogramData.histMIDI, histogramData.f, histogramData.f2]= makeHistogram(MIDIFilename, G, basicParameter, B);
+%     [~, ~, histogramData.f]= makeHistogram(MIDIFilename, G, basicParameter);
 
-    if isfield(basicParameter, 'targetMedian')
-        targetGain = (basicParameter.targetMedian-basicParameter.dynMed(2))/basicParameter.dynMed(1);
-        G = G .* 10 ^( (targetGain - histogramData.f.b1)/20 );
-        tempG = (20*log10(G) - targetGain) *  ( (basicParameter.targetRange -basicParameter.dynRan(2))/basicParameter.dynRan(1)/histogramData.f.c1  ) + targetGain;
-        G = 10.^(tempG/20);
+    if isfield(basicParameter, 'targetMedian') && basicParameter.targetMedian
+%         tempG = (20*log10(G+eps) - histogramData.f.b1) *  ( (basicParameter.targetRange -basicParameter.dynRan(2))/basicParameter.dynRan(1)/histogramData.f.c1  ) + histogramData.f.b1;
+%         G = 10.^(tempG/20);
+%         [histogramData.histData, histogramData.histMIDI, histogramData.f, histogramData.f2]= makeHistogram(MIDIFilename, G, basicParameter);
+%         targetGain = (basicParameter.targetMedian-basicParameter.dynMed(2))/basicParameter.dynMed(1);
+% %         G = G .* 10 ^((targetGain - histogramData.f.b1)/20 );
+%         G =  10.^ ((log10(G+eps) * 20 + (targetGain - histogramData.f.b1))/20);
+        fittingArray(1,:) = histogramData.f.c1 /20 * log(10) / basicParameter.targetRange;
+        fittingArray(2,:) = histogramData.f.b1 / 20 * log(10)  - histogramData.f.c1 /20 * log(10) / basicParameter.targetRange * basicParameter.targetMedian;
         
     end
     
+    
+    if isfield(basicParameter, 'usePseudoAligned') && basicParameter.usePseudoAligned
+        fileName = strsplit(audioFilename, '.mp3');
+        fileName = fileName{1};
+        fid = fopen(strcat(fileName, '_corresp.txt'), 'r');
+        midiAlignResult = textscan(fid, '%s', 'delimiter', '\t');
+
+        midiAlignResult = reshape(midiAlignResult{1}, [10,length(midiAlignResult{1})/10])';
+
+        midiRef = midiMatAlign(midiVel, midiAlignResult);
+
+    end
 
     for i = 1:length(midiVel)
         
         basisIndex = midiVel(i,4) - basicParameter.minNote + 2;
 
-        [gainCalculated, maxIndex] = findMaxGainByNote(midiVel(i,:), G, basicParameter);
+        [gainCalculated, maxIndex, ~, ~, onsetCluster] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
         
         
         maxIndexVector(i) = maxIndex;
@@ -156,7 +187,8 @@ if basicParameter.fittingArray(1,1)
         coefA = fittingArray(1, basisIndex-1);
         coefB = fittingArray(2, basisIndex-1);
 
-        logGainFromVel = exp(midiVel(i,5) * coefA + coefB);
+%         logGainFromVel = exp(midiVel(i,5) * coefA + coefB);
+        logGainFromVel = exp(midiRef(i,5) * coefA + coefB);
         
 
         midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA);    
@@ -169,21 +201,32 @@ if basicParameter.fittingArray(1,1)
         if midiVel(i,5) > 127
             midiVel(i,5) = 127;
         end
-
+                
+        %save onset Cluster data
+        if midiRef(i,5) ~= 0 && length(onsetCluster)
+            onsetClusterArray{length(onsetClusterArray)+1} = onsetCluster;
+            onsetMatchedVel(length(onsetMatchedVel)+1) = midiRef(i,5);
+        end
 
     end
     % calculate error
-    [error, errorPerNoteResult, refVelCompare] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
-
+    [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
+%     save('onsetCluster.mat', 'onsetClusterArray', 'onsetMatchedVel')
     midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
 
     %plot(betaDivVector)
+    
+else
+    error =0;
+    errorPerNoteResult =0;
+    refVelCompare =0;
+    histogramData =0;
+    maxIndexVector = 0;
 end
 
 if isfield(basicParameter, 'transcription')
     Gsheet= G;
     Bsheet= B;        
-    temporalConstraintDummy = zeros(size(G));
 
     if basicParameter.transcription
 %         G = rand(size(Gsheet));
@@ -304,7 +347,7 @@ if isfield(basicParameter, 'transcription')
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
         for i = 1:50
             
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
@@ -329,7 +372,7 @@ if isfield(basicParameter, 'transcription')
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
         for i = 1:50
             
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
@@ -360,7 +403,7 @@ if isfield(basicParameter, 'transcription')
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
         for i = 1:50
 
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, temporalConstraintDummy);
+            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
             Gnew(find(isnan(Gnew)))=0;
             G=Gnew;
             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
@@ -388,7 +431,7 @@ if isfield(basicParameter, 'transcription')
         for i = 1:length(midiVel)
             basisIndex = midiVel(i,4) - basicAlt.minNote + 2;
 
-            [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiVel(i,:), G, basicAlt);
+            [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiVel(i,:), G, basicAlt, B);
             midiVel(i,6) = onset * basicAlt.nfft / basicAlt.sr;
             midiVel(i,7) = offset * basicAlt.nfft / basicAlt.sr;
             
@@ -472,3 +515,4 @@ function transitionMatrix = makeTransitionMatrix(pitchA, pitchB, binNum)
         
     end
 end
+

@@ -1,7 +1,366 @@
 dirSet = {};
-% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-% dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
+dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+%
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 5;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.softConstraint = true;
+resultName = 'R5S2Gpr20Ubn5aa5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+%%
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 5;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+resultName = 'R5S2BdGpr20Ubn5aa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 5;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+basicParameter.iterationData = 20;
+resultName = 'R5S2BdGpr20Ubn5aa5UibId20';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 5;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+basicParameter.iterationData = 50;
+resultName = 'R5S2BdGpr20Ubn5aa5UibId50';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 4;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 5;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+resultName = 'R4S2BdGpr20Ubn5aa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 6;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 5;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+resultName = 'R6S2BdGpr20Ubn5aa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+%%
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'scale';
+basicParameter.updateBnumber = 10;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+basicParameter.harmonicConstraint = true;
+basicParameter.iterationScale = 50;
+resultName = 'R5S2BscUbn10Gpre20aa5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'scale';
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useInitialB = true;
+basicParameter.harmonicConstraint = true;
+basicParameter.iterationScale = 50;
+resultName = 'R5S2BscAa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'scale';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = true;
+basicParameter.harmonicConstraint = true;
+basicParameter.iterationScale = 50;
+resultName = 'R5S2BscUbn10Gpre20aa5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 7;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = true;
+resultName = 'R7S2BdGpre20aa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 7;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = true;
+resultName = 'R7S2BdGpre20aa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 10;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = true;
+resultName = 'R10S2BdUbn5Gpr20aa5Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 20;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = true;
+resultName = 'R5S2BdUbn5Gpr20aa20Uib';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = false;
+resultName = 'R5S2BdUbn5Gpr20aa5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+%
+
+%
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+basicParameter.useIinitialB = false;
+
+resultName = 'R5S2BdUbn5Gpre20aa5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+%%
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 4;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 10;
+basicParameter.alpha1 = 1;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+
+basicParameter.fExtSecond = 0;
+basicParameter.bExtSecond = 0;
+
+% B = initializeWwithHarmonicConstraint(basicParameter);
+
+resultName = 'R4S2bExt0ubn5Gpr10';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 6;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 10;
+basicParameter.alpha1 = 1;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+
+basicParameter.fExtSecond = 0;
+basicParameter.bExtSecond = 0;
+
+% B = initializeWwithHarmonicConstraint(basicParameter);
+
+resultName = 'R6S2bExt0ubn5Gpr10';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 1;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+
+basicParameter.fExtSecond = 0;
+basicParameter.bExtSecond = 0;
+
+% B = initializeWwithHarmonicConstraint(basicParameter);
+
+resultName = 'R5S2bExt0ubn5Gpr20';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 5;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 20;
+basicParameter.alpha1 = 10;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.multiRankHopFrame = 1;
+basicParameter.softConstraint = true;
+
+basicParameter.fExtSecond = 0;
+basicParameter.bExtSecond = 0;
+
+% B = initializeWwithHarmonicConstraint(basicParameter);
+
+resultName = 'R5S2bExt0ubn5Gpr20aa10';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
 %%
 basicParameter = basicParameterInitialize();
 basicParameter.rankMode = 2;

@@ -1,6 +1,6 @@
 function updatedG = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, tempAttackMatrix)
     if nargin < 6
-        tempAttackMatrix = false;
+        tempAttackMatrix = zeros(size(G));
     end
 
     beta = basicParameter.beta;

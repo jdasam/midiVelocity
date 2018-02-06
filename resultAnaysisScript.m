@@ -1,12 +1,12 @@
 resultList ={};
 
- resultCodeList = {'Bd' ,'BdR2', 'BdHc', 'BdR2GfHc' ,'BdR2GfHcUibId10', 'R1', 'R2', 'R2Gf', 'R2Hc', 'R2GfHc', 'R2GfHcUbn5', 'R2GfHcGpr5Ubn5'};
+%  resultCodeList = {'Bd' ,'BdR2', 'BdHc', 'BdR2GfHc' ,'BdR2GfHcUibId10', 'R1', 'R2', 'R2Gf', 'R2Hc', 'R2GfHc', 'R2GfHcUbn5', 'R2GfHcGpr5Ubn5'};
 %resultCodeList = {'BdR2GfHcUibId10','BdR2S2GfHcUibId10','BdR2S2GfHcUibId10A1' , 'BdR2S2GfHcUibId10A10', 'BdR2S2GfHcUibId10A100', 'R2S2GfHcGpr5Ubn5', 'R2S2GfHcGpr5Ubn5A10', 'R2S2GfHcGpr5Ubn5A100'};
-
+resultCodeList = {'R4S2BdGpr20Ubn5aa5Uib', 'R5S2BdGpr20Ubn5aa5Uib', 'R6S2BdGpr20Ubn5aa5Uib', 'R5S2BdGpr20Ubn5aa5UibId50', 'R5S2BdUbn5Gpr20aa5', 'R5S2BdGpre20aa5Uib', 'R5S2BdUbn5Gpr20aa20Uib'};
 
 
 for i = 1:length(resultCodeList)
-    tempResult = strcat('resultData', resultCodeList{i});
+    tempResult = strcat('resultData', resultCodeList{i});   
     eval(['resultList{i} = ', tempResult ';']);
     
 end
@@ -28,7 +28,7 @@ barGraph(1).FaceColor = 'k';
 barGraph(2).FaceColor = 'w';
 barGraph(2).LineWidth = 2;
 
-ylim([3 11])
+ylim([4.5 6])
 xlim([0 length(resultCodeList)+1])
 %hold on;
 %h=errorbar(resultAverage(:,1:2),resultAverage(:,3:4),'c'); set(h,'linestyle','none')

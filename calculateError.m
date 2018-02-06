@@ -1,12 +1,18 @@
-function [error, errorPerNoteResult, refVelCompare] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec)
+function [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec)
 
 errorMatrix = zeros(length(midiVel),3);
+numberOfNotesByError = zeros(127,1);
 
 for i = 1: length(midiVel)
     errorMatrix(i,1) = midiRef(i,4);
     errorMatrix(i,2) = abs(midiRef(i,5) - midiVel(i,5));% / midiRef(i,5);
     errorMatrix(i,3) = abs(midiRef(i,5) - midiVel(i,5)) / midiRef(i,5);
 end
+errorMatrix(find(errorMatrix(:,1)==0) , :) =[];
+for i = 1: length(numberOfNotesByError)
+    numberOfNotesByError(i) = sum(errorMatrix(:,2)<=i);
+end
+
 
 
 errorAbs = sum(errorMatrix(:,2)) / length(errorMatrix); % error

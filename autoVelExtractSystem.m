@@ -8,7 +8,12 @@ resultData.errorByNote = {};
 resultData.compareRefVel = {};
 resultData.maxIndexVector = {};
 resultData.histogramData = {};
+% resultData.velocityGainMatchingData = {};
 resultName = strcat(resultName, '.mat');
+
+Bcell = {};
+fittingArrayCell = {};
+velocityGainMatchingCell={};
 
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;
@@ -18,19 +23,25 @@ if strcmp(basicParameter.scale, 'erbt')
     basicParameter.window =  512;
 end
 
+if length(fieldnames(basicParameter)) > length(fieldnames(basicParameterInitialize()))
+    warning('There is an extra field in basicParameter')
+end
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
+    if basicParameter.rankMode <= 20
+        cd(basicParameter.defaultFolderDir);
+        Y = audio2spectrogram('pianoScale12Staccato2_440stretch.mp3', basicParameter);
+        [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
 
-    cd(basicParameter.defaultFolderDir);
-    Y = audio2spectrogram('pianoScale12Staccato2_440stretch.mp3', basicParameter);
-    [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
-
-    sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
-    if basicParameter.Gfixed
-        sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
+        sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
+        if basicParameter.Gfixed
+            sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
+        end
+        [~, B] = basisNMFoption(Y, sheetMatrix, basicParameter, basicParameter.iterationScale, basicParameter.Gfixed, false, false, 'scale');
+        B = betaNormC(B,basicParameter.beta);
+    else
+%         B = initializeWwithHarmonicConstraint(basicParameter);
     end
-    [~, B] = basisNMFoption(Y, sheetMatrix, basicParameter, basicParameter.iterationScale, basicParameter.Gfixed, false, false, 'scale');
-    B = betaNormC(B,basicParameter.beta);
 
     if strcmp(basicParameter.basisSource, 'scale')
         for s = 1:length(subSet)
@@ -40,8 +51,9 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 dirTrain = dirSet;
                 dirTrain(i) = [];
 
-                basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
+                [basicParameter.fittingArray, velocityGainMatchingCell{s,i}] = trainFitFolder(B, basicParameter, dirTrain);
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
+                fittingArrayCell{s,i} = basicParameter.fittingArray;
             end                                   
         end
         
@@ -63,9 +75,12 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 end
                 B = Bdata;
 
-                basicParameter.fittingArray = trainFitFolder(B, basicParameter, dirTrain);
+                [basicParameter.fittingArray, velocityGainMatchingCell{s,i}] = trainFitFolder(B, basicParameter, dirTrain);
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
-            end    
+                Bcell{s,i} = B;
+                fittingArrayCell{s,i} = basicParameter.fittingArray;
+            end
+
             B = Bscale;
         end
     end
@@ -97,7 +112,8 @@ end
 
 cd(basicParameter.resultFolderDir);
 
-save(resultName, 'basicParameter', 'resultData', 'B');
+save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell', 'velocityGainMatchingCell', '-v7.3');
+save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
 
 
 

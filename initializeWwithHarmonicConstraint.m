@@ -47,7 +47,7 @@ if basicParameter.rankMode < 3
 
 else
     for i = 1:numberOfTotalKey
-        W(:, (i-1) * basicParameter.rankMode +1) = 1;
+        W(:, (i-1) * basicParameter.rankMode + 2) = 1;
         for j = 2:basicParameter.rankMode
             f0 = midi2frequency(i+basicParameter.minNote-1);
             f0low = midi2frequency(i+basicParameter.minNote-1 - basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )));
@@ -62,7 +62,7 @@ else
                     binHigh = size(W,1);
                 end
 
-                W(binLow:binHigh, (i-1) * basicParameter.rankMode + j) =1/n^2;
+                W(binLow:binHigh, (i-1) * basicParameter.rankMode + j + 1) =1/n^2;
 
             end
         end

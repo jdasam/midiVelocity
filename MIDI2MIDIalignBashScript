@@ -1,0 +1,30 @@
+for filename in *; 
+do if [ "${filename:${#filename}-12}" = "_aligned.mid" ]; 
+then ./MIDIToMIDIAlign.sh ${filename:0:${#filename}-4} ${filename:0:${#filename}-12}
+fi; 
+done
+
+
+for filename in *; 
+do if [ "${filename:${#filename}-12}" = "_aligned.mid" ]; 
+then echo ${filename:0:${#filename}-12}
+fi;
+done
+
+
+
+for filename in *; 
+do 
+if [ "${filename:${#filename}-12}" = "_corresp.txt" ]; 
+then line=$(head -n 1 $filename);
+if [ "${line}" = "// alignID alignOntime alignSitch alignPitch alignOnvel refID refOntime refSitch refPitch refOnvel" ]; 
+then sed -i '' '1d' $filename
+fi;
+fi; 
+done
+
+
+
+
+line=$(head -n 1 Ravel_ValsesNoblesEtSentimentales_003_20090916-SMD_corresp.txt)
+echo $line
