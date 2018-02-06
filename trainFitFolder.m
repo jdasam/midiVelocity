@@ -31,10 +31,11 @@ end
 %     end
 % end
 
-xdata(size(ydataCluster,1)+1:end,:) = [];
-ydata(size(ydataCluster,1)+1:end,:) = [];
-xdataCluster(size(ydataCluster,1)+1:end,:) = [];
-
+if size(ydataCluster,1) > 1 
+    xdata(size(ydataCluster,1)+1:end,:) = [];
+    ydata(size(ydataCluster,1)+1:end,:) = [];
+    xdataCluster(size(ydataCluster,1)+1:end,:) = [];
+end
 
 
 velocityGainMatchingData ={xdata, ydata, xdataCluster, ydataCluster};
