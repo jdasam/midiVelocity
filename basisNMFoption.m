@@ -42,7 +42,7 @@ else
     Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
 
 
-    if basicParameter.GpreUpdate && initialB
+    if basicParameter.GpreUpdate && size(initialB,1)~=1
         for i = 1:basicParameter.GpreUpdate
             G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
             G(find(isnan(G)))=0;
@@ -75,14 +75,14 @@ else
             Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
 
         end
-
+        
+        Bnew = betaNormC(Bnew,basicParameter.beta);
         Bnew(find(isnan(Bnew)))=0;
         Gnew(find(isnan(Gnew)))=0;
 
         B = Bnew;
         G = Gnew;
 
-        B = betaNormC(B,1);
         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
 
 %         betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(X, Xhat, beta);
