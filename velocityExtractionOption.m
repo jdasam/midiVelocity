@@ -173,19 +173,27 @@ if basicParameter.fittingArray(1,1)
 
         midiRef = midiMatAlign(midiVel, midiAlignResult);
 
+        
+        
+        
     end
 
     for i = 1:length(midiVel)
         
-        basisIndex = midiVel(i,4) - basicParameter.minNote + 2;
+        basisIndex = max(midiVel(i,4),21) - basicParameter.minNote + 2;
 
         [gainCalculated, maxIndex, ~, ~, onsetCluster] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
         
-        
+      
         maxIndexVector(i) = maxIndex;
-
-        coefA = fittingArray(1, basisIndex-1);
-        coefB = fittingArray(2, basisIndex-1);
+        if basisIndex == 1
+            coefA = fittingArray(1, 1);
+            coefB = fittingArray(2, 1);
+        else
+            
+            coefA = fittingArray(1, basisIndex-1);
+            coefB = fittingArray(2, basisIndex-1);
+        end
 
 %         logGainFromVel = exp(midiVel(i,5) * coefA + coefB);
         logGainFromVel = exp(midiRef(i,5) * coefA + coefB);

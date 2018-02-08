@@ -6,6 +6,16 @@ end
 
 onsetWindowSize = 7; %half of window
 
+if midiNote(4) < 21
+    gainCalculated = 0;
+    maxIndex = 0;
+    onset = 0;
+    offset = 0;
+    onsetClusterData =0;
+    return 
+end
+
+
 if basicParameter.rankMode <= 2
     basisIndex = midiNote(4) - basicParameter.minNote +2;
 else

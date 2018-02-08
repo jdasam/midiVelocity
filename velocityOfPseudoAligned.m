@@ -32,9 +32,12 @@ for i = 1:length(pieces)
             elseif j <= 21
                 trainingGroupIndex = 2;
                 subSetIndex = floor( (j-16) /2) + 1;               
-            else
+            elseif j <=34
                 trainingGroupIndex = 3;
                 subSetIndex = max (floor( (j-23) /4), 0) + 1;
+            else
+                trainingGroupIndex = 4;
+                subSetIndex = floor( (j-35) / 5)+ 1;
             end
             break
         end
