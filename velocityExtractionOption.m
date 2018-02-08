@@ -1,4 +1,4 @@
-function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData, B, numberOfNotesByError] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
+function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData, B, numberOfNotesByError, gainRefVelCompare] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     [X, basicParameter.sr] = audio2spectrogram(audioFilename, basicParameter);
@@ -142,6 +142,7 @@ if basicParameter.fittingArray(1,1)
     maxIndexVector = zeros(size(midiVel,1),1);
     gainFromVelVec = zeros(size(midiVel,1),1);
     gainCalculatedVec = zeros(size(midiVel,1),1);
+    gainRefVelCompare = zeros(size(midiVel,1),2);
     
     onsetClusterArray = {};
     onsetMatchedVel = [];
@@ -221,6 +222,8 @@ if basicParameter.fittingArray(1,1)
     [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
 %     save('onsetCluster.mat', 'onsetClusterArray', 'onsetMatchedVel')
     midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
+    gainRefVelCompare(:,1) = gainFromVelVec;
+    gainRefVelCompare(:,2) = gainCalculatedVec;
 
     %plot(betaDivVector)
     
