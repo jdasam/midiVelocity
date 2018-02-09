@@ -63,7 +63,7 @@ for j = 1:88
         elseif j> fitMax
            fittingArray(:,j) =  fittingArray(:,fitMax);
         else
-           fittingArray(:,j) = fittingArray(:, j-1);
+           fittingArray(:,j) 
         end
         
     end
