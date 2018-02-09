@@ -1,23 +1,87 @@
 dirSet = {};
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-%
+% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
+% dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+% dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+% dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
+
+%%
 basicParameter = basicParameterInitialize;
 basicParameter.rankMode = 5;
 basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
 basicParameter.GpreUpdate = 20;
-basicParameter.updateBnumber = 5;
+basicParameter.updateBnumber = 30;
 basicParameter.alpha1 = 5;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1 = 1;
+basicParameter.beta2 = 1;
+basicParameter.softConstraint = true;
+
+resultName = 'test_R5BdS2Ubn15a5';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+%%
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 2;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 10;
+basicParameter.alpha = 10;
+
+resultName = 'test_R2BdS2Ubn10aa10';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+
+%%
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 2;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 15;
+basicParameter.alpha1 = 20;
 basicParameter.alpha2 = 1;
 basicParameter.alpha3 = 1;
 basicParameter.beta1= 1;
 basicParameter.beta2= 1;
 basicParameter.softConstraint = true;
-resultName = 'R5S2Gpr20Ubn5aa5';
+resultName = 'R5S2BdGpr20Ubn15aa20';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+%
+
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 6;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 15;
+basicParameter.alpha1 = 20;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.softConstraint = true;
+resultName = 'R6S2BdGpr20Ubn15aa20';
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
-
+basicParameter = basicParameterInitialize;
+basicParameter.rankMode = 4;
+basicParameter.spectrumMode = 2;
+basicParameter.basisSource = 'data';
+basicParameter.GpreUpdate = 20;
+basicParameter.updateBnumber = 15;
+basicParameter.alpha1 = 20;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 1;
+basicParameter.beta1= 1;
+basicParameter.beta2= 1;
+basicParameter.softConstraint = true;
+resultName = 'R4S2BdGpr20Ubn15aa20';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
 %%
 basicParameter = basicParameterInitialize;
 basicParameter.rankMode = 5;
@@ -26,16 +90,16 @@ basicParameter.basisSource = 'data';
 basicParameter.GpreUpdate = 20;
 basicParameter.updateBnumber = 5;
 basicParameter.alpha1 = 5;
-basicParameter.alpha2 = 1;
+basicParameter.alpha2 = 5;
 basicParameter.alpha3 = 1;
 basicParameter.beta1= 1;
 basicParameter.beta2= 1;
-basicParameter.multiRankHopFrame = 1;
 basicParameter.softConstraint = true;
-basicParameter.useInitialB = true;
-resultName = 'R5S2BdGpr20Ubn5aa5Uib';
-autoVelExtractSystem(basicParameter, dirSet, resultName);
+resultName = 'R5S2BdGpr20Ubn5aaa5';
 
+
+
+%%
 
 basicParameter = basicParameterInitialize;
 basicParameter.rankMode = 5;
