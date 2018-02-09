@@ -1,6 +1,6 @@
 
 
-resultName = 'R5S2Ubn5Gpre20aa5Bext04';
+resultName = 'R2S2Bext04';
 resultFileName = strcat(resultName, '.mat');
 
 basicParameter.bExtSecond = 0.4;
@@ -10,7 +10,7 @@ basicParameter.usePseudoAligned = true;
 
 save(resultFileName, 'error', 'numberOfNotesByError');
 
-
+%%
 resultName = 'R5S2Ubn5Gpre20aa5Ext04';
 resultFileName = strcat(resultName, '.mat');
 
@@ -20,6 +20,18 @@ basicParameter.usePseudoAligned = true;
 [error, numberOfNotesByError]  = velocityOfPseudoAligned(pwd, B, fittingArrayCell, basicParameter, resultData.title);
 
 save(resultFileName, 'error', 'numberOfNotesByError');
+
+%%
+fileName = 'Chopin_Op010-03_007_20100611-SMD';
+audioFilename = strcat(fileName, '.mp3');
+MIDIFilename = strcat(fileName, '.mid');
+
+B = Bcell{3,1};
+basicParameter.fittingArray = fittingArrayCell{3,1};
+
+[Gx, midiVel, ~, ~, refVelCompare, ~, ~,~,~, gainCompare] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter);
+
+
 
 
 %%

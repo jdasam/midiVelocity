@@ -27,8 +27,8 @@ if length(fieldnames(basicParameter)) > length(fieldnames(basicParameterInitiali
     warning('There is an extra field in basicParameter')
 end
 
-if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
-    if basicParameter.rankMode <= 20
+if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
+    if strcmp(basicParameter.basisSource, 'scale') || basicParameter.useInitialB 
         cd(basicParameter.defaultFolderDir);
         Y = audio2spectrogram('pianoScale12Staccato2_440stretch.mp3', basicParameter);
         [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
@@ -40,7 +40,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         [~, B] = basisNMFoption(Y, sheetMatrix, basicParameter, basicParameter.iterationScale, basicParameter.Gfixed, false, false, 'scale');
         B = betaNormC(B,basicParameter.beta);
     else
-%         B = initializeWwithHarmonicConstraint(basicParameter);
+        B = initializeWwithHarmonicConstraint(basicParameter);
     end
 
     if strcmp(basicParameter.basisSource, 'scale')
