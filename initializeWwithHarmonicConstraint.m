@@ -74,6 +74,11 @@ else
     
 end
 
+if basicParameter.softConstraint && basicParameter.beta2 ~= 0
+    
+    W = rand(size(W));
+end
+
 
 end
 

@@ -1,6 +1,9 @@
-function [error, refVelCompare] = velocityFastTest(filename, basicParameter)
+function [error, refVelCompare, fittingArray, xdata, ydata] = velocityFastTest(filename, basicParameter)
 
     B= initializeWwithHarmonicConstraint(basicParameter);
+    if basicParameter.softConstraint
+        B = rand(size(B));
+    end
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
     
