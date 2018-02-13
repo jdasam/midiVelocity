@@ -1,4 +1,4 @@
-function [meanSyncError, missedNotesNum, addedNotesNum, notatedPercentage, under100ratio] = calMidiSyncErrorAndDiff(txtFileName)
+function [meanSyncError, missedNotesNum, addedNotesNum, notatedPercentage] = calMidiSyncErrorAndDiff(txtFileName)
 
     fid = fopen(txtFileName, 'r');
     midiAlignResult = textscan(fid, '%s', 'delimiter', '\t');
@@ -18,12 +18,11 @@ function [meanSyncError, missedNotesNum, addedNotesNum, notatedPercentage, under
     timeAlinged_valid = timeAligned(~ (addedNotes | missedNotes));
 
     syncAbsError = abs(timeGT_valid - timeAlinged_valid);
-    under100ratio = sum(syncAbsError<0.1) / length(syncAbsError);
+    under100ratio = (syncAbsError<0
 
     meanSyncError = mean(syncAbsError);
     missedNotesNum = sum(missedNotes);
     addedNotesNum = sum(addedNotes);
     
     notatedPercentage = ((length(timeGT) - missedNotesNum) - addedNotesNum) / (length(timeGT) - missedNotesNum);
-    playedPercentage = ((length(timeGT) - missedNotesNum) - addedNotesNum) / (length(timeGT) - missedNotesNum);
 end

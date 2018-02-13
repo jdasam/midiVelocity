@@ -43,6 +43,8 @@ basicParameter.GpreUpdate = 0;
 basicParameter.attackExceptRange= basicParameter.attackLengthSecond;
 basicParameter.softConstraint = false;
 
+basicParameter.postUpdate = false;
+
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;
 

@@ -134,6 +134,19 @@ end
 %     G(end,:) = [];
 % end
 
+if basicParameter.postUpdate
+    tempBasicParam = basicParameter;
+    tempBasicParam.alpha1 = 0;
+    tempBasicParam.alpha2 = 0;
+    tempBasicParam.alpha3 = 0;
+    tempBasicParam.updateBnumber = 0;
+    tempBasicParam.iterationPiece = 10;
+    
+    G = NMFwithMatrix(G, B, X, tempBasicParam, tempBasicParam.iterationPiece, softConstraintMatrix);
+end
+
+
+
 if basicParameter.fittingArray(1,1)
 
     % evaluate the result
