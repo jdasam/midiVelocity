@@ -1,4 +1,4 @@
-function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = velocityFastTest(filename, basicParameter)
+function [error, refVelCompare, fittingArray, xdata, ydata] = velocityFastTest(filename, basicParameter)
 
     B= initializeWwithHarmonicConstraint(basicParameter);
     if basicParameter.softConstraint
@@ -41,7 +41,7 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
     midiVel = midiRef;
     gainFromVelVec = zeros(size(midiVel,1),1);
     gainCalculatedVec = zeros(size(midiVel,1),1);
-    gainCompareVec = zeros(size(midiVel,1),2);
+    gainCompareVec = zeros(size(midiVel,1),1);
     
     for i = 1:length(midiVel)
         
@@ -62,7 +62,6 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
         midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA);    
         gainFromVelVec(i) = logGainFromVel ^0.6;
         gainCalculatedVec(i) = gainCalculated ^0.6;
-
         %midiVel(i,5) = round(sqrt(max(Gx(pitch,index:index))) * 2.5);
         if midiVel(i,5) < 0
             midiVel(i,5) = 1;
@@ -72,9 +71,8 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
         end            
     end
     [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
-    gainCompareVec(:,1) = gainFromVelVec;
-    gainCompareVec(:,2) = gainCalculatedVec;
-    
+
+
 end
 
 
