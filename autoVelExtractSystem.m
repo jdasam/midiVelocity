@@ -43,7 +43,7 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
         B = initializeWwithHarmonicConstraint(basicParameter);
     end
 
-    if strcmp(basicParameter.basisSource, 'scale')
+    if strcmp(basicParameter.basisSource, 'scale') || strcmp(basicParameter.basisSource, 'rand')
         for s = 1:length(subSet)
             dirSet = findFoldersInFolder(subSet{s});
             for i = 1:length(dirSet)
