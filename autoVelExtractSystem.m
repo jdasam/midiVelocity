@@ -41,6 +41,9 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
         B = betaNormC(B,basicParameter.beta);
     else
         B = initializeWwithHarmonicConstraint(basicParameter);
+        if basicParameter.harmConstrain == false || basicParameter.softConstraint
+            B = rand(size(B));
+        end
     end
 
     if strcmp(basicParameter.basisSource, 'scale') || strcmp(basicParameter.basisSource, 'rand')

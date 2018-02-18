@@ -14,7 +14,7 @@ beta = basicParameter.beta;
 
 if strcmp(dataSource, 'scale')
     B = rand(size(X,1), size(G,1));
-    if basicParameter.harmConstrain
+    if basicParameter.harmConstrain && basicParameter.softConstraint == false
         B = initializeWwithHarmonicConstraint(basicParameter);
     end
 elseif strcmp(dataSource, 'data')
@@ -23,7 +23,7 @@ elseif strcmp(dataSource, 'data')
         B = initialB;
     else
         B = rand(size(X,1), size(G,1));
-        if basicParameter.harmConstrain 
+        if basicParameter.harmConstrain && basicParameter.softConstraint == false
            B = initializeWwithHarmonicConstraint(basicParameter); 
         end
     end
