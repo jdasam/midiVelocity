@@ -133,6 +133,9 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     
     attackBasisBoolean = zeros(size(B));
     softConstraintMatrix = zeros(size(B));
+    specContU = zeros(size(B));
+    specContD = zeros(size(B));
+
     if beta1 ~= 0
         for i = 1:basicParameter.maxNote - basicParameter.minNote +1 %for each key
             attackBasisBoolean(:, 2+(i-1)*basicParameter.rankMode) = 1;
