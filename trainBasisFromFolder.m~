@@ -15,9 +15,9 @@ if ischar(dir)
 end
 
 if initialB ==false
-    initialB = initializeWwithHarmonicConstraint(basicParameter);
+    B = initializeWwithHarmonicConstraint(basicParameter);
     if basicParameter.softConstraint == true
-        initialB= rand(size(initialB));
+        B= rand(size(B));
     end
 end
 
@@ -37,12 +37,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     end
 
 %     [updatedG, B] = basisNMFoption(Xtotal, sheetMatrixTotal, basicParameter, basicParameter.iterationData, false, sheetMatrixAttack, initialB, 'data');
-    if basicParameter.softConstraint == true
-        Gtotal = rand(size(sheetMatrixTotal));
-    else
-        Gtotal = sheetMatrixTotal;
-    end
-    [updatedG, B] = NMFwithMatrix(Gtotal, initialB, Xtotal, basicParameter, basicParameter.iterationData, sheetMatrixTotal);
+    [updatedG, B] = NMFwithMatrix(sheetMatrixTotal, B, Xtotal, basicParameter, basicParameter.iterationData, sheetMatrixTotal);
     
     
 elseif strcmp(basicParameter.scale, 'erbt')
