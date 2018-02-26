@@ -67,8 +67,10 @@ else
     if basicParameter.rankMode <= 2
         [gainCalculated, onset] = max(G(basisIndex, index:indexEnd));
     else
-        sourceSeparatedSpectrum = (B(:,basisIndex+1:basisIndexEnd) .^basicParameter.spectrumMode * G(basisIndex+1:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
-%         sourceSeparatedSpectrum = B(:,basisIndex+1:basisIndexEnd) * G(basisIndex+1:basisIndexEnd, index:indexEnd) ;
+%         sourceSeparatedSpectrum = (B(:,basisIndex+1:basisIndexEnd) .^basicParameter.spectrumMode * G(basisIndex+1:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
+        sourceSeparatedSpectrum = (B(:,basisIndex:basisIndexEnd) .^basicParameter.spectrumMode * G(basisIndex:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode);
+
+        %         sourceSeparatedSpectrum = B(:,basisIndex+1:basisIndexEnd) * G(basisIndex+1:basisIndexEnd, index:indexEnd) ;
         [gainCalculated, onset]= max(sum (sourceSeparatedSpectrum));
 %         [gainCalculated, onset] = max( (sum(  ( B(:,basisIndex:basisIndexEnd).^basicParameter.spectrumMode * G(basisIndex:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode));
 %         [gainCalculated, onset] = max( sum((B(:,basisIndex+1:basisIndexEnd).^basicParameter.spectrumMode * G(basisIndex+1:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode)));

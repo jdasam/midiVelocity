@@ -11,7 +11,7 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
     xdata = zeros(1000, 88);
     
 
-    G = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
+    [G, ~,~,~,~,~,~, B] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
 
     midiRef = readmidi_java(MIDIFilename,true);
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
