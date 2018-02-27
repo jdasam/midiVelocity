@@ -602,9 +602,7 @@ for i = 1:size(Gsum,1);
     Gsum(i,:) = sum(G( basisIndexStart:basisIndexEnd,:));
 end
 
-
-Gflux = Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)];
-% Gflux = 1.5 * Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)] - [zeros(size(Gsum,1), 2) Gsum(:,1:end-2)] * 0.5;
+Gflux = 1.5 * Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)] - [zeros(size(Gsum,1), 2) Gsum(:,1:end-2)] * 0.5;
 Gflux(Gflux<0) = 0;
 Gflux = Gflux / max(max(Gflux));
 
