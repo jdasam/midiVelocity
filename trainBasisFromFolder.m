@@ -42,6 +42,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     else
         Gtotal = sheetMatrixTotal;
     end
+    basicParameter.updateBnumber = basicParameter.iterationData;
     [updatedG, B] = NMFwithMatrix(Gtotal, initialB, Xtotal, basicParameter, basicParameter.iterationData, sheetMatrixTotal);
     
     
