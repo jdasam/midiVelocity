@@ -277,7 +277,7 @@ if isfield(basicParameter, 'transcription')
 %             Gnew(find(isnan(Gnew)))=0;
 %             G=Gnew;
 %             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
-%             sigma = 0.5;
+%             sigma = 0.5
 %             Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
 %             Bnew = betaNormC(Bnew,basicParameter.beta);
 %             Bnew(find(isnan(Bnew)))=0;
@@ -561,29 +561,49 @@ extraNotesPerKey = zeros(1,88);
 omittedNotesPerKey = zeros(1,88);
 for i = 1:size(Gflux,1)
     nmatList = midiRef(midiRef(:,4) == i + basicParameter.minNote -1,6 );
+    nmatListL = midiRef(midiRef(:,4) == i + basicParameter.minNote -2,6 );
+    nmatListU = midiRef(midiRef(:,4) == i + basicParameter.minNote,6 );
     if nmatList 
         keyThreshold = 0;
         maximumF = 0;
         optimalExtraNotes = 0;
         optimalOmittedNotes = 0;
-        for j = 1:10
+        for j = 1:40
             gainRow = Gflux(i,:);
-            threshold = j * 0.1;
+            gainRowL = Gflux(i-1,:);
+            gainRowU = Gflux(i+1,:);
+            threshold = j * 0.0025;
             noteIndexList = findNoteFromGainRow(gainRow, threshold);
-            if ~noteIndexList
+            noteIndexListL = findNoteFromGainRow(gainRowL, threshold);
+            noteIndexListU = findNoteFromGainRow(gainRowU, threshold);
+            
+            if isempty(noteIndexList) && isempty(noteIndexListL) && isempty(noteIndexListU)
                 break
             end
             noteList = noteIndexList * basicParameter.nfft / basicParameter.sr;
+            noteListL = noteIndexListL * basicParameter.nfft / basicParameter.sr;
+            noteListU = noteIndexListU * basicParameter.nfft / basicParameter.sr;
+            
             [extraNotes, omittedNotes, precision, recall] = compareNotes(nmatList, noteList);
-            fscore = 2 * (precision * recall) / (precision + recall);
+            [extraNotesL, omittedNotesL, precisionL, recallL] = compareNotes(nmatListL, noteListL);
+            [extraNotesU, omittedNotesU, precisionU, recallU] = compareNotes(nmatListU, noteListU);
+            
+            alignedNotesNum = size(noteList,2) - size(extraNotes,2);
+            alignedNotesNumL = size(noteListL,2) - size(extraNotesL,2);
+            alignedNotesNumU = size(noteListU,2) - size(extraNotesU,2);
+            
+            totalPrecision = (alignedNotesNum + alignedNotesNumL + alignedNotesNumU ) / (size(noteList,2) + size(noteListL,2) + size(noteListU,2));
+            totalRecall = (alignedNotesNum + alignedNotesNumL + alignedNotesNumU )  / (size(nmatList,1) + size(nmatListL,1) + size(nmatListU,1));
+            
+            fscore = 2 * (totalPrecision * totalRecall) / (totalPrecision + totalRecall);
             if fscore > maximumF 
                 maximumF = fscore;
-                keyThreshold = j * 0.1;
+                keyThreshold = threshold;
                 optimalExtraNotes = extraNotes;
                 optimalOmittedNotes = omittedNotes;
             end
 
-        end 
+        end
         thresholdForKey(i) = keyThreshold;
         fscoreList(i) = maximumF;
         extraNotesPerKey(1:length(optimalExtraNotes), i) = optimalExtraNotes;
@@ -603,10 +623,13 @@ for i = 1:size(Gsum,1);
 end
 
 
-Gflux = Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)];
-% Gflux = 1.5 * Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)] - [zeros(size(Gsum,1), 2) Gsum(:,1:end-2)] * 0.5;
+% Gflux = Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)];
+Gflux = 1.5 * Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)] - [zeros(size(Gsum,1), 2) Gsum(:,1:end-2)] * 0.5;
 Gflux(Gflux<0) = 0;
-Gflux = Gflux / max(max(Gflux));
+
+% Gflux = Gflux / max(max(Gflux));
+Gflux = Gflux / max(max(Gflux)) ./ (ones(88,1) * max(Gflux));
+
 
 end
 
@@ -667,10 +690,10 @@ function [correctNotesError, addedNotesError, missedNotesError]= calFscoreByCate
     addedNotesNumber = comparePerKeyAndList(extraNotesPerKey, addedNotesList);
     missedNotesNumber = comparePerKeyAndList(omittedNotesPerKey, missedNotesList);    
     
-    addedNotesError = [addedNotesNumber(2)/addedNotesNumber(1), addedNotesNumber(2)/length(missedNotesList) ];
+    addedNotesError = [addedNotesNumber(2)/addedNotesNumber(1), addedNotesNumber(2)/size(addedNotesList,1) ];
     addedNotesError(3) = 2* addedNotesError(1) * addedNotesError(2) /sum(addedNotesError);
     
-    missedNotesError = [missedNotesNumber(2)/missedNotesNumber(1), missedNotesNumber(2)/length(missedNotesList) ];
+    missedNotesError = [missedNotesNumber(2)/missedNotesNumber(1), missedNotesNumber(2)/size(missedNotesList,1) ];
     missedNotesError(3) = 2* missedNotesError(1) * missedNotesError(2) /sum(missedNotesError);
     
     correctNotesError = [1, (alignedNotesNumber - (missedNotesNumber(1) - missedNotesNumber(2)))/alignedNotesNumber];
