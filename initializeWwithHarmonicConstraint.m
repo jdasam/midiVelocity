@@ -47,8 +47,8 @@ if basicParameter.rankMode < 3
 
 else
     for i = 1:numberOfTotalKey
-%         W(:, (i-1) * basicParameter.rankMode + 2) = 1;
-        for j = 1:basicParameter.rankMode
+        W(:, (i-1) * basicParameter.rankMode + 2) = 1;
+        for j = 2:basicParameter.rankMode
             f0 = midi2frequency(i+basicParameter.minNote-1);
             f0low = midi2frequency(i+basicParameter.minNote-1 - basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )));
             f0high = midi2frequency(i+basicParameter.minNote-1 + basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )));

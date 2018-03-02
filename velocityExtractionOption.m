@@ -253,6 +253,18 @@ if isfield(basicParameter, 'transcription')
     Bsheet= B;        
 
     if basicParameter.transcription
+        
+        [extraNotesPerKey, omittedNotesPerKey, thresholdForKey, fscoreList] = getExtraNotesAndThresholdForKey(G, midiRef, basicParameter);
+        midiTrans = makeMidiWithExtraNotes(midiRef, extraNotesPerKey, omittedNotesPerKey);
+        midiTrans(:,7) = midiTrans(:,7) - midiTrans(:,6);
+        writemidi_seconds(midiTrans, 'test.mid');
+        fileName = strsplit(audioFilename, '.mp3');
+        txtFileName = strcat(fileName{1},'_corresp.txt');
+        if exist(txtFileName, 'file')
+            [~, ~, ~, ~, ~, ~, missedNotesList, addedNotesList, alignedNotesNum] = calMidiSyncErrorAndDiff(txtFileName);
+            [correctNotesError, addedNotesError, missedNotesError]= calFscoreByCategory(extraNotesPerKey, omittedNotesPerKey, addedNotesList, missedNotesList, alignedNotesNum)
+        end
+        
 %         G = rand(size(Gsheet));
 %         
 %         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
@@ -265,7 +277,7 @@ if isfield(basicParameter, 'transcription')
 %             Gnew(find(isnan(Gnew)))=0;
 %             G=Gnew;
 %             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
-%             sigma = 0.5;
+%             sigma = 0.5
 %             Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
 %             Bnew = betaNormC(Bnew,basicParameter.beta);
 %             Bnew(find(isnan(Bnew)))=0;
@@ -365,127 +377,127 @@ if isfield(basicParameter, 'transcription')
 %         
 %         
 %         
-        B = initializeWwithHarmonicConstraint(basicParameter);
-        G = rand(size(Gsheet));
-        
-        Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-        for i = 1:50
-            
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
-            Gnew(find(isnan(Gnew)))=0;
-            G=Gnew;
-            specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
-            sigma = 0.5;
-            Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
-            Bnew = betaNormC(Bnew,basicParameter.beta);
-            Bnew(find(isnan(Bnew)))=0;
-            B= Bnew;
-
-            
-            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-
-        end
-        
-        Brand2 = B;
-        Grand2 = G;
-
-        
-        B = extrapolate(Bsheet);
-        G = rand(size(Gsheet));
-        
-        Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-        for i = 1:50
-            
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
-            Gnew(find(isnan(Gnew)))=0;
-            G=Gnew;
-            specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
-            sigma = 0.5;
-            Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
-            Bnew = betaNormC(Bnew,basicParameter.beta);
-            Bnew(find(isnan(Bnew)))=0;
-            B= Bnew;
-
-            
-            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-
-        end
-        
-        Bwang = B;
-        Gwang = G;
-        
-        
-        basicAlt = basicParameter; % make alternative basicParameter
-        basicAlt.fExt = ceil(basicParameter.fExtSecond / basicParameter.nfft * basicParameter.sr); % forward Extension
-        basicAlt.bExt = ceil(basicParameter.bExtSecond / basicParameter.nfft * basicParameter.sr); % backward Extnsion
-%         basicAlt.attackLengthFrame = basicParameter.attackLengthFrame + basicAlt.fExt;
-        basicAlt.attackLengthSecond = basicParameter.attackLengthSecond + basicAlt.fExtSecond;
-
-        B= Bsheet;
-        G =  midi2MatrixOption(midiRef, size(X,2), basicAlt, false, false); % make matrix G with extended note length
-
-        Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-        for i = 1:50
-
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
-            Gnew(find(isnan(Gnew)))=0;
-            G=Gnew;
-            specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
-            sigma = 0.5;
-            Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
-            Bnew = betaNormC(Bnew,basicParameter.beta);
-            Bnew(find(isnan(Bnew)))=0;
-            B= Bnew;
-            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-
-        end
-
-        Bhyb4 = B;
-        Ghyb4 = G;
-
-        if isfield(basicParameter, 'targetMedian')
-            targetGain = (basicParameter.targetMedian-basicParameter.dynMed(2))/basicParameter.dynMed(1);
-            G = G .* 10 ^( (targetGain - histogramData.f.b1)/20 );
-            tempG = (20*log10(G) - targetGain) *  ( (basicParameter.targetRange -basicParameter.dynRan(2))/basicParameter.dynRan(1)/histogramData.f.c1  ) + targetGain;
-            G = 10.^(tempG/20);
-        
-        end
-        
-        midiVel(:,7) = midiVel(:,6) + midiVel(:,7);
-        for i = 1:length(midiVel)
-            basisIndex = midiVel(i,4) - basicAlt.minNote + 2;
-
-            [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiVel(i,:), G, basicAlt, B);
-            midiVel(i,6) = onset * basicAlt.nfft / basicAlt.sr;
-            midiVel(i,7) = offset * basicAlt.nfft / basicAlt.sr;
-            
-            
-            coefA = fittingArray(1, basisIndex-1);
-            coefB = fittingArray(2, basisIndex-1);
-
-            logGainFromVel = exp(midiVel(i,5) * coefA + coefB);
-
-
-            midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA);    
-            gainFromVelVec(i) = logGainFromVel ^0.6;
-            gainCalculatedVec(i) = gainCalculated ^0.6;
-            if midiVel(i,5) < 0
-                midiVel(i,5) = 1;
-            end
-            if midiVel(i,5) > 127
-                midiVel(i,5) = 127;
-            end
-
-
-        end
-
-        midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
-
-
+%         B = initializeWwithHarmonicConstraint(basicParameter);
+%         G = rand(size(Gsheet));
+%         
+%         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+%         for i = 1:50
+%             
+%             Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+%             Gnew(find(isnan(Gnew)))=0;
+%             G=Gnew;
+%             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
+%             sigma = 0.5;
+%             Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+%             Bnew = betaNormC(Bnew,basicParameter.beta);
+%             Bnew(find(isnan(Bnew)))=0;
+%             B= Bnew;
+% 
+%             
+%             Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+% 
+%         end
+%         
+%         Brand2 = B;
+%         Grand2 = G;
+% 
+%         
+%         B = extrapolate(Bsheet);
+%         G = rand(size(Gsheet));
+%         
+%         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+%         for i = 1:50
+%             
+%             Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+%             Gnew(find(isnan(Gnew)))=0;
+%             G=Gnew;
+%             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
+%             sigma = 0.5;
+%             Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+%             Bnew = betaNormC(Bnew,basicParameter.beta);
+%             Bnew(find(isnan(Bnew)))=0;
+%             B= Bnew;
+% 
+%             
+%             Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+% 
+%         end
+%         
+%         Bwang = B;
+%         Gwang = G;
+%         
+%         
+%         basicAlt = basicParameter; % make alternative basicParameter
+%         basicAlt.fExt = ceil(basicParameter.fExtSecond / basicParameter.nfft * basicParameter.sr); % forward Extension
+%         basicAlt.bExt = ceil(basicParameter.bExtSecond / basicParameter.nfft * basicParameter.sr); % backward Extnsion
+% %         basicAlt.attackLengthFrame = basicParameter.attackLengthFrame + basicAlt.fExt;
+%         basicAlt.attackLengthSecond = basicParameter.attackLengthSecond + basicAlt.fExtSecond;
+% 
+%         B= Bsheet;
+%         G =  midi2MatrixOption(midiRef, size(X,2), basicAlt, false, false); % make matrix G with extended note length
+% 
+%         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+%         for i = 1:50
+% 
+%             Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+%             Gnew(find(isnan(Gnew)))=0;
+%             G=Gnew;
+%             specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
+%             sigma = 0.5;
+%             Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
+%             Bnew = betaNormC(Bnew,basicParameter.beta);
+%             Bnew(find(isnan(Bnew)))=0;
+%             B= Bnew;
+%             Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+% 
+%         end
+% 
+%         Bhyb4 = B;
+%         Ghyb4 = G;
+% 
+%         if isfield(basicParameter, 'targetMedian')
+%             targetGain = (basicParameter.targetMedian-basicParameter.dynMed(2))/basicParameter.dynMed(1);
+%             G = G .* 10 ^( (targetGain - histogramData.f.b1)/20 );
+%             tempG = (20*log10(G) - targetGain) *  ( (basicParameter.targetRange -basicParameter.dynRan(2))/basicParameter.dynRan(1)/histogramData.f.c1  ) + targetGain;
+%             G = 10.^(tempG/20);
+%         
+%         end
+%         
+%         midiVel(:,7) = midiVel(:,6) + midiVel(:,7);
+%         for i = 1:length(midiVel)
+%             basisIndex = midiVel(i,4) - basicAlt.minNote + 2;
+% 
+%             [gainCalculated, maxIndex, onset, offset] = findMaxGainByNote(midiVel(i,:), G, basicAlt, B);
+%             midiVel(i,6) = onset * basicAlt.nfft / basicAlt.sr;
+%             midiVel(i,7) = offset * basicAlt.nfft / basicAlt.sr;
+%             
+%             
+%             coefA = fittingArray(1, basisIndex-1);
+%             coefB = fittingArray(2, basisIndex-1);
+% 
+%             logGainFromVel = exp(midiVel(i,5) * coefA + coefB);
+% 
+% 
+%             midiVel(i,5) = round(  ( log(gainCalculated) - coefB ) / coefA);    
+%             gainFromVelVec(i) = logGainFromVel ^0.6;
+%             gainCalculatedVec(i) = gainCalculated ^0.6;
+%             if midiVel(i,5) < 0
+%                 midiVel(i,5) = 1;
+%             end
+%             if midiVel(i,5) > 127
+%                 midiVel(i,5) = 127;
+%             end
+% 
+% 
+%         end
+% 
+%         midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
+% 
+% 
     end       
-
-    G = Gsheet;
-    B = Bsheet;
+% 
+%     G = Gsheet;
+%     B = Bsheet;
 
 end
 
@@ -540,3 +552,170 @@ function transitionMatrix = makeTransitionMatrix(pitchA, pitchB, binNum)
     end
 end
 
+function [extraNotesPerKey,omittedNotesPerKey, thresholdForKey, fscoreList] = getExtraNotesAndThresholdForKey(G, midiRef, basicParameter)
+Gflux = getGainFlux(G, basicParameter);
+
+thresholdForKey = zeros(88,1);
+fscoreList =  zeros(88,1);
+extraNotesPerKey = zeros(1,88);
+omittedNotesPerKey = zeros(1,88);
+for i = 1:size(Gflux,1)
+    nmatList = midiRef(midiRef(:,4) == i + basicParameter.minNote -1,6 );
+    nmatListL = midiRef(midiRef(:,4) == i + basicParameter.minNote -2,6 );
+    nmatListU = midiRef(midiRef(:,4) == i + basicParameter.minNote,6 );
+    if nmatList 
+        keyThreshold = 0;
+        maximumF = 0;
+        optimalExtraNotes = 0;
+        optimalOmittedNotes = 0;
+        for j = 1:40
+            gainRow = Gflux(i,:);
+            gainRowL = Gflux(i-1,:);
+            gainRowU = Gflux(i+1,:);
+            threshold = j * 0.0025;
+            noteIndexList = findNoteFromGainRow(gainRow, threshold);
+            noteIndexListL = findNoteFromGainRow(gainRowL, threshold);
+            noteIndexListU = findNoteFromGainRow(gainRowU, threshold);
+            
+            if isempty(noteIndexList) && isempty(noteIndexListL) && isempty(noteIndexListU)
+                break
+            end
+            noteList = noteIndexList * basicParameter.nfft / basicParameter.sr;
+            noteListL = noteIndexListL * basicParameter.nfft / basicParameter.sr;
+            noteListU = noteIndexListU * basicParameter.nfft / basicParameter.sr;
+            
+            [extraNotes, omittedNotes, precision, recall] = compareNotes(nmatList, noteList);
+            [extraNotesL, omittedNotesL, precisionL, recallL] = compareNotes(nmatListL, noteListL);
+            [extraNotesU, omittedNotesU, precisionU, recallU] = compareNotes(nmatListU, noteListU);
+            
+            alignedNotesNum = size(noteList,2) - size(extraNotes,2);
+            alignedNotesNumL = size(noteListL,2) - size(extraNotesL,2);
+            alignedNotesNumU = size(noteListU,2) - size(extraNotesU,2);
+            
+            totalPrecision = (alignedNotesNum + alignedNotesNumL + alignedNotesNumU ) / (size(noteList,2) + size(noteListL,2) + size(noteListU,2));
+            totalRecall = (alignedNotesNum + alignedNotesNumL + alignedNotesNumU )  / (size(nmatList,1) + size(nmatListL,1) + size(nmatListU,1));
+            
+            fscore = 2 * (totalPrecision * totalRecall) / (totalPrecision + totalRecall);
+            if fscore > maximumF 
+                maximumF = fscore;
+                keyThreshold = threshold;
+                optimalExtraNotes = extraNotes;
+                optimalOmittedNotes = omittedNotes;
+            end
+
+        end
+        thresholdForKey(i) = keyThreshold;
+        fscoreList(i) = maximumF;
+        extraNotesPerKey(1:length(optimalExtraNotes), i) = optimalExtraNotes;
+        omittedNotesPerKey(1:length(optimalOmittedNotes), i) = optimalOmittedNotes;
+    end
+end
+
+end
+
+function Gflux = getGainFlux(G, basicParameter)
+
+Gsum = zeros(basicParameter.maxNote - basicParameter.minNote + 1, size(G,2));
+for i = 1:size(Gsum,1);
+    basisIndexStart = (i-1) * basicParameter.rankMode + 2;
+    basisIndexEnd = i * basicParameter.rankMode + 1;
+    Gsum(i,:) = sum(G( basisIndexStart:basisIndexEnd,:));
+end
+
+
+% Gflux = Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)];
+Gflux = 1.5 * Gsum - [zeros(size(Gsum,1), 1) Gsum(:,1:end-1)] - [zeros(size(Gsum,1), 2) Gsum(:,1:end-2)] * 0.5;
+Gflux(Gflux<0) = 0;
+
+% Gflux = Gflux / max(max(Gflux));
+Gflux = Gflux / max(max(Gflux)) ./ (ones(88,1) * max(Gflux));
+
+
+end
+
+function noteIndexList = findNoteFromGainRow(gainRow, threshold)
+    noteIndexList = find(gainRow>threshold);
+    if noteIndexList
+        validList = [];
+        validList(1) = noteIndexList(1);
+        for i = 2:length(noteIndexList)
+            if noteIndexList(i) - noteIndexList(i-1) > 3
+                validList(length(validList)+1) = noteIndexList(i);
+            end
+        end
+        noteIndexList = validList;
+    end
+end
+
+function [extraNotes, omittedNotes, precision, recall] = compareNotes(nmatList, noteList)
+    numMatchedNote = 0;
+    numNoteList = length(noteList);
+    numNmatList = length(nmatList);
+    matchedStatus = zeros(length(noteList),1);
+    for i = 1:numNoteList
+        candidates = find( abs(nmatList - noteList(i)) < 0.5);
+        if candidates
+            nmatList(candidates(1)) =[];
+            numMatchedNote = numMatchedNote + 1;
+            matchedStatus(i) = 1;
+        end
+    end
+    precision = sum(matchedStatus) / numNoteList;
+    recall =  sum(matchedStatus) / numNmatList;
+    extraNotes = noteList(matchedStatus==0);
+    omittedNotes = nmatList;
+end
+
+
+function midiTrans = makeMidiWithExtraNotes(midiRef, extraNotesPerKey, omittedNotesPerKey)
+    midiTrans = midiRef;
+    for i=1:size(extraNotesPerKey,2)
+        dataSize = max(find(extraNotesPerKey(:,i)>0));
+        for j = 1: dataSize
+            % midi(:,7) == offset time, not duration
+            midiLine = [0 0 1 i+20 60 extraNotesPerKey(j,i) extraNotesPerKey(j,i)+0.5 2];
+            midiTrans(length(midiTrans)+1, :) = midiLine;
+        end 
+    end
+    for i=1:size(omittedNotesPerKey,2)
+        dataSize = max(find(omittedNotesPerKey(:,i)>0));
+        for j = 1: dataSize
+            midiTrans(midiTrans(:,6)==omittedNotesPerKey(j,i) & midiTrans(:,5) == i+20 ,:) =[];
+        end 
+    end
+end
+
+function [correctNotesError, addedNotesError, missedNotesError]= calFscoreByCategory(extraNotesPerKey, omittedNotesPerKey, addedNotesList, missedNotesList, alignedNotesNumber)
+    
+    addedNotesNumber = comparePerKeyAndList(extraNotesPerKey, addedNotesList);
+    missedNotesNumber = comparePerKeyAndList(omittedNotesPerKey, missedNotesList);    
+    
+    addedNotesError = [addedNotesNumber(2)/addedNotesNumber(1), addedNotesNumber(2)/size(addedNotesList,1) ];
+    addedNotesError(3) = 2* addedNotesError(1) * addedNotesError(2) /sum(addedNotesError);
+    
+    missedNotesError = [missedNotesNumber(2)/missedNotesNumber(1), missedNotesNumber(2)/size(missedNotesList,1) ];
+    missedNotesError(3) = 2* missedNotesError(1) * missedNotesError(2) /sum(missedNotesError);
+    
+    correctNotesError = [1, (alignedNotesNumber - (missedNotesNumber(1) - missedNotesNumber(2)))/alignedNotesNumber];
+    correctNotesError(3) = 2* correctNotesError(1) * correctNotesError(2) /sum(correctNotesError);
+    
+    
+end
+
+
+function numberOfEstimation = comparePerKeyAndList(notesPerKey, notesList)
+    numberOfEstimation = [0, 0];
+    for i=1:88
+        dataSize = max(find(notesPerKey(:,i)>0));
+        for j=1:dataSize
+            numberOfEstimation(1) = numberOfEstimation(1) + 1; %number of estimation in added notes
+            candidates = find((abs(notesList(:,1) - notesPerKey(j,i))<0.5));
+            for k=1:length(candidates)
+                if notesList(candidates(k),2) == i+20
+                    numberOfEstimation(2) = numberOfEstimation(2) + 1; %number of correct estimation
+                    break;
+                end
+            end
+        end
+    end
+end
