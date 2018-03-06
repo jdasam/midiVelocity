@@ -17,6 +17,7 @@ basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
 basicParameter.defaultFolderDir = '/Users/Da/Documents/MATLAB/midiVelocityGit';
 basicParameter.resultFolderDir = '/Users/Da/Dropbox/midiVelocityResult';
+basicParameter.saveOnsetCluster = false;
 
 basicParameter.basisSource = 'scale'; %scale, data
 basicParameter.alpha = 0;
@@ -58,6 +59,7 @@ basicParameter.iterationPiece = 50;
 if basicParameter.rankMode == 1 && basicParameter.Gfixed
     basicParameter.iterationScale =5;
 end
+basicParameter.iterationPost = 15;
 
 
 

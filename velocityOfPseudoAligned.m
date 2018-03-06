@@ -6,7 +6,7 @@ mp3filesInFolder = getFileListWithExtension('*.mp3');
 pieces = {}; % list of pieces
 error = zeros(6, length(titleCell));
 numberOfNotesByError = zeros(127, length(titleCell));
-
+basicParameter.usePseudoAligned = true;
 
 for i = 1:length(mp3filesInFolder)
     if length(strsplit(mp3filesInFolder{i}, '_score')) ==1
