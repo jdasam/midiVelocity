@@ -140,7 +140,7 @@ if basicParameter.postUpdate
     tempBasicParam.alpha2 = 0;
     tempBasicParam.alpha3 = 0;
     tempBasicParam.updateBnumber = 0;
-    tempBasicParam.iterationPiece = 10;
+    tempBasicParam.iterationPiece = basicParameter.iterationPost;
     
     G = NMFwithMatrix(G, B, X, tempBasicParam, tempBasicParam.iterationPiece, softConstraintMatrix);
 end
@@ -195,9 +195,13 @@ if basicParameter.fittingArray(1,1)
     for i = 1:length(midiVel)
         
         basisIndex = max(midiVel(i,4),21) - basicParameter.minNote + 2;
-
-        [gainCalculated, maxIndex, ~, ~, onsetCluster] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
         
+        if basicParameter.saveOnsetCluster
+            [gainCalculated, maxIndex, ~, ~, onsetCluster] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
+        else
+            [gainCalculated, maxIndex] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
+            onsetCluster = [];
+        end
       
         maxIndexVector(i) = maxIndex;
         if basisIndex == 1

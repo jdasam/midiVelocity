@@ -115,9 +115,12 @@ end
 
 cd(basicParameter.resultFolderDir);
 
-% save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell', 'velocityGainMatchingCell', '-v7.3');
-save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
+if basicParameter.saveOnsetCluster
+    save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell', 'velocityGainMatchingCell', '-v7.3');
 
+else
+    save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
+end
 
 
 end
