@@ -10,6 +10,7 @@ if ischar(dir)
     dir = dirCell;
 end
 
+basicParameter.fittingArray = zeros(2,88);
 
 ydata = zeros(10000, 88);
 xdata = zeros(10000, 88);
