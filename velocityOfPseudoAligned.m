@@ -16,7 +16,7 @@ end
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
-    MIDIFilename = strcat(pieces{i}, '_sync.mid');
+    MIDIFilename = strcat(pieces{i}, '_aligned.mid');
     textFileName = strcat(pieces{i}, '_corresp.txt');
     
     if ~exist(textFileName, 'file')

@@ -9,7 +9,7 @@ if ischar(dir)
     dirCell{1}=dir;
     dir = dirCell;
 end
-
+    
 basicParameter.fittingArray = zeros(2,88);
 
 ydata = zeros(10000, 88);
@@ -95,15 +95,16 @@ for j = 1:length(dataSet)
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
 
-    [G, ~,~,~,~,~,~, B] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
+    [G, ~,~,~,~,~,~, Bupdated] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
 
     midiRef = readmidi_java(MIDIFilename,true);
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
 
+
     for i = 1 : length(midiRef)
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
-        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, B);
+        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
 %         index = onsetTime2frame(midiRef(i,6), basicParameter);
 %         offset = ceil( (midiRef(i,7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
 % 

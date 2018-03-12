@@ -237,7 +237,9 @@ if basicParameter.fittingArray(1,1)
     end
     % calculate error
     [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
-%     save('onsetCluster.mat', 'onsetClusterArray', 'onsetMatchedVel')
+    if basicParameter.saveOnsetCluster
+        save('onsetCluster.mat', 'onsetClusterArray', 'onsetMatchedVel')
+    end
     midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
     gainRefVelCompare(:,1) = gainFromVelVec;
     gainRefVelCompare(:,2) = gainCalculatedVec;
