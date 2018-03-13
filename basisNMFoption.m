@@ -42,7 +42,7 @@ else
     Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
 
 
-    if basicParameter.GpreUpdate && size(initialB,1)~=1 && ~basicParameter.Gfixed
+    if basicParameter.GpreUpdate && size(initialB,1)~=1 && (~basicParameter.Gfixed || strcmp(dataSource, 'data'))
         for i = 1:basicParameter.GpreUpdate
             G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
             G(find(isnan(G)))=0;
