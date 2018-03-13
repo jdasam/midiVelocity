@@ -238,7 +238,7 @@ if basicParameter.fittingArray(1,1)
     % calculate error
     [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
     if basicParameter.saveOnsetCluster
-        save('onsetCluster.mat', 'onsetClusterArray', 'onsetMatchedVel')
+        save(strcat(audioFilename, '.mat'), 'onsetClusterArray', 'onsetMatchedVel')
     end
     midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
     gainRefVelCompare(:,1) = gainFromVelVec;
