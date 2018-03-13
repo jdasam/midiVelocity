@@ -1,4 +1,4 @@
-function [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration, constraintMatrix)
+function [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration, constraintMatrix, attackMatrix)
 
 if nargin<6
     constraintMatrix = zeros(size(G));
@@ -6,6 +6,7 @@ end
 
 if nargin<7
 %     T = zeros(size(B,2));
+    attackMatrix = zeros(size(G));
 end
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
@@ -35,7 +36,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         Bnew = B;
         Gnew = G;
 
-        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix);
+        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
         
 %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
 %         Gnew(find(isnan(Gnew)))=0;
@@ -95,7 +96,7 @@ end
 
 end
 
-function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix)
+function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix, attackMatrix)
     alpha1= basicParameter.alpha1;
     alpha2= basicParameter.alpha2;
     alpha3= basicParameter.alpha3;
@@ -119,7 +120,7 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
 %             Gnew = (th1 + th2)/2;
 %         end
     else
-        Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+        Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
     end
     Gnew(find(isnan(Gnew)))=0;
 

@@ -43,7 +43,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         Gtotal = sheetMatrixTotal;
     end
     basicParameter.updateBnumber = basicParameter.iterationData;
-    [updatedG, B] = NMFwithMatrix(Gtotal, initialB, Xtotal, basicParameter, basicParameter.iterationData, sheetMatrixTotal);
+    [updatedG, B] = NMFwithMatrix(Gtotal, initialB, Xtotal, basicParameter, basicParameter.iterationData, sheetMatrixTotal, sheetMatrixAttack);
     
     
 elseif strcmp(basicParameter.scale, 'erbt')

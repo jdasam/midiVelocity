@@ -1,4 +1,4 @@
-function [error, numberOfNotesByError]  = velocityOfPseudoAligned(dir, Bcell, fittingArrayCell, basicParameter, titleCell)
+function []  = saveOnsetEntireSet(dir, Bcell, fittingArrayCell, basicParameter, titleCell)
 
 cd(dir);
 
@@ -6,7 +6,6 @@ mp3filesInFolder = getFileListWithExtension('*.mp3');
 pieces = {}; % list of pieces
 error = zeros(6, length(titleCell));
 numberOfNotesByError = zeros(127, length(titleCell));
-basicParameter.usePseudoAligned = true;
 
 for i = 1:length(mp3filesInFolder)
     if length(strsplit(mp3filesInFolder{i}, '_score')) ==1
@@ -16,13 +15,10 @@ end
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
-    MIDIFilename = strcat(pieces{i}, '_aligned.mid');
+    MIDIFilename = strcat(pieces{i}, '.mid');
     textFileName = strcat(pieces{i}, '_corresp.txt');
     txtFilename = strcat(pieces{i}, '_pedal.txt');
-    
-    if ~exist(textFileName, 'file')
-        continue
-    end
+
     
     
     for j = 1:length(titleCell)
@@ -52,7 +48,7 @@ for i = 1:length(pieces)
     
     basicParameter.fittingArray = fittingArrayCell{trainingGroupIndex, subSetIndex};
     
-    [~, ~, error(:,j), ~, ~, ~, ~, ~, numberOfNotesByError(:,j)] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter, txtFilename);
+    velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter, txtFilename);
 
 end
 
