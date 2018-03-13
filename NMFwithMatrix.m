@@ -97,6 +97,10 @@ end
 end
 
 function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix, attackMatrix)
+    if nargin<7
+        attackMatrix = zeros(size(G));
+    end
+
     alpha1= basicParameter.alpha1;
     alpha2= basicParameter.alpha2;
     alpha3= basicParameter.alpha3;
