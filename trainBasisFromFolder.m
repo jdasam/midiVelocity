@@ -73,6 +73,7 @@ dataSet = getFileListWithExtension('*.mp3');
         filename = char(dataSet(j));
         MIDIFilename = strcat(filename,'.mid');
         MP3Filename =  strcat(filename, '.mp3');
+        txtFilename = strcat(filename, '_pedal.txt');
 
         if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
             Xtemp = audio2spectrogram(MP3Filename, basicParameter);
@@ -84,6 +85,8 @@ dataSet = getFileListWithExtension('*.mp3');
 
         nmat = readmidi_java(MIDIFilename, true);
         nmat(:,7) = nmat(:,6) + nmat(:,7);
+        
+        nmat = applyPedalTxt(nmat, txtFilename, basicParameter);
         
         if basicParameter.rankMode <= 2
             sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, false, true);

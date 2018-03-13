@@ -61,6 +61,8 @@ if basicParameter.rankMode == 1 && basicParameter.Gfixed
 end
 basicParameter.iterationPost = 15;
 
+basicParameter.usePedal = false;
+basicParameter.pedalThreshold = 50;
 
 
 if strcmp(basicParameter.scale, 'erbt')

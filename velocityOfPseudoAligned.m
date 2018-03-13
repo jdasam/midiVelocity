@@ -18,6 +18,7 @@ for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
     MIDIFilename = strcat(pieces{i}, '_aligned.mid');
     textFileName = strcat(pieces{i}, '_corresp.txt');
+    txtFilename = strcat(filename, '_pedal.txt');
     
     if ~exist(textFileName, 'file')
         continue
@@ -51,7 +52,7 @@ for i = 1:length(pieces)
     
     basicParameter.fittingArray = fittingArrayCell{trainingGroupIndex, subSetIndex};
     
-    [~, ~, error(:,j), ~, ~, ~, ~, ~, numberOfNotesByError(:,j)] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter);
+    [~, ~, error(:,j), ~, ~, ~, ~, ~, numberOfNotesByError(:,j)] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter, txtFilename);
 
 end
 

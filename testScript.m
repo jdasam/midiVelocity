@@ -2,7 +2,7 @@
 
 resultName = 'R8dataS2Gpre20Ubn15UibId100Hb15postItr30_20_1_50_1_1000cluster';
 resultFileName = strcat(resultName, '.mat');
-
+    
 basicParameter.bExtSecond = 0;
 basicParameter.fExtSecond = 0;
 basicParameter.usePseudoAligned = true;

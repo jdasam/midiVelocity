@@ -1,4 +1,9 @@
-function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData, B, numberOfNotesByError, gainRefVelCompare] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter)
+function [G, midiVel, error, errorPerNoteResult, refVelCompare, maxIndexVector, histogramData, B, numberOfNotesByError, gainRefVelCompare] = velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter, txtFilename)
+
+if nargin < 5
+    txtFilename = '';
+end
+
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     [X, basicParameter.sr] = audio2spectrogram(audioFilename, basicParameter);
@@ -14,6 +19,10 @@ fittingArray = basicParameter.fittingArray;
 
 midiRef = readmidi_java(MIDIFilename,true);
 midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
+
+midiRef = applyPedalTxt(midiRef, txtFilename, basicParameter);
+
+
 midiVel = midiRef;
 basicParameter.MIDI = midiRef;
 

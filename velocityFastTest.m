@@ -6,12 +6,13 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
     end
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
+    txtFilename = strcat(filename, '_pedal.txt');
     
     ydata = zeros(1000, 88);
     xdata = zeros(1000, 88);
     
 
-    [G, ~,~,~,~,~,~, B] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
+    [G, ~,~,~,~,~,~, B] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);
 
     midiRef = readmidi_java(MIDIFilename,true);
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
@@ -85,8 +86,9 @@ function [xdata, ydata, xdataCluster, ydataCluster] = folderNMF(dir, xdata, ydat
     filename = char(dataSet(j));
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
+    txtFilename = strcat(filename, '_pedal.txt');
 
-    G = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
+    G = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);
 
     midiRef = readmidi_java(MIDIFilename,true);
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);

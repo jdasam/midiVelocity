@@ -1,12 +1,28 @@
 dirSet = {};
-% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-% dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
+dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
 
 %%
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
+basicParameter.rankMode = 2;    
+basicParameter.spectrumMode = 2;
+basicParameter.Gfixed = true;
+basicParameter.harmConstrain = true;
+basicParameter.useInitialB = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 10;
+basicParameter.iterationData = 10;
+basicParameter.harmBoundary = 0.5;
 
+resultName = strcat('R2dataS2UibUbn5Gpr10Hb05_all');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+%%
 parameterNum = [1 10 100 500 1000 2000 5000 ];
 
 parfor i = 1:length(parameterNum)

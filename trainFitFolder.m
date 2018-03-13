@@ -94,8 +94,9 @@ for j = 1:length(dataSet)
     filename = char(dataSet(j));
     MIDIFilename = strcat(filename,'.mid');
     MP3Filename =  strcat(filename, '.mp3');
+    txtFilename = strcat(filename, '_pedal.txt');
 
-    [G, ~,~,~,~,~,~, Bupdated] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter);
+    [G, ~,~,~,~,~,~, Bupdated] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);
 
     midiRef = readmidi_java(MIDIFilename,true);
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
