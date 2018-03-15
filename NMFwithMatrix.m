@@ -16,7 +16,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     
     if basicParameter.GpreUpdate && mean(mean(B)) <0.3
        for i = 1:basicParameter.GpreUpdate
-           Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix);
+           Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
            G = Gnew;
            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
        end

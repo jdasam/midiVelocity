@@ -1,12 +1,12 @@
 
 
-resultName = 'R8dataS2Gpre20Ubn15UibId100Hb15postItr30_20_1_50_1_1000cluster';
+resultName = 'R8dataS2Gpre20Ubn15UibId100Hb15postItr10_20_1_50_1_1000';
 resultFileName = strcat(resultName, '.mat');
     
 basicParameter.bExtSecond = 0;
 basicParameter.fExtSecond = 0;
 basicParameter.usePseudoAligned = true;
-[error, numberOfNotesByError]  = velocityOfPseudoAligned(pwd, B, fittingArrayCell, basicParameter, resultData.title);
+[error, numberOfNotesByError]  = velocityOfPseudoAligned(pwd, Bcell, fittingArrayCell, basicParameter, resultData.title);
 
 save(resultFileName, 'error', 'numberOfNotesByError');
 

@@ -21,8 +21,9 @@ end
 errorBySimulCell = {};
 errorBySustCell = {};
 errorByVelCell = {};
+errorByPitchCell ={};
 
-totalError = zeros(127,6);
+totalError = zeros(127,8);
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
@@ -50,6 +51,7 @@ for i = 1:length(pieces)
     errorBySimul = zeros(127,2);
     errorBySust = zeros(127,2);
     errorByVel = zeros(127,2);
+    errorByPitch = zeros(127,2);
     
     for k = 1:length(midiPiece)
         onsetFrame = ceil(midiPiece(k,6) * basicParameter.sr / basicParameter.nfft);
@@ -63,12 +65,15 @@ for i = 1:length(pieces)
         errorBySust(numSustained, 2) = errorBySust(numSustained,2) + 1;
         errorByVel(midiPiece(k,5), 1) = errorByVel(midiPiece(k,5), 1) + velError;
         errorByVel(midiPiece(k,5), 2) = errorByVel(midiPiece(k,5), 2) + 1;
-
+        errorByPitch(midiPiece(k,4), 1) = errorByPitch(midiPiece(k,4), 1) + velError;
+        errorByPitch(midiPiece(k,4), 2) = errorByPitch(midiPiece(k,4), 2) +1;
         
     end
     totalError(:,1:2) = totalError(:,1:2) + errorBySimul;
     totalError(:,3:4) = totalError(:,3:4) + errorBySust;
     totalError(:,5:6) = totalError(:,5:6) + errorByVel;
+    totalError(:,7:8) = totalError(:,7:8) + errorByPitch;
+
     
     
     errorBySimul(:,1) = errorBySimul(:,1) ./ errorBySimul(:,2);
@@ -78,16 +83,20 @@ for i = 1:length(pieces)
     
     errorByVel(:,1) = errorByVel(:,1) ./ errorByVel(:,2);
     errorByVel(isnan(errorByVel)) = 0;
+    errorByPitch(:,1) = errorByPitch(:,1) ./ errorByPitch(:,2);
+    errorByPitch(isnan(errorByPitch)) = 0;    
     
     errorBySimulCell{index} = errorBySimul;
     errorBySustCell{index} = errorBySust;
     errorByVellCell{index} = errorByVel;
+    errorByPitchCell{index} = errorByPitch;
     
 end
 
 totalError(:,1) = totalError(:,1) ./ totalError(:,2);
 totalError(:,3) = totalError(:,3) ./ totalError(:,4);
 totalError(:,5) = totalError(:,5) ./ totalError(:,6);
+totalError(:,7) = totalError(:,7) ./ totalError(:,8);
 
 end 
 
