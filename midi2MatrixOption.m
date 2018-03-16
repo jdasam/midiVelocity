@@ -30,7 +30,7 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
     sheetMatrix = zeros( (maxNote - minNote +1 ) * basicParameter.rankMode + 1, specLength);
           
     for i = 1 : length(nmat)
-        attMargin = ceil(basicParameter.attackLengthSecond / basicParameter.nfft * basicParameter.sr);
+%         attMargin = ceil(basicParameter.attackLengthSecond / basicParameter.nfft * basicParameter.sr);
 %         attMargin = basicParameter.attackLengthFrame - 1;  
         basisIndex = max(nmat(i,4),21) - minNote + 2;
         onset = onsetTime2frame(nmat(i,6), basicParameter);
