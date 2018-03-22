@@ -20,7 +20,6 @@ for i = 1:length(pieces)
     txtFilename = strcat(pieces{i}, '_pedal.txt');
 
     
-    
     for j = 1:length(titleCell)
         if strcmp(titleCell{j}, pieces{i}) == 1
             if j <= 15

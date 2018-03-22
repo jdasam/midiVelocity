@@ -29,16 +29,7 @@ end
 
 if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
     if strcmp(basicParameter.basisSource, 'scale') || basicParameter.useInitialB 
-        cd(basicParameter.defaultFolderDir);
-        Y = audio2spectrogram('pianoScale12Staccato2_440stretch.mp3', basicParameter);
-        [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
-
-        sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
-        if basicParameter.Gfixed
-            sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
-        end
-        [~, B] = basisNMFoption(Y, sheetMatrix, basicParameter, basicParameter.iterationScale, basicParameter.Gfixed, false, false, 'scale');
-        B = betaNormC(B,basicParameter.beta);
+        B= learnBasisFromScale(basicParameter);
     else
         B = initializeWwithHarmonicConstraint(basicParameter);
         if basicParameter.harmConstrain == false || basicParameter.softConstraint
@@ -122,5 +113,20 @@ else
     save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
 end
 
+
+end
+
+
+function B= learnBasisFromScale(basicParameter)
+    cd(basicParameter.defaultFolderDir);
+    Y = audio2spectrogram('pianoScale12Staccato2_440stretch.mp3', basicParameter);
+    [basicParameter.minNote, basicParameter.maxNote, basicParameter.MIDI] = readScale(basicParameter);
+
+    sheetMatrix = midi2MatrixOption(basicParameter.MIDI, length(Y), basicParameter);
+    if basicParameter.Gfixed
+        sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
+    end
+    [~, B] = basisNMFoption(Y, sheetMatrix, basicParameter, basicParameter.iterationScale, basicParameter.Gfixed, false, false, 'scale');
+    B = betaNormC(B,basicParameter.beta);
 
 end
