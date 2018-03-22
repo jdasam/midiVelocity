@@ -1,10 +1,10 @@
-function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, dir)
+function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, dir, useNeuralNetResult)
 
     cd(dir);
 
     pieces = getFileListWithExtension('*.mp3');
     midiVelCell = {};
-    errorCell = {};
+    errorList = zeros(6, length(pieces));
     refVelCompareCell = {};
     
     for i = 1:length(pieces)
@@ -14,14 +14,20 @@ function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(
         csvFilename = strcat(pieces{i}, '.csv');
         
         nnResult = csvread(csvFilename);
-        basicParameter.targetMedian = median(nnResult);
-        basicParameter.targetRange = std(nnResult);
+        
+        if useNeuralNetResult
+            basicParameter.targetMedian = median(nnResult);
+            basicParameter.targetRange = std(nnResult);
+        else
+            basicParameter.targetMedian = 58.7;
+            basicParameter.targetRange = 24;
+        end 
 
     %     basicParameter.fittingArray = fittingArrayCell{trainingGroupIndex, subSetIndex};
 
         [~, midiVel, error, errorPerNoteResult, refVelCompare]  =velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter, txtFilename);
         midiVelCell{i} = midiVel;
-        errorCell{i} = error;
+        errorCell(:,i) = error;
         refVelCompareCell{i} = refVelCompare;
         
         
