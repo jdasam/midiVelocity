@@ -12,6 +12,7 @@ basicParameter.attackLengthSecond = 0.25;
 basicParameter.searchRangeSecond = 0.8;
 basicParameter.multiRankOverlapSecond = 0.15;
 basicParameter.multiRankHopSecond = 0.0464;
+basicParameter.onsetWindowSecond = 0.3;
 
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';

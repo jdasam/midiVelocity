@@ -4,7 +4,7 @@ if nargin < 4
     B = zeros(1,size(G,1));
 end
 
-onsetWindowSize = 7; %half of window
+onsetWindowSize = ceil(basicParameter.onsetWindowSecond * basicParameter.sr / basicParameter.nfft); %half of window
 
 if midiNote(4) < 21
     gainCalculated = 0;
