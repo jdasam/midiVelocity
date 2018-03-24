@@ -2,7 +2,7 @@ function []  = saveOnsetEntireSetByScale(dir, B ,basicParameter)
 
 cd(dir);
 
-mp3filesInFolder = getFileListWithExtension('*.wav');
+mp3filesInFolder = getFileListWithExtension(strcat('*.', basicParameter.audioExtension));
 pieces = {}; % list of pieces
 
 
