@@ -79,7 +79,7 @@ end
 function [xdata, ydata, xdataCluster, ydataCluster] = folderNMF(dir, xdata, ydata, B, basicParameter, xdataCluster, ydataCluster)
 
 cd(dir);
-dataSet = getFileListWithExtension('*.mp3');
+dataSet = getFileListWithExtension(strcat('*.',basicParameter.audioExtension));
 
 if isfield(basicParameter, 'fExtSecond')
     if basicParameter.fExtSecond
@@ -93,7 +93,7 @@ for j = 1:length(dataSet)
     
     filename = char(dataSet(j));
     MIDIFilename = strcat(filename,'.mid');
-    MP3Filename =  strcat(filename, '.mp3');
+    MP3Filename =  strcat(filename, '.', basicParameter.audioExtension);
     txtFilename = strcat(filename, '_pedal.txt');
 
     [G, ~,~,~,~,~,~, Bupdated] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);

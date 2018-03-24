@@ -2,7 +2,7 @@ function []  = saveOnsetEntireSetByScale(dir, B ,basicParameter)
 
 cd(dir);
 
-mp3filesInFolder = getFileListWithExtension('*.mp3');
+mp3filesInFolder = getFileListWithExtension('*.wav');
 pieces = {}; % list of pieces
 
 
@@ -13,11 +13,15 @@ for i = 1:length(mp3filesInFolder)
 end
 
 for i = 1:length(pieces)
-    audioFilename = strcat(pieces{i}, '.mp3');
-    MIDIFilename = strcat(pieces{i}, '.mid');
-    textFileName = strcat(pieces{i}, '_corresp.txt');
+    audioFilename = strcat(pieces{i}, '.wav');
+    MIDIFilename = strcat(pieces{i}, '_sync.mid');
+    textFilename = strcat(pieces{i}, '_corresp.txt');
     txtFilename = strcat(pieces{i}, '_pedal.txt');
-
+    matFilename = strcat(audioFilename, '.mat');
+    
+    if exist(matFilename, 'file')
+        continue
+    end
    
     
 %     basicParameter.fittingArray = fittingArrayCell{trainingGroupIndex, subSetIndex};

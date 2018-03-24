@@ -1,4 +1,4 @@
-resultName = 'R2nn';
+resultName = 'R8nn';
 path = pwd;
 useNeuralNetResult = true;
 

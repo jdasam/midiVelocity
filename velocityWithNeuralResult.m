@@ -16,7 +16,7 @@ function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(
         nnResult = csvread(csvFilename);
         
         if useNeuralNetResult
-            basicParameter.targetMedian = median(nnResult);
+            basicParameter.targetMedian = mean(nnResult);
             basicParameter.targetRange = std(nnResult);
         else
             basicParameter.targetMedian = 58.7;
