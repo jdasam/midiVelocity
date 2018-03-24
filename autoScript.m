@@ -1,9 +1,18 @@
 dirSet = {};
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
+% dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+% dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+% dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
+dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
+%%
+
+basicParameter.audioExtension = 'wav';
+basicParameter.saveOnsetCluster =false;
+resultName = strcat('chopin etude');
+autoVelExtractSystem(basicParameter, dirSet, resultName, B);
+
+
 
 %%
 basicParameter = basicParameterInitialize();

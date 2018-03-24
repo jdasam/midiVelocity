@@ -1,4 +1,4 @@
-function autoVelExtractSystem (basicParameter, subSet, resultName)
+function autoVelExtractSystem (basicParameter, subSet, resultName, scaleB)
 resultData = [];
 resultData.title = {};
 resultData.drParameter = [];
@@ -28,8 +28,12 @@ if length(fieldnames(basicParameter)) > length(fieldnames(basicParameterInitiali
 end
 
 if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
-    if strcmp(basicParameter.basisSource, 'scale') || basicParameter.useInitialB 
-        B= learnBasisFromScale(basicParameter);
+    if strcmp(basicParameter.basisSource, 'scale') || basicParameter.useInitialB
+        if nargin == 4
+            B = scaleB;
+        else
+            B= learnBasisFromScale(basicParameter);
+        end
     else
         B = initializeWwithHarmonicConstraint(basicParameter);
         if basicParameter.harmConstrain == false || basicParameter.softConstraint
