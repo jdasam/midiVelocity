@@ -2,7 +2,7 @@ function []  = saveOnsetEntireSetByScale(dir, B ,basicParameter)
 
 cd(dir);
 
-mp3filesInFolder = getFileListWithExtension(strcat('*.', basicParameter.audioExtension));
+mp3filesInFolder = getFileListWithExtension(strcat('*', basicParameter.audioExtension));
 pieces = {}; % list of pieces
 
 
@@ -13,8 +13,8 @@ for i = 1:length(mp3filesInFolder)
 end
 
 for i = 1:length(pieces)
-    audioFilename = strcat(pieces{i}, '.', basicParameter.audioExtension);
-    MIDIFilename = strcat(pieces{i}, '.mid');
+    audioFilename = strcat(pieces{i}, basicParameter.audioExtension);
+    MIDIFilename = strcat(pieces{i}, basicParameter.midiExtension);
     textFilename = strcat(pieces{i}, '_corresp.txt');
     txtFilename = strcat(pieces{i}, '_pedal.txt');
     matFilename = strcat(audioFilename, '.mat');

@@ -64,7 +64,8 @@ basicParameter.iterationPost = 15;
 basicParameter.usePedal = false;
 basicParameter.pedalThreshold = 50;
 
-basicParameter.audioExtension = 'mp3';
+basicParameter.audioExtension = '.mp3';
+basicParameter.midiExtension = '.mid';
 
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;

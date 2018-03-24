@@ -67,12 +67,12 @@ end
 
 function [Xtotal, sheetMatrixTotal, sheetMatrixAttack, f, alen] = dataPrepFolder(dir, Xtotal, sheetMatrixTotal, sheetMatrixAttack, basicParameter)
 cd(dir)
-dataSet = getFileListWithExtension(strcat('*.',basicParameter.audioExtension));
+dataSet = getFileListWithExtension(strcat('*',basicParameter.audioExtension));
 
     for j = 1:length(dataSet)
         filename = char(dataSet(j));
-        MIDIFilename = strcat(filename,'.mid');
-        MP3Filename =  strcat(filename, '.', basicParameter.audioExtension);
+        MIDIFilename = strcat(filename, basicParameter.midiExtension);
+        MP3Filename =  strcat(filename, basicParameter.audioExtension);
         txtFilename = strcat(filename, '_pedal.txt');
 
         if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')

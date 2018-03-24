@@ -3,11 +3,11 @@ function resultData = velExtractionFolder(dir, B, basicParameter, resultData)
 cd(dir)
 
 
-dataSet = getFileListWithExtension(strcat('*.',basicParameter.audioExtension));
+dataSet = getFileListWithExtension(strcat('*',basicParameter.audioExtension));
 for i=1:length(dataSet)
     filename = char(dataSet(i));
-    MIDIFilename = strcat(filename,'.mid');
-    MP3Filename =  strcat(filename, '.', basicParameter.audioExtension);
+    MIDIFilename = strcat(filename, basicParameter.midiExtension);
+    MP3Filename =  strcat(filename, basicParameter.audioExtension);
     txtFilename = strcat(filename, '_pedal.txt');
 
     [Gx, midiVel, tempError, tempErrorByNote, tempCompare, maxIndexVector, histogramData] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);
