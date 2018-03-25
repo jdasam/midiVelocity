@@ -67,6 +67,7 @@ basicParameter.pedalThreshold = 50;
 
 basicParameter.audioExtension = '.mp3';
 basicParameter.midiExtension = '.mid';
+basicParameter.mapmxResolution = 0.25;
 
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;
@@ -77,7 +78,7 @@ if strcmp(basicParameter.scale, 'erbt')
 end
 
 
-basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, 0.25);
+basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, basicParameter.mapmxResolution);
 
 
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;

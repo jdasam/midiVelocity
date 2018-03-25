@@ -76,7 +76,10 @@ else
 %         [gainCalculated, onset] = max( sum((B(:,basisIndex+1:basisIndexEnd).^basicParameter.spectrumMode * G(basisIndex+1:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode)));
         if nargout == 5 && index + onset + 1 - onsetWindowSize > 0 && index + onset + onsetWindowSize <size(G,2)
 %             onsetClusterData = G(basisIndex:basisIndexEnd, index + onset + 1 - 5 : index + onset + 5);
-            onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, index + onset + 1 - onsetWindowSize : index + onset + onsetWindowSize);
+%             onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, index + onset + 1 - onsetWindowSize : index + onset + onsetWindowSize);
+            clusterStartIndex = (index + onset -1) -(ceil(onsetWindowSize*0.5)-1);
+            clusterEndIndex = (index + onset -1) + (floor(onsetWindowSize*1.5)-1);
+            onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, clusterStartIndex:clusterEndIndex);
         end
     end
     maxIndex= onset;
