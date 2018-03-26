@@ -168,6 +168,7 @@ if basicParameter.fittingArray(1,1)
     
     onsetClusterArray = {};
     onsetMatchedVel = [];
+    onsetMatchedGain = [];
     
     histogramData = [];
     [histogramData.histData, histogramData.histMIDI, histogramData.f, histogramData.f2]= makeHistogram(MIDIFilename, G, basicParameter, B);
@@ -241,13 +242,14 @@ if basicParameter.fittingArray(1,1)
         if midiRef(i,5) ~= 0 && length(onsetCluster)
             onsetClusterArray{length(onsetClusterArray)+1} = onsetCluster;
             onsetMatchedVel(length(onsetMatchedVel)+1) = midiRef(i,5);
+            onsetMatchedGain(length(onsetMatchedGain)+1) = gainCalculated;
         end
 
     end
     % calculate error
     [error, errorPerNoteResult, refVelCompare, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
     if basicParameter.saveOnsetCluster
-        save(strcat(audioFilename, '.mat'), 'onsetClusterArray', 'onsetMatchedVel')
+        save(strcat(audioFilename, '.mat'), 'onsetClusterArray', 'onsetMatchedVel', 'onsetMatchedGain')
     end
     midiVel(:,7) = midiVel(:,7) - midiVel(:,6);
     gainRefVelCompare(:,1) = gainFromVelVec;
