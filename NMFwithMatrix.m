@@ -133,28 +133,42 @@ end
 function Bnew = updateB(B, G, X, Xhat, basicParameter)
     beta1 = basicParameter.beta1;
     beta2 = basicParameter.beta2;
+    beta3 = basicParameter.beta3;
+    gam = basicParameter.gamma;
     
     attackBasisBoolean = zeros(size(B));
     softConstraintMatrix = zeros(size(B));
     specContU = zeros(size(B));
     specContD = zeros(size(B));
+    
+    
+    if basicParameter.rank > 2 && basicParameter.softConstraint
 
-    if beta1 ~= 0
         for i = 1:basicParameter.maxNote - basicParameter.minNote +1 %for each key
             attackBasisBoolean(:, 2+(i-1)*basicParameter.rankMode) = 1;
         end
         specContU = [zeros(1, size(B,2)); B(1:end-1, :)];
         specContD = [B(2:end, :); zeros(1, size(B,2))];
-    end
+        
+ 
+    
 
-    if beta2 ~=0
         softConstraintMatrix = initializeWwithHarmonicConstraint(basicParameter);
         softConstraintMatrix(softConstraintMatrix>0) = 1;
+    
+    
+        susBasisBoolean = ~attackBasisBoolean;
+        [gammaM, gammaP ] = gammaMatrix(B, gam, susBasisBoolean);        
+        
+        
+        attM = (specContU + specContD) .*attackBasisBoolean;
+        attP = B.* attackBasisBoolean;
+        
+        
+        Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
+    else
+        Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G' )   ./ ((Xhat .^ (basicParameter.beta-1)) * G') );
     end
-    
-    Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * (specContU + specContD) .*attackBasisBoolean + beta2 * softConstraintMatrix )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*B.* attackBasisBoolean + beta2 * ones(size(B))) ); 
-
-    
 end
 
     
@@ -170,3 +184,21 @@ function [diffMatrixL, diffMatrixR] = multiRankActivationConstraintMatrix (G, ba
     end
 
 end 
+
+function  [gammaMatMinus, gammaMatPlus ] = gammaMatrix(B, gam, susBasisBoolean)
+    
+    B = B .* susBasisBoolean;
+    shiftL = [B(:,2:end) zeros(size(B,1),1)];
+    shiftR = [zeros(size(B,1),1) B(:,1:end-1)];
+    
+    diffMatrixL =  B - shiftR;
+    diffMatrixR = shiftL - B;
+    
+    gammaMatMinus = shiftR .* exp(diffMatrixL*gam -1) + shiftL .* exp(diffMatrixR * gam -1);
+    gammaMatPlus = B.* exp(diffMatrixL * gam -1) + B.* exp(diffMatrixR*gam-1);
+    
+    gammaMatMinus = gammaMatMinus .* susBasisBoolean;
+    gammaMatPlus = gammaMatPlus .* susBasisBoolean;
+
+
+end
