@@ -16,7 +16,7 @@ basicParameter.alpha2 = 1;
 basicParameter.alpha3 = 100;
 basicParameter.beta1= 100;
 basicParameter.beta2= 5000;
-basicParameter.beta3= 0.0001;
+basicParameter.beta3= 0;
 basicParameter.gamma=1;
 basicParameter.softConstraint = true;
 basicParameter.harmBoundary = 1.75;
@@ -26,7 +26,7 @@ basicParameter.useInitialB = true;
 basicParameter.postUpdate = true;
 basicParameter.iterationPost = 8;
 
-resultName = strcat('R8scaleS2Gpr15Ubn5UibId150Hb15postIp8_30_1_100_1_5000_03');
+resultName = strcat('R8scaleS2Gpr15Ubn5UibId150Hb15postIp8_30_1_100_1_5000_0');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 
