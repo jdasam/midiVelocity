@@ -17,10 +17,13 @@ function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(
         
         if useNeuralNetResult
             basicParameter.targetMedian = mean(nnResult);
-            basicParameter.targetRange = std(nnResult);
+            basicParameter.targetRange = std(nnResult)* sqrt(2);
         else
             basicParameter.targetMedian = 58.7;
             basicParameter.targetRange = 24;
+%             nmat = readmidi_java(MIDIFilename);
+%             basicParameter.targetMedian = mean(nmat(:,5));
+%             basicParameter.targetRange = std(nmat(:,5)) * sqrt(2);
         end 
 
     %     basicParameter.fittingArray = fittingArrayCell{trainingGroupIndex, subSetIndex};

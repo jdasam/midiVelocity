@@ -7,11 +7,13 @@ dirSet = {};
 dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
 %%
 
-basicParameter.audioExtension = 'wav';
-basicParameter.saveOnsetCluster =false;
-resultName = strcat('chopin etude');
-autoVelExtractSystem(basicParameter, dirSet, resultName, B);
+basicParameter.audioExtension = '.mp3';
+basicParameter.midiExtension = '.mid';
+basicParameter.usePedal = false;
+basicParameter.onsetWindowSecond = 0.3;
+basicParameter.saveOnsetCluster = true;
 
+saveOnsetEntireSetByScale(pwd, B, basicParameter)
 
 
 %%
