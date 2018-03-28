@@ -188,7 +188,7 @@ end
 
 function  [gammaMatMinus, gammaMatPlus ] = gammaMatrix(B, gam, susBasisBoolean)
     
-    B = B .* susBasisBoolean;
+%     B = B .* susBasisBoolean;
     shiftL = [B(:,2:end) zeros(size(B,1),1)];
     shiftR = [zeros(size(B,1),1) B(:,1:end-1)];
     
