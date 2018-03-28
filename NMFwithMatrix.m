@@ -60,8 +60,9 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                     Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
                 end
 
-                
-                Bnew = betaNormC(Bnew,basicParameter.beta);
+                if basicParameter.beta3 == 0
+                    Bnew = betaNormC(Bnew,basicParameter.beta);
+                end
                 Bnew(find(isnan(Bnew)))=0;
             end
         end
@@ -142,7 +143,7 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     specContD = zeros(size(B));
     
     
-    if basicParameter.rank > 2 && basicParameter.softConstraint
+    if basicParameter.rankMode > 2 && basicParameter.softConstraint
 
         for i = 1:basicParameter.maxNote - basicParameter.minNote +1 %for each key
             attackBasisBoolean(:, 2+(i-1)*basicParameter.rankMode) = 1;
