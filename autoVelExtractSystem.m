@@ -131,6 +131,9 @@ function B= learnBasisFromScale(basicParameter)
         sheetMatrix = initializeSheetMatrixWithAmplitude(Y, sheetMatrix, basicParameter);
     end
     [~, B] = basisNMFoption(Y, sheetMatrix, basicParameter, basicParameter.iterationScale, basicParameter.Gfixed, false, false, 'scale');
-    B = betaNormC(B,basicParameter.beta);
+    
+    if basicParameter.beta3 ==0 
+        B = betaNormC(B,basicParameter.beta);
+    end
 
 end

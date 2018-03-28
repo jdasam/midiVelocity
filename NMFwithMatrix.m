@@ -159,13 +159,13 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     
     
         susBasisBoolean = ~attackBasisBoolean;
+        susBasisBoolean(:,1) = 0;
         [gammaM, gammaP ] = gammaMatrix(B, gam, susBasisBoolean);        
         
         
         attM = (specContU + specContD) .*attackBasisBoolean;
         attP = B.* attackBasisBoolean;
-        
-        
+                
         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
     else
         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G' )   ./ ((Xhat .^ (basicParameter.beta-1)) * G') );
