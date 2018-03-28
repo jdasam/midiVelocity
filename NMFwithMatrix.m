@@ -160,7 +160,7 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     
         susBasisBoolean = ~attackBasisBoolean;
         susBasisBoolean(:,1) = 0;
-        [gammaM, gammaP ] = gammaMatrix(B, gam, susBasisBoolean);        
+        [gammaM, gammaP ] = gammaMatrix(B, gam, susBasisBoolean, basicParameter);        
         
         
         attM = (specContU + specContD) .*attackBasisBoolean;
@@ -181,19 +181,28 @@ function [diffMatrixL, diffMatrixR] = multiRankActivationConstraintMatrix (G, ba
     diffMatrixR( 1, :) = 0;
     for i = 1: (basicParameter.maxNote - basicParameter.minNote +1) 
         diffMatrixL( (i-1) * basicParameter.rankMode + 2, :) = 0;
-        diffMatrixR( (i-1) * basicParameter.rankMode + 2, :) = 0;
+%         diffMatrixR( (i-1) * basicParameter.rankMode + 2, :) = 0;
+        diffMatrixR( i * basicParameter.rankMode + 1, :) = 0;   
     end
 
 end 
 
-function  [gammaMatMinus, gammaMatPlus ] = gammaMatrix(B, gam, susBasisBoolean)
+function  [gammaMatMinus, gammaMatPlus ] = gammaMatrix(B, gam, susBasisBoolean, basicParameter)
     
 %     B = B .* susBasisBoolean;
     shiftL = [B(:,2:end) zeros(size(B,1),1)];
     shiftR = [zeros(size(B,1),1) B(:,1:end-1)];
     
+    for i = 1: (basicParameter.maxNote - basicParameter.minNote +1) 
+        shiftL(:, i * basicParameter.rankMode + 1, : ) = 0;
+        shiftR(:, (i-1) * basicParameter.rankMode + 2) = 0;   
+    end
+    
     diffMatrixL =  B - shiftR;
     diffMatrixR = shiftL - B;
+    
+
+    
     
     gammaMatMinus = shiftR .* exp(diffMatrixL*gam -1) + shiftL .* exp(diffMatrixR * gam -1);
     gammaMatPlus = B.* exp(diffMatrixL * gam -1) + B.* exp(diffMatrixR*gam-1);
