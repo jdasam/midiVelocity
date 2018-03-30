@@ -1,4 +1,4 @@
-function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, dir, useNeuralNetResult)
+function [errorList, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, dir, testMode)
 
     cd(dir);
 
@@ -6,7 +6,7 @@ function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(
     midiVelCell = {};
     errorList = zeros(6, length(pieces));
     refVelCompareCell = {};
-    
+    basicParameter.fittingArray(1,1) = 1;
     for i = 1:length(pieces)
         audioFilename = strcat(pieces{i}, '.mp3');
         MIDIFilename = strcat(pieces{i}, '.mid');
@@ -15,22 +15,24 @@ function [errorCell, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(
         
         nnResult = csvread(csvFilename);
         
-        if useNeuralNetResult
+        if strcmp(testMode, 'nn')
             basicParameter.targetMedian = mean(nnResult);
             basicParameter.targetRange = std(nnResult)* sqrt(2);
+        elseif strcmp(testMode, 'gt')
+            nmat = readmidi_java(MIDIFilename);
+            basicParameter.targetMedian = mean(nmat(:,5));
+            basicParameter.targetRange = std(nmat(:,5)) * sqrt(2);
         else
-            basicParameter.targetMedian = 58.7;
-            basicParameter.targetRange = 24;
-%             nmat = readmidi_java(MIDIFilename);
-%             basicParameter.targetMedian = mean(nmat(:,5));
-%             basicParameter.targetRange = std(nmat(:,5)) * sqrt(2);
+            basicParameter.targetMedian = 57.87;
+            basicParameter.targetRange = 16.25*sqrt(2);
+
         end 
 
     %     basicParameter.fittingArray = fittingArrayCell{trainingGroupIndex, subSetIndex};
 
         [~, midiVel, error, errorPerNoteResult, refVelCompare]  =velocityExtractionOption(audioFilename, MIDIFilename, B, basicParameter, txtFilename);
         midiVelCell{i} = midiVel;
-        errorCell(:,i) = error;
+        errorList(:,i) = error;
         refVelCompareCell{i} = refVelCompare;
         
         
