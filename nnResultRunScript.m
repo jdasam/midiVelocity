@@ -1,8 +1,8 @@
-resultName = 'R8nnRegression';
+resultName = 'R8baseLine';
 path = pwd;
-useNeuralNetResult = true;
+testMode = 'bl';
 
 basicParameter = updateBasicParam(basicParameter);
-[error, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, path, useNeuralNetResult);
+[error, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, path, testMode);
 %
 save(resultName, 'error', 'midiVelCell', 'refVelCompareCell', 'B', 'basicParameter')
