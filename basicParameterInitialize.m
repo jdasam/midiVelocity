@@ -46,6 +46,7 @@ basicParameter.GpreUpdate = 0;
 % basicParameter.attackExceptRange= basicParameter.attackLengthFrame;
 basicParameter.attackExceptRange= basicParameter.attackLengthSecond;
 basicParameter.softConstraint = false;
+basicParameter.saveMIDI = false;
 
 basicParameter.postUpdate = false;
 
@@ -70,6 +71,7 @@ basicParameter.pedalThreshold = 50;
 basicParameter.audioExtension = '.mp3';
 basicParameter.midiExtension = '.mid';
 basicParameter.mapmxResolution = 0.25;
+
 
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;

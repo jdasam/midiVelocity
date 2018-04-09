@@ -519,6 +519,17 @@ if isfield(basicParameter, 'transcription')
 end
 
 
+if basicParameter.saveMIDI
+    fileName = strsplit(audioFilename, '.mp3');
+    fileName = fileName{1};
+    resultMIDIname = strcat(fileName, '._vel.mid');
+    writemidi_seconds(midiVel,resultMIDIname);
+
+
+    
+end
+
+
 
 
 end
