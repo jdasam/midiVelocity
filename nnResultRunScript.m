@@ -1,6 +1,6 @@
-resultName = 'R8baseLine';
+resultName = 'R8gtNewest';
 path = pwd;
-testMode = 'bl';
+testMode = 'gt';
 
 basicParameter = updateBasicParam(basicParameter);
 [error, midiVelCell, refVelCompareCell] = velocityWithNeuralResult(B, basicParameter, path, testMode);

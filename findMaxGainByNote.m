@@ -79,8 +79,9 @@ else
 %         [gainCalculated, onset] = max( (sum(  ( B(:,basisIndex:basisIndexEnd).^basicParameter.spectrumMode * G(basisIndex:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode));
 %         [gainCalculated, onset] = max( sum((B(:,basisIndex+1:basisIndexEnd).^basicParameter.spectrumMode * G(basisIndex+1:basisIndexEnd, index:indexEnd).^basicParameter.spectrumMode) .^(1/basicParameter.spectrumMode)));
         
-        clusterStartIndex = (index + onset -1) -(ceil(onsetWindowSize*0.5)-1);
-        clusterEndIndex = (index + onset -1) + (floor(onsetWindowSize*1.5)-1);
+        clusterStartIndex = (index + onset) -(onsetWindowSize-1);
+%         clusterStartIndex = (index + onset -1) -(onsetWindowSize-1);
+        clusterEndIndex = (index + onset) + (onsetWindowSize);
     end
 end
 if nargout == 5 && clusterStartIndex > 0 && clusterEndIndex <size(G,2)
