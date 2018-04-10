@@ -31,13 +31,14 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         end
     end
 
-    
+    prevDiv = Inf;
     for i = 1:iteration
         Bnew = B;
         Gnew = G;
-
-        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
         
+        tic
+        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
+        toc
 %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
 %         Gnew(find(isnan(Gnew)))=0;
         
@@ -71,7 +72,18 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         G=Gnew;
 
         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
-
+        
+%         if mod(i,5) == 1
+            betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
+            progress= betaDiv/prevDiv
+            if 1 - betaDiv/prevDiv < 1e-3
+                break
+            end
+            i
+            prevDiv = betaDiv;
+%         end
+        
+        
         
     end
 %     D = sum(betaDivergence(X, Xhat, basicParameter.beta))

@@ -84,7 +84,7 @@ else
         clusterEndIndex = (index + onset) + (onsetWindowSize);
     end
 end
-if nargout == 5 && clusterStartIndex > 0 && clusterEndIndex <size(G,2)
+if basicParameter.rankMode > 2 && nargout == 5 && clusterStartIndex > 0 && clusterEndIndex <size(G,2)
 %             onsetClusterData = G(basisIndex:basisIndexEnd, index + onset + 1 - 5 : index + onset + 5);
 %             onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, index + onset + 1 - onsetWindowSize : index + onset + onsetWindowSize);
     onsetClusterData = basicParameter.map_mx * B(:,basisIndex:basisIndexEnd) * G(basisIndex:basisIndexEnd, clusterStartIndex:clusterEndIndex);

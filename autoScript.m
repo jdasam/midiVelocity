@@ -1,10 +1,33 @@
 dirSet = {};
-% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-% dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
+dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
+%% 0409
+
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 20;    
+basicParameter.spectrumMode = 2;
+basicParameter.Gfixed = true;
+basicParameter.harmConstrain = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 5;
+% basicParameter.iterationData = 10;
+basicParameter.harmBoundary = 1;
+basicParameter.softConstraint=true;
+basicParameter.iterationScale = 250;
+basicParameter.iterationPiece = 200;
+
+resultName = strcat('R2scaleS2Ubn5Gpr5_all');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+
+
 %%
 % basicParameter = basicParameterInitialize();
 % basicParameter.basisSource = 'scale';
@@ -40,21 +63,7 @@ saveOnsetEntireSetByScale(pwd, B, basicParameter)
 
 
 %%
-basicParameter = basicParameterInitialize();
-basicParameter.basisSource = 'data';
-basicParameter.rankMode = 2;    
-basicParameter.spectrumMode = 2;
-basicParameter.Gfixed = true;
-basicParameter.harmConstrain = true;
-basicParameter.useInitialB = true;
-basicParameter.harmBoundary = 1.5;
-basicParameter.updateBnumber = 5;
-basicParameter.GpreUpdate = 10;
-basicParameter.iterationData = 10;
-basicParameter.harmBoundary = 0.5;
 
-resultName = strcat('R2dataS2UibUbn5Gpr10Hb05_all');
-autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 %%
 parameterNum = [1 10 100 500 1000 2000 5000 ];

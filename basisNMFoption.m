@@ -34,61 +34,61 @@ end
 %     harmBoolean(harmBoolean>0) = 1;
 % end
  
-if basicParameter.rankMode > 3
+% if basicParameter.rankMode > 3
     basicParameter.updateBnumber = max(basicParameter.iterationScale, basicParameter.iterationData);
     [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration);
 
-else
-
-    Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
-
-
-    if basicParameter.GpreUpdate && size(initialB,1)~=1 && (~basicParameter.Gfixed || strcmp(dataSource, 'data'))
-        for i = 1:basicParameter.GpreUpdate
-            G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
-            G(find(isnan(G)))=0;
-            Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
-        end
-    end
-
-
-
-    for i = 1:iteration
-        Bnew = B;
-        Gnew = G;
-
-        if ~basicParameter.BpartialUpdate
-            Bnew = B .* ((X .* (Xhat .^(beta-2) ) * G') ./ ((Xhat .^ (beta-1)) * G'));
-        else
-            tempUpdate = (X .* (Xhat .^(beta-2) ) * G') ./ ((Xhat .^ (beta-1)) * G') .* harmBoolean;
-            tempUpdate(tempUpdate==0) = 1;
-            Bnew = B .* tempUpdate;
-        end
-
-
-        if Gfixed
-            if basicParameter.rankMode == 2 && basicParameter.GpartialUpdate;
-                Gnew = updateAttackOnly(G, X, B, Xhat, basicParameter.beta);
-            end
-
-        else
-            Bnew = betaNormC(Bnew,beta);
-            Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
-
-        end
-        
-        Bnew = betaNormC(Bnew,basicParameter.beta);
-        Bnew(find(isnan(Bnew)))=0;
-        Gnew(find(isnan(Gnew)))=0;
-
-        B = Bnew;
-        G = Gnew;
-
-        Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
-
-%         betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(X, Xhat, beta);
-    end  
-end
+% else
+% 
+%     Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
+% 
+% 
+%     if basicParameter.GpreUpdate && size(initialB,1)~=1 && (~basicParameter.Gfixed || strcmp(dataSource, 'data'))
+%         for i = 1:basicParameter.GpreUpdate
+%             G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
+%             G(find(isnan(G)))=0;
+%             Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
+%         end
+%     end
+% 
+% 
+% 
+%     for i = 1:iteration
+%         Bnew = B;
+%         Gnew = G;
+% 
+%         if ~basicParameter.BpartialUpdate
+%             Bnew = B .* ((X .* (Xhat .^(beta-2) ) * G') ./ ((Xhat .^ (beta-1)) * G'));
+%         else
+%             tempUpdate = (X .* (Xhat .^(beta-2) ) * G') ./ ((Xhat .^ (beta-1)) * G') .* harmBoolean;
+%             tempUpdate(tempUpdate==0) = 1;
+%             Bnew = B .* tempUpdate;
+%         end
+% 
+% 
+%         if Gfixed
+%             if basicParameter.rankMode == 2 && basicParameter.GpartialUpdate;
+%                 Gnew = updateAttackOnly(G, X, B, Xhat, basicParameter.beta);
+%             end
+% 
+%         else
+%             Bnew = betaNormC(Bnew,beta);
+%             Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
+% 
+%         end
+%         
+%         Bnew = betaNormC(Bnew,basicParameter.beta);
+%         Bnew(find(isnan(Bnew)))=0;
+%         Gnew(find(isnan(Gnew)))=0;
+% 
+%         B = Bnew;
+%         G = Gnew;
+% 
+%         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) + eps;
+% 
+% %         betaDivVector(length(betaDivVector)+1) = betaDivergenceMatrix(X, Xhat, beta);
+%     end  
+% end
 
 
 end
