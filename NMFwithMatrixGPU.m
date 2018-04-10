@@ -40,14 +40,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     prevDiv = Inf;
     for i = 1:iteration
         Bnew = B;
-        Gnew = G;
-        
-        tic
-        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix, boolMatL, boolMatR);
-        toc
-%         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
-%         Gnew(find(isnan(Gnew)))=0;
-        
+%         Gnew = G;
         if i < basicParameter.updateBnumber || iteration == basicParameter.iterationData
             if basicParameter.BpartialUpdate
                 tempUpdate = (X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G') .* harmBoolean;
@@ -73,9 +66,16 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 Bnew(find(isnan(Bnew)))=0;
             end
         end
+        tic
+        G =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix, boolMatL, boolMatR);
+        toc
+%         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
+%         Gnew(find(isnan(Gnew)))=0;
+        
+
 
         B=Bnew;
-        G=Gnew;
+%         G=Gnew;
 
         Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
         
