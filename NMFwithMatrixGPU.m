@@ -11,7 +11,9 @@ end
 
 G = gpuArray(G);
 B = gpuArray(B);
-X = gpuArray(X);
+% X = gpuArray(X);
+
+[boolMatL, boolMatR] = makeActivationDiffBool(G, basicParameter);
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
@@ -41,7 +43,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         Gnew = G;
         
         tic
-        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
+        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix, boolMatL, boolMatR);
         toc
 %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
 %         Gnew(find(isnan(Gnew)))=0;
@@ -113,7 +115,7 @@ end
 
 end
 
-function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix, attackMatrix)
+function [G] = updateG(G, B, X, Xhat, basicParameter, softConstraintMatrix, attackMatrix, boolMatL, boolMatR)
     if nargin<7
         attackMatrix = zeros(size(G));
     end
@@ -125,8 +127,8 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
     
     
     if isfield(basicParameter, 'softConstraint') && basicParameter.softConstraint
-        [diffMatrixL, diffMatrixR] = multiRankActivationConstraintMatrix (G, basicParameter);
-        Gnew =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
+%         [diffMatrixL, diffMatrixR] = multiRankActivationConstraintMatrix (G, basicParameter);
+        G =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * ([0 zeros(1, size(G,2)-1); zeros(size(G,1)-1,1) G(1:end-1,1:end-1) ] .* boolMatL + [G(2:end,2:end) zeros(size(G,1)-1,1); zeros(1, size(G,2)-1) 0].* boolMatR ) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
 %         if T(2,2) ~= 0
 %             th1 =  Gnew .* (alpha4+ T'*[zeros(441,1), Gnew(:,1:end-1)]);
 %             th1(:,1) = 0;
@@ -141,9 +143,9 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
 %             Gnew = (th1 + th2)/2;
 %         end
     else
-        Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
+        G = updateGwithTempoPartial(G, X, B, Xhat, basicParameter, attackMatrix);
     end
-    Gnew(find(isnan(Gnew)))=0;
+    G(find(isnan(G)))=0;
 
 end
 
@@ -227,4 +229,18 @@ function  [gammaMatMinus, gammaMatPlus ] = gammaMatrix(B, gam, susBasisBoolean, 
     gammaMatPlus = gammaMatPlus .* susBasisBoolean;
 
 
+end
+
+function [boolMatL, boolMatR] = makeActivationDiffBool(G, basicParameter)
+    
+    boolMatL = boolean(zeros(size(G));
+    boolMatR = boolMatL;
+
+    boolMatL(1,:) = 0;
+    boolMatR(1,:) = 0;
+    for i = 1: (basicParameter.maxNote - basicParameter.minNote +1) 
+        boolMatL( (i-1) * basicParameter.rankMode + 2, :) = 0;
+%         diffMatrixR( (i-1) * basicParameter.rankMode + 2, :) = 0;
+        boolMatR( i * basicParameter.rankMode + 1, :) = 0;   
+    end
 end
