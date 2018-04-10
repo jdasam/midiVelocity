@@ -15,7 +15,7 @@ X = abs(s);
 X(X==0) = eps;
 
 
-X(basicParameter.frequencyThreshold:end,:) = [];
+X(ceil(size(X,1)*basicParameter.frequencyThreshold):end,:) = [];
 
 
 if strcmp(basicParameter.scale, 'midi')

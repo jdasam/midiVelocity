@@ -12,7 +12,7 @@ window = basicParameter.window;
 % end
 
 W = zeros(basicParameter.window/2+1, numberOfTotalKey *basicParameter.rankMode + 1);
-W(basicParameter.frequencyThreshold:end,:) = [];
+W(ceil(size(W,1)*basicParameter.frequencyThreshold):end,:) = [];
 
 W(:,1) = rand(size(W,1),1);
 

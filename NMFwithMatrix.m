@@ -33,12 +33,12 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
     prevDiv = Inf;
     for i = 1:iteration
+        tic
         Bnew = B;
         Gnew = G;
         
-        tic
+        
         Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
-        toc
 %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
 %         Gnew(find(isnan(Gnew)))=0;
         
@@ -84,7 +84,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 %         end
         
         
-        
+        toc
     end
 %     D = sum(betaDivergence(X, Xhat, basicParameter.beta))
 
