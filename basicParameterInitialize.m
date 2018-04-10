@@ -72,6 +72,7 @@ basicParameter.pedalThreshold = 50;
 basicParameter.audioExtension = '.mp3';
 basicParameter.midiExtension = '.mid';
 basicParameter.mapmxResolution = 0.25;
+basicParameter.useGPU = false;
 
 
 if strcmp(basicParameter.scale, 'erbt')

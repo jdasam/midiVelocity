@@ -9,8 +9,8 @@ if nargin<7
     attackMatrix = zeros(size(G));
 end
 
-G = gpuArray(G);
-B = gpuArray(B);
+% Ggpu = gpuArray(G);
+% Bgpu = gpuArray(B);
 % X = gpuArray(X);
 
 [boolMatL, boolMatR] = makeActivationDiffBool(G, basicParameter);
@@ -169,9 +169,6 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
         specContU = [zeros(1, size(B,2)); B(1:end-1, :)];
         specContD = [B(2:end, :); zeros(1, size(B,2))];
         
- 
-    
-
         softConstraintMatrix = initializeWwithHarmonicConstraint(basicParameter);
         softConstraintMatrix(softConstraintMatrix>0) = 1;
     
@@ -183,7 +180,10 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
         
         attM = (specContU + specContD) .*attackBasisBoolean;
         attP = B.* attackBasisBoolean;
-                
+        
+        XXhat = gpuArray(X .* (Xhat .^(basicParameter.beta-2)));
+        Ggpu = gpuArray(G);
+        
         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
     else
         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G' )   ./ ((Xhat .^ (basicParameter.beta-1)) * G') );

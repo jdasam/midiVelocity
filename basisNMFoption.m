@@ -36,7 +36,8 @@ end
  
 % if basicParameter.rankMode > 3
     basicParameter.updateBnumber = max(basicParameter.iterationScale, basicParameter.iterationData);
-    [G, B] = NMFwithMatrixGPU(G, B, X, basicParameter, iteration);
+    [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration);
+
 
 % else
 % 

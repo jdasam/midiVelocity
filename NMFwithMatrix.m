@@ -11,14 +11,14 @@ end
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
-    Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
     
+    Xhat = calXhat(B,G,basicParameter);
     
     if basicParameter.GpreUpdate && mean(mean(B)) <0.3
        for i = 1:basicParameter.GpreUpdate
            Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
            G = Gnew;
-           Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+            Xhat = calXhat(B,G,basicParameter);  
        end
         
     end
@@ -71,7 +71,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         B=Bnew;
         G=Gnew;
 
-        Xhat = (B.^basicParameter.spectrumMode * G.^basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+        Xhat = calXhat(B,G,basicParameter);
         
 %         if mod(i,5) == 1
             betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
@@ -122,7 +122,21 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
     
     if isfield(basicParameter, 'softConstraint') && basicParameter.softConstraint
         [diffMatrixL, diffMatrixR] = multiRankActivationConstraintMatrix (G, basicParameter);
-        Gnew =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
+        if basicParameter.useGPU
+            termA = gpuMultiply(B', (X .* (Xhat .^(basicParameter.beta-2) )) ) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR);
+        else
+            termA = B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR);
+        end
+        if basicParameter.beta ==1 && basicParameter.beta3 ==0
+            termB = (1+alpha1+alpha3) * ones(size(G)) + 4*alpha2*G;
+        else
+            termB = B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G;
+        end
+        
+        Gnew = G .* termA ./termB;
+        
+%         Gnew =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
+%         Gnew =  G .* ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
 %         if T(2,2) ~= 0
 %             th1 =  Gnew .* (alpha4+ T'*[zeros(441,1), Gnew(:,1:end-1)]);
 %             th1(:,1) = 0;
@@ -177,8 +191,20 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
         
         attM = (specContU + specContD) .*attackBasisBoolean;
         attP = B.* attackBasisBoolean;
-                
-        Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
+        
+        if basicParameter.useGPU
+            termA = gpuMultiply(X .* (Xhat .^(basicParameter.beta-2) ), G') + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM;
+        else
+            termA = X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM;
+        end
+        if basicParameter.beta == 1
+            termB = repmat(sum(G'), size(Xhat,1),1) + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP ;
+        else
+            termB = (Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP;
+        end
+        Bnew = B .* termA ./ termB;
+
+%         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
     else
         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G' )   ./ ((Xhat .^ (basicParameter.beta-1)) * G') );
     end
@@ -222,5 +248,25 @@ function  [gammaMatMinus, gammaMatPlus ] = gammaMatrix(B, gam, susBasisBoolean, 
     gammaMatMinus = gammaMatMinus .* susBasisBoolean;
     gammaMatPlus = gammaMatPlus .* susBasisBoolean;
 
+
+end
+
+function result = gpuMultiply(A,B)
+    
+    A = gpuArray(A);
+    B = gpuArray(B);
+    
+    result = A * B;
+    result = gather(result);
+
+end
+
+function Xhat = calXhat(B,G,basicParameter)
+    if basicParameter.useGPU
+        Xhat = gpuMultiply(B.^basicParameter.spectrumMode, G .^ basicParameter.spectrumMode);
+        Xhat = Xhat .^ (1/basicParameter.spectrumMode) +eps;
+    else
+        Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
+    end
 
 end
