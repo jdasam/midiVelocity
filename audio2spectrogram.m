@@ -15,6 +15,9 @@ X = abs(s);
 X(X==0) = eps;
 
 
+X(basicParameter.frequencyThreshold:end,:) = [];
+
+
 if strcmp(basicParameter.scale, 'midi')
 X = basicParameter.map_mx * X;
 end

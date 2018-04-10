@@ -6,6 +6,7 @@ basicParameter.scale = 'stft';  % midi, erbt, stft
 basicParameter.sr = 44100; %
 basicParameter.nfft = 2048; %2048, erbt 512;
 basicParameter.window =  8192; % 8192, erbt 512;
+basicParameter.frequencyThreshold = 2048;
 % basicParameter.attackLengthFrame = 7;
 basicParameter.attackLengthSecond = 0.25;
 % basicParameter.searchRange = 13;
