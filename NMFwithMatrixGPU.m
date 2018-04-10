@@ -233,7 +233,7 @@ end
 
 function [boolMatL, boolMatR] = makeActivationDiffBool(G, basicParameter)
     
-    boolMatL = boolean(zeros(size(G));
+    boolMatL = boolean(zeros(size(G)));
     boolMatR = boolMatL;
 
     boolMatL(1,:) = 0;
