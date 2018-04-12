@@ -75,11 +75,11 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         
 %         if mod(i,5) == 1
             betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
-            progress = betaDiv/prevDiv
-            if 1 - betaDiv/prevDiv < 1e-4 && betaDiv <prevDiv
+%             progress = betaDiv/prevDiv
+            if 1 - betaDiv/prevDiv < basicParameter  && betaDiv <prevDiv
                 break
             end
-            i
+%             i
 %             if betaDiv < prevDiv
                 prevDiv = betaDiv;
 %             end

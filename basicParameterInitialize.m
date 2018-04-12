@@ -58,8 +58,9 @@ basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
 basicParameter.fittingArray = zeros(2,88);
 
+basicParameter.iterationStopCriterion = 1e-5;
 basicParameter.iterationScale = 100;
-basicParameter.iterationData = 50;
+basicParameter.iterationData = 150;
 basicParameter.iterationPiece = 50;
 if basicParameter.rankMode == 1 && basicParameter.Gfixed
     basicParameter.iterationScale =5;

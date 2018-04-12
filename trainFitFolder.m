@@ -103,9 +103,22 @@ for j = 1:length(dataSet)
 
 
     for i = 1 : length(midiRef)
+        tic
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
-        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
+        if basicParameter.saveOnsetCluster
+            [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
+            
+            if length(onsetClusterData) > 0
+                dataIndexCluster = min(find(xdataCluster(:,basisIndex-1)==0));
+                ydataCluster{dataIndexCluster, basisIndex-1} = onsetClusterData;
+                xdataCluster(dataIndexCluster, basisIndex-1) = midiRef(i,5);
+            end
+        else
+            gainTemp = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
+        end
+            
+            
 %         index = onsetTime2frame(midiRef(i,6), basicParameter);
 %         offset = ceil( (midiRef(i,7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
 % 
@@ -129,12 +142,8 @@ for j = 1:length(dataSet)
         
         ydata(dataIndex,basisIndex-1) = gainTemp;
         xdata(dataIndex,basisIndex-1) = midiRef(i,5);
-        
-        if length(onsetClusterData) > 0
-            dataIndexCluster = min(find(xdataCluster(:,basisIndex-1)==0));
-            ydataCluster{dataIndexCluster, basisIndex-1} = onsetClusterData;
-            xdataCluster(dataIndexCluster, basisIndex-1) = midiRef(i,5);
-        end
+        toc
+
     end
 end
 end
