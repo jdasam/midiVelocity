@@ -8,12 +8,18 @@ resultData.errorByNote = {};
 resultData.compareRefVel = {};
 resultData.maxIndexVector = {};
 resultData.histogramData = {};
+
+semiAlignedResultData = resultData;
 % resultData.velocityGainMatchingData = {};
 resultName = strcat(resultName, '.mat');
 
 Bcell = {};
 fittingArrayCell = {};
 velocityGainMatchingCell={};
+
+semiAlignedParameter = basicParameter;
+semiAlignedParameter.midiExtension = '_aligned.mid'; 
+semiAlignedParameter.usePseudoAligned = true;
 
 if strcmp(basicParameter.scale, 'erbt')
     basicParameter.weightOnAttack = false;
@@ -51,6 +57,8 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
 
                 [basicParameter.fittingArray, velocityGainMatchingCell{s,i}] = trainFitFolder(B, basicParameter, dirTrain);
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
+                semiAlignedParameter.fittingArray = basicParameter.fittingArray;
+                semiAlignedResultData = velExtractionFolder(dirEval, B, semiAlignedParameter, semiAlignedResultData);
                 fittingArrayCell{s,i} = basicParameter.fittingArray;
             end                                   
         end
@@ -75,6 +83,8 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
 
                 [basicParameter.fittingArray, velocityGainMatchingCell{s,i}] = trainFitFolder(B, basicParameter, dirTrain);
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
+                semiAlignedParameter.fittingArray = basicParameter.fittingArray;
+                semiAlignedResultData = velExtractionFolder(dirEval, B, semiAlignedParameter, semiAlignedResultData);
                 Bcell{s,i} = B;
                 fittingArrayCell{s,i} = basicParameter.fittingArray;
             end
@@ -111,7 +121,7 @@ end
 cd(basicParameter.resultFolderDir);
 
 % if basicParameter.saveOnsetCluster
-    save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell', 'velocityGainMatchingCell', '-v7.3');
+    save(resultName, 'basicParameter', 'resultData', 'semiAlignedResultData', 'B', 'Bcell', 'fittingArrayCell', 'velocityGainMatchingCell', '-v7.3');
 
 % else
 %     save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
