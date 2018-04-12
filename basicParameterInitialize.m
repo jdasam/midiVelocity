@@ -48,6 +48,7 @@ basicParameter.GpreUpdate = 0;
 basicParameter.attackExceptRange= basicParameter.attackLengthSecond;
 basicParameter.softConstraint = false;
 basicParameter.saveMIDI = false;
+basicParameter.usePseudoAligned = false;
 
 basicParameter.postUpdate = false;
 
