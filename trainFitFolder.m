@@ -101,9 +101,7 @@ for j = 1:length(dataSet)
     midiRef = readmidi_java(MIDIFilename,true);
     midiRef(:,7) = midiRef(:,7) + midiRef(:,6);
 
-
     for i = 1 : length(midiRef)
-        tic
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
         if basicParameter.saveOnsetCluster
@@ -142,7 +140,6 @@ for j = 1:length(dataSet)
         
         ydata(dataIndex,basisIndex-1) = gainTemp;
         xdata(dataIndex,basisIndex-1) = midiRef(i,5);
-        toc
 
     end
 end

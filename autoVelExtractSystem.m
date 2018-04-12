@@ -110,12 +110,12 @@ end
 
 cd(basicParameter.resultFolderDir);
 
-if basicParameter.saveOnsetCluster
+% if basicParameter.saveOnsetCluster
     save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell', 'velocityGainMatchingCell', '-v7.3');
 
-else
-    save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
-end
+% else
+%     save(resultName, 'basicParameter', 'resultData', 'B', 'Bcell', 'fittingArrayCell');
+% end
 
 
 end

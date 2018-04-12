@@ -33,7 +33,6 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
     prevDiv = Inf;
     for i = 1:iteration
-        tic
         Bnew = B;
         Gnew = G;
         
@@ -85,9 +84,6 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 %             end
             
 %         end
-        
-        
-        toc
     end
 %     D = sum(betaDivergence(X, Xhat, basicParameter.beta))
 
