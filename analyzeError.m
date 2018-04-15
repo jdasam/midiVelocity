@@ -1,4 +1,4 @@
-function [errorBySimulCell, errorBySustCell, errorByVelCell, totalError] = analyzeError(resultData, basicParameter, dir)
+function [errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, totalError] = analyzeError(resultData, basicParameter, dir)
 
 if nargin<3
     dir = pwd;
@@ -22,8 +22,9 @@ errorBySimulCell = {};
 errorBySustCell = {};
 errorByVelCell = {};
 errorByPitchCell ={};
+errorByDoubleStrikeCell = {};
 
-totalError = zeros(127,8);
+totalError = zeros(127,10);
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
@@ -35,9 +36,19 @@ for i = 1:length(pieces)
         if strcmp(resultData.title{j}, pieces{i}) == 1
             index = j;
             refVelCompare = resultData.compareRefVel{index};
+            resultExist = true;
             break
         end
+        
+        if j ==length(resultData.title)
+            resultExist = false;
+        end
     end
+    
+    if ~resultExist
+        continue
+    end
+    
     
     midiPiece = readmidi_java(MIDIFilename);
     midiPiece(:,7) = midiPiece(:,6) + midiPiece(:,7);
@@ -52,12 +63,14 @@ for i = 1:length(pieces)
     errorBySust = zeros(127,2);
     errorByVel = zeros(127,2);
     errorByPitch = zeros(127,2);
+    errorByDoubleStrike = zeros(127,2);
     
     for k = 1:length(midiPiece)
         onsetFrame = ceil(midiPiece(k,6) * basicParameter.sr / basicParameter.nfft);
         numSimulOnset =calNumberOfSimultaneousOnset(midiPiece(k,:), midiPiece);
         numSustained = numSustainedNotesByFrame(onsetFrame);
         velError = abs(refVelCompare(k,2) -refVelCompare(k,3));
+        doubleStrikeCheck = calDobuleStrike(midiPiece(k,:), midiPiece);
         
         errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
         errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
@@ -67,12 +80,15 @@ for i = 1:length(pieces)
         errorByVel(midiPiece(k,5), 2) = errorByVel(midiPiece(k,5), 2) + 1;
         errorByPitch(midiPiece(k,4), 1) = errorByPitch(midiPiece(k,4), 1) + velError;
         errorByPitch(midiPiece(k,4), 2) = errorByPitch(midiPiece(k,4), 2) +1;
+        errorByDoubleStrike(doubleStrikeCheck, 1) = errorByDoubleStrike(doubleStrikeCheck, 1) + velError;
+        errorByDoubleStrike(doubleStrikeCheck, 2) =  errorByDoubleStrike(doubleStrikeCheck, 2) +1;
         
     end
     totalError(:,1:2) = totalError(:,1:2) + errorBySimul;
     totalError(:,3:4) = totalError(:,3:4) + errorBySust;
     totalError(:,5:6) = totalError(:,5:6) + errorByVel;
     totalError(:,7:8) = totalError(:,7:8) + errorByPitch;
+    totalError(:,9:10) = totalError(:,9:10) + errorByDoubleStrike;
 
     
     
@@ -85,11 +101,14 @@ for i = 1:length(pieces)
     errorByVel(isnan(errorByVel)) = 0;
     errorByPitch(:,1) = errorByPitch(:,1) ./ errorByPitch(:,2);
     errorByPitch(isnan(errorByPitch)) = 0;    
+    errorByDoubleStrike(:,1) = errorByDoubleStrike(:,1) ./ errorByDoubleStrike(:,2);
+    errorByDoubleStrike(isnan(errorByDoubleStrike)) = 0;
     
     errorBySimulCell{index} = errorBySimul;
     errorBySustCell{index} = errorBySust;
-    errorByVellCell{index} = errorByVel;
+    errorByVelCell{index} = errorByVel;
     errorByPitchCell{index} = errorByPitch;
+    errorByDoubleStrikeCell{index} = errorByDoubleStrike;
     
 end
 
@@ -97,6 +116,8 @@ totalError(:,1) = totalError(:,1) ./ totalError(:,2);
 totalError(:,3) = totalError(:,3) ./ totalError(:,4);
 totalError(:,5) = totalError(:,5) ./ totalError(:,6);
 totalError(:,7) = totalError(:,7) ./ totalError(:,8);
+totalError(:,9) = totalError(:,9) ./ totalError(:,10);
+
 
 end 
 
@@ -105,5 +126,13 @@ function numSimulOnset =calNumberOfSimultaneousOnset(note, midiMat)
     threshold = 0.1;
 %     numSimulOnset = sum( (abs(midiMat(:,6)-note(6)) < threshold) .* (midiMat(:,5) ~= note(5))  );
     numSimulOnset = sum(abs(midiMat(:,6)-note(6)) < threshold)  ;
+
+end
+
+
+function doubleStrikeCheck = calDobuleStrike(note, midiMat)
+    threshold = 0.7;
+    pitch = note(5);
+    doubleStrikeCheck = ( midiMat(midiMat(:,5)==pitch,6) - note(6)  < threshold && midiMat(midiMat(:,5)==pitch,6) - note(6) > 0 );
 
 end

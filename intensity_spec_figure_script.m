@@ -5,7 +5,7 @@ vel2 = velocityGainMatchingCell{1,2}{1,1};
 inten2 = velocityGainMatchingCell{1,2}{1,2};
 
 %%
-targetPitch = 30;
+targetPitch = 45;
 hold off
 scatter(vel1(:,targetPitch), log(inten1(:,targetPitch)), 40);
 hold on
