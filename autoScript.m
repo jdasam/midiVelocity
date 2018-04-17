@@ -9,18 +9,18 @@ dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 
 basicParameter = basicParameterInitialize();
 basicParameter.basisSource = 'scale';
-basicParameter.rankMode = 20;    
+basicParameter.rankMode = 2;    
 basicParameter.spectrumMode = 2;
-basicParameter.Gfixed = true;
 basicParameter.harmConstrain = true;
 basicParameter.harmBoundary = 1.5;
 basicParameter.updateBnumber = 5;
 basicParameter.GpreUpdate = 5;
 % basicParameter.iterationData = 10;
 basicParameter.harmBoundary = 1;
-basicParameter.softConstraint=true;
+% basicParameter.softConstraint=true;
 basicParameter.iterationScale = 250;
 basicParameter.iterationPiece = 200;
+basicParameter.Gfixed=true;
 
 resultName = strcat('R2scaleS2Ubn5Gpr5_all');
 autoVelExtractSystem(basicParameter, dirSet, resultName);

@@ -29,6 +29,13 @@ elseif strcmp(dataSource, 'data')
     end
 end
 
+if basicParameter.softConstraint
+    constraintMatrix = G;
+    G = rand(size(G));
+else
+    constraintMatrix = zeros(size(G));
+end
+
 % if basicParameter.BpartialUpdate
 %     harmBoolean = initializeWwithHarmonicConstraint(basicParameter); 
 %     harmBoolean(harmBoolean>0) = 1;
@@ -36,7 +43,7 @@ end
  
 % if basicParameter.rankMode > 3
     basicParameter.updateBnumber = max(basicParameter.iterationScale, basicParameter.iterationData);
-    [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration);
+    [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration, constraintMatrix, attackMatrix,Gfixed);
 
 
 % else

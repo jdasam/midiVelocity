@@ -1,4 +1,4 @@
-function [errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, totalError] = analyzeError(resultData, basicParameter, dir)
+function [errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell, totalError] = analyzeError(resultData, basicParameter, dir)
 
 if nargin<3
     dir = pwd;
@@ -23,8 +23,9 @@ errorBySustCell = {};
 errorByVelCell = {};
 errorByPitchCell ={};
 errorByDoubleStrikeCell = {};
+errorByLengthCell = {};
 
-totalError = zeros(127,10);
+totalError = zeros(127,12);
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
@@ -64,6 +65,7 @@ for i = 1:length(pieces)
     errorByVel = zeros(127,2);
     errorByPitch = zeros(127,2);
     errorByDoubleStrike = zeros(127,2);
+    errorByLength = zeros(127,2);
     
     for k = 1:length(midiPiece)
         onsetFrame = ceil(midiPiece(k,6) * basicParameter.sr / basicParameter.nfft);
@@ -71,17 +73,26 @@ for i = 1:length(pieces)
         numSustained = numSustainedNotesByFrame(onsetFrame);
         velError = abs(refVelCompare(k,2) -refVelCompare(k,3));
         doubleStrikeCheck = calDobuleStrike(midiPiece(k,:), midiPiece);
+        noteLength = min(round ( (midiPiece(k,7) - midiPiece(k,6)) * 50)+1, 127);
         
-        errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
-        errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
-        errorBySust(numSustained, 1) = errorBySust(numSustained,1) + velError;
-        errorBySust(numSustained, 2) = errorBySust(numSustained,2) + 1;
-        errorByVel(midiPiece(k,5), 1) = errorByVel(midiPiece(k,5), 1) + velError;
-        errorByVel(midiPiece(k,5), 2) = errorByVel(midiPiece(k,5), 2) + 1;
-        errorByPitch(midiPiece(k,4), 1) = errorByPitch(midiPiece(k,4), 1) + velError;
-        errorByPitch(midiPiece(k,4), 2) = errorByPitch(midiPiece(k,4), 2) +1;
-        errorByDoubleStrike(doubleStrikeCheck, 1) = errorByDoubleStrike(doubleStrikeCheck, 1) + velError;
-        errorByDoubleStrike(doubleStrikeCheck, 2) =  errorByDoubleStrike(doubleStrikeCheck, 2) +1;
+        errorBySimul = addError(errorBySimul, numSimulOnset, velError);
+        errorBySust = addError(errorBySust, numSustained, velError);
+        errorByVel = addError(errorByVel, midiPiece(k,5), velError);
+        errorByPitch = addError(errorByPitch, midiPiece(k,4), velError);
+        errorByDoubleStrike = addError(errorByDoubleStrike, doubleStrikeCheck, velError);
+        errorByLength = addError(errorByLength,noteLength, velError);
+        
+%         errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
+%         errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
+%         errorBySust(numSustained, 1) = errorBySust(numSustained,1) + velError;
+%         errorBySust(numSustained, 2) = errorBySust(numSustained,2) + 1;
+%         errorByVel(midiPiece(k,5), 1) = errorByVel(midiPiece(k,5), 1) + velError;
+%         errorByVel(midiPiece(k,5), 2) = errorByVel(midiPiece(k,5), 2) + 1;
+%         errorByPitch(midiPiece(k,4), 1) = errorByPitch(midiPiece(k,4), 1) + velError;
+%         errorByPitch(midiPiece(k,4), 2) = errorByPitch(midiPiece(k,4), 2) +1;
+%         errorByDoubleStrike(doubleStrikeCheck, 1) = errorByDoubleStrike(doubleStrikeCheck, 1) + velError;
+%         errorByDoubleStrike(doubleStrikeCheck, 2) =  errorByDoubleStrike(doubleStrikeCheck, 2) +1;
+%         errorBy
         
     end
     totalError(:,1:2) = totalError(:,1:2) + errorBySimul;
@@ -89,7 +100,7 @@ for i = 1:length(pieces)
     totalError(:,5:6) = totalError(:,5:6) + errorByVel;
     totalError(:,7:8) = totalError(:,7:8) + errorByPitch;
     totalError(:,9:10) = totalError(:,9:10) + errorByDoubleStrike;
-
+    totalError(:,11:12) = totalError(:,11:12) + errorByLength;
     
     
     errorBySimul(:,1) = errorBySimul(:,1) ./ errorBySimul(:,2);
@@ -103,12 +114,15 @@ for i = 1:length(pieces)
     errorByPitch(isnan(errorByPitch)) = 0;    
     errorByDoubleStrike(:,1) = errorByDoubleStrike(:,1) ./ errorByDoubleStrike(:,2);
     errorByDoubleStrike(isnan(errorByDoubleStrike)) = 0;
+    errorByLength(:,1) = errorByLength(:,1) ./ errorByLength(:,2);
+    errorByLength(isnan(errorByLength)) = 0;
     
     errorBySimulCell{index} = errorBySimul;
     errorBySustCell{index} = errorBySust;
     errorByVelCell{index} = errorByVel;
     errorByPitchCell{index} = errorByPitch;
     errorByDoubleStrikeCell{index} = errorByDoubleStrike;
+    errorByLengthCell{index} =errorByLength;
     
 end
 
@@ -117,6 +131,7 @@ totalError(:,3) = totalError(:,3) ./ totalError(:,4);
 totalError(:,5) = totalError(:,5) ./ totalError(:,6);
 totalError(:,7) = totalError(:,7) ./ totalError(:,8);
 totalError(:,9) = totalError(:,9) ./ totalError(:,10);
+totalError(:,11) = totalError(:,11) ./ totalError(:,12);
 
 
 end 
@@ -131,8 +146,16 @@ end
 
 
 function doubleStrikeCheck = calDobuleStrike(note, midiMat)
-    threshold = 0.7;
+    threshold = 0.1;
     pitch = note(5);
-    doubleStrikeCheck = ( midiMat(midiMat(:,5)==pitch,6) - note(6)  < threshold && midiMat(midiMat(:,5)==pitch,6) - note(6) > 0 );
+    boolA =  midiMat(midiMat(:,5)==pitch,6) - note(6)  < threshold ;
+    boolB = midiMat(midiMat(:,5)==pitch,6) - note(6) > 0 ;
+    doubleStrikeCheck = sum(boolA & boolB) + 1;
+end
+
+function errorArray = addError(errorArray, index, error)
+    
+    errorArray(index, 1) = errorArray(index, 1) + error;
+    errorArray(index, 2 ) =errorArray(index, 2) + 1;
 
 end

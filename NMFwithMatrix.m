@@ -1,4 +1,4 @@
-function [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration, constraintMatrix, attackMatrix)
+function [G, B] = NMFwithMatrix(G, B, X, basicParameter, iteration, constraintMatrix, attackMatrix, Gfixed)
 
 if nargin<6
     constraintMatrix = zeros(size(G));
@@ -7,6 +7,10 @@ end
 if nargin<7
 %     T = zeros(size(B,2));
     attackMatrix = zeros(size(G));
+end
+
+if nargin<8
+    Gfixed=false;
 end
 
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
@@ -65,6 +69,9 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 end
                 Bnew(find(isnan(Bnew)))=0;
             end
+        end
+        if Gfixed
+            Gnew = G;
         end
 
         B=Bnew;
