@@ -10,7 +10,7 @@ basicParameter.frequencyThreshold = 0.75;
 % basicParameter.attackLengthFrame = 7;
 basicParameter.attackLengthSecond = 0.25;
 % basicParameter.searchRange = 13;
-basicParameter.searchRangeSecond = 0.8;
+basicParameter.searchRangeSecond = 0.6;
 basicParameter.multiRankOverlapSecond = 0.15;
 basicParameter.multiRankHopSecond = 0.0464;
 basicParameter.onsetWindowSecond = 0.3;
@@ -49,7 +49,7 @@ basicParameter.attackExceptRange= basicParameter.attackLengthSecond;
 basicParameter.softConstraint = false;
 basicParameter.saveMIDI = false;
 basicParameter.usePseudoAligned = false;
-
+basicParameter.earlyStopping = false;
 basicParameter.postUpdate = false;
 
 basicParameter.fExtSecond = 0;

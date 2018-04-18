@@ -21,6 +21,7 @@ basicParameter.harmBoundary = 1;
 basicParameter.iterationScale = 250;
 basicParameter.iterationPiece = 200;
 basicParameter.Gfixed=true;
+basicParameter.iterationStopCriterion = 1e-7;
 
 resultName = strcat('R2scaleS2Ubn5Gpr5_all');
 autoVelExtractSystem(basicParameter, dirSet, resultName);

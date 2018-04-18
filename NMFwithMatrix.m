@@ -79,6 +79,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 
         Xhat = calXhat(B,G,basicParameter);
         
+        if basicParameter.earlyStopping 
 %         if mod(i,5) == 1
             betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
 %             progress = betaDiv/prevDiv
@@ -91,6 +92,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 %             end
             
 %         end
+        end
     end
 %     D = sum(betaDivergence(X, Xhat, basicParameter.beta))
 
