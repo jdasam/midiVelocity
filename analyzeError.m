@@ -1,4 +1,4 @@
-function [errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell, totalError] = analyzeError(resultData, basicParameter, dir)
+function [totalError, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell] = analyzeError(resultData, basicParameter, dir, pseudoAligned)
 
 if nargin<3
     dir = pwd;
@@ -54,6 +54,11 @@ for i = 1:length(pieces)
     midiPiece = readmidi_java(MIDIFilename);
     midiPiece(:,7) = midiPiece(:,6) + midiPiece(:,7);
     midiPiece = applyPedalTxt(midiPiece, pedalTxtFilename, basicParameter);
+    
+    if size(midiPiece,1) ~= size(refVelCompare,1)
+        refVelCompare = modifyRefVel(refVelCompare,textFileName);
+    end
+    
     specLength = ceil(midiPiece(end,7) * basicParameter.sr / basicParameter.nfft);
     tempParameter = basicParameter;
     tempParameter.rankMode = 1;
@@ -72,6 +77,9 @@ for i = 1:length(pieces)
         numSimulOnset =calNumberOfSimultaneousOnset(midiPiece(k,:), midiPiece);
         numSustained = numSustainedNotesByFrame(onsetFrame);
         velError = abs(refVelCompare(k,2) -refVelCompare(k,3));
+        if refVelCompare(k,2) ==0 || refVelCompare(k,3) == 0
+            continue
+        end
         doubleStrikeCheck = calDobuleStrike(midiPiece(k,:), midiPiece);
         noteLength = min(round ( (midiPiece(k,7) - midiPiece(k,6)) * 50)+1, 127);
         
@@ -157,5 +165,20 @@ function errorArray = addError(errorArray, index, error)
     
     errorArray(index, 1) = errorArray(index, 1) + error;
     errorArray(index, 2 ) =errorArray(index, 2) + 1;
+
+end
+
+function refVelCompare = modifyRefVel(refVelCompare, textFileName)
+
+    fid = fopen(textFileName, 'r');
+    midiAlignResult = textscan(fid, '%s', 'delimiter', '\t');
+    midiAlignResult = reshape(midiAlignResult{1}, [10,length(midiAlignResult{1})/10])';
+    fileName = strsplit(textFileName, '_corresp.txt');
+    fileName = fileName{1};
+    midiVel = readmidi_java(strcat(fileName, '_aligned.mid'));
+    midiVel(:,5) = refVelCompare(:,3);
+    
+    [~, refVelCompare] = midiMatAlign(midiVel, midiAlignResult);       
+
 
 end
