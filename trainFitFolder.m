@@ -105,7 +105,7 @@ for j = 1:length(dataSet)
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
         if basicParameter.saveOnsetCluster
-            [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
+            [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated,midiRef);
             
             if length(onsetClusterData) > 0
                 dataIndexCluster = min(find(xdataCluster(:,basisIndex-1)==0));
@@ -113,7 +113,7 @@ for j = 1:length(dataSet)
                 xdataCluster(dataIndexCluster, basisIndex-1) = midiRef(i,5);
             end
         else
-            gainTemp = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
+            gainTemp = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated, midiRef);
         end
             
             

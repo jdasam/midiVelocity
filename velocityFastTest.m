@@ -20,7 +20,7 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
     for i = 1 : length(midiRef)
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
-        [gainTemp] = findMaxGainByNote(midiRef(i,:), G, basicParameter, B);
+        [gainTemp] = findMaxGainByNote(midiRef(i,:), G, basicParameter, B, midiRef);
         
         dataIndex = min(find(ydata(:,basisIndex-1)==0));
         
@@ -48,7 +48,7 @@ function [error, refVelCompare, fittingArray, xdata, ydata, gainCompareVec] = ve
         
         basisIndex = max(midiVel(i,4),21) - basicParameter.minNote + 2;
 
-        [gainCalculated] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
+        [gainCalculated] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B, midiVel);
         
       
 
@@ -96,7 +96,7 @@ function [xdata, ydata, xdataCluster, ydataCluster] = folderNMF(dir, xdata, ydat
     for i = 1 : length(midiRef)
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
-        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, B);
+        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, B, midiRef);
 
 %         
         dataIndex = min(find(ydata(:,basisIndex-1)==0));

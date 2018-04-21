@@ -1,4 +1,4 @@
-function [gainCalculated, maxIndex, onset, offset, onsetClusterData] = findMaxGainByNote(midiNote, G, basicParameter, B)
+function [gainCalculated, maxIndex, onset, offset, onsetClusterData] = findMaxGainByNote(midiNote, G, basicParameter, B, midiEntire)
 
 if nargin < 4
     B = zeros(1,size(G,1));
@@ -25,13 +25,16 @@ else
 end
 
 index = onsetTime2frame(midiNote(6),basicParameter);
-offset = ceil( (midiNote(7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
+% offset = ceil( (midiNote(7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
+% 
+% if isfield(basicParameter, 'bExt')
+%     if basicParameter.bExt
+%         offset = offset+basicParameter.bExt;
+%     end
+% end
 
-if isfield(basicParameter, 'bExt')
-    if basicParameter.bExt
-        offset = offset+basicParameter.bExt;
-    end
-end
+offset =  calOffset(midiNote, midiEntire, basicParameter);
+
 
 if offset > size(G,2)
     offset = size(G,2);
@@ -104,5 +107,39 @@ if isfield(basicParameter, 'threshold') && basicParameter.threshold
 end
 
 
+
+end
+
+
+function offset = calOffset(midiNote, midiEntire, basicParameter)
+
+    offset = ceil( (midiNote(7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
+
+    if isfield(basicParameter, 'bExt')
+        if basicParameter.bExt
+            offset = offset+basicParameter.bExt;
+        end
+    end
+    
+    nextNote = findNextNote(midiNote, midiEntire);
+    if nextNote
+        nextOnsetFrame = onsetTime2frame(nextNote(6), basicParameter);
+        if offset>nextOnsetFrame
+            offset = nextOnsetFrame - 1;
+        end
+    end
+   
+end
+
+function nextNote = findNextNote(midiNote, midiEntire)
+    
+    samePitchList = find(midiEntire(:,4) == midiNote(4));
+    currentNoteIndex = find(midiEntire(samePitchList,6) == midiNote(6));
+    if currentNoteIndex < length(samePitchList)
+        nextNoteIndex = samePitchList(currentNoteIndex+1);
+        nextNote = midiEntire(nextNoteIndex,:);
+    else
+        nextNote = [];
+    end
 
 end

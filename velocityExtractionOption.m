@@ -193,9 +193,9 @@ if basicParameter.fittingArray(1,1)
         basisIndex = max(midiVel(i,4),21) - basicParameter.minNote + 2;
         
         if basicParameter.saveOnsetCluster
-            [gainCalculated, maxIndex, ~, ~, onsetCluster] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
+            [gainCalculated, maxIndex, ~, ~, onsetCluster] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B, midiVel);
         else
-            [gainCalculated, maxIndex] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B);
+            [gainCalculated, maxIndex] = findMaxGainByNote(midiVel(i,:), G, basicParameter, B, midiVel);
             onsetCluster = [];
         end
       
