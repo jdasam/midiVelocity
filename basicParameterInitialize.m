@@ -33,6 +33,7 @@ basicParameter.beta3 = 0;
 basicParameter.gamma = 0;
 basicParameter.rankMode = 1; % rank1: 88, rank2: 176
 basicParameter.spectrumMode = 1; 
+basicParameter.ampInitialMode = 1;
 basicParameter.weightOnAttack = false;
 basicParameter.Gfixed = false;
 basicParameter.harmConstrain = true;
@@ -51,6 +52,7 @@ basicParameter.saveMIDI = false;
 basicParameter.usePseudoAligned = false;
 basicParameter.earlyStopping = false;
 basicParameter.postUpdate = false;
+basicParameter.testOnlyOneFold = false;
 
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;

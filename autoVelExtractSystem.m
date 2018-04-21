@@ -60,7 +60,10 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
                 semiAlignedParameter.fittingArray = basicParameter.fittingArray;
                 semiAlignedResultData = velExtractionFolder(dirEval, B, semiAlignedParameter, semiAlignedResultData);
                 fittingArrayCell{s,i} = basicParameter.fittingArray;
-            end                                   
+            end
+            if basicParameter.testOnlyOneFold
+                break
+            end
         end
         
     elseif strcmp(basicParameter.basisSource, 'data')
@@ -90,6 +93,9 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
             end
 
             B = Bscale;
+            if basicParameter.testOnlyOneFold
+                break
+            end
         end
     end
 

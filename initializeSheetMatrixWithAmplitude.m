@@ -2,13 +2,17 @@ function initializedG = initializeSheetMatrixWithAmplitude(X, sheetMatrix, basic
     
     beta=basicParameter.beta;
     for i = 1:size(sheetMatrix,2)
-        
-       if sum(sheetMatrix(:,i)) == 1
-           sheetMatrix(find(sheetMatrix(:,i)),i) = sum(X(:,i) .^ beta) ^ (1/beta);
-       else
-           sheetMatrix(min(find(sheetMatrix(:,i))),i) =  sum(X(:,i) .^ beta) ^ (1/beta);
-       end
-        
+       energySum = sum(X(:,i) .^ beta) ^ (1/beta);
+       numActivatedBasis = sum(sheetMatrix(:,i));
+       if numActivatedBasis == 1
+           sheetMatrix(find(sheetMatrix(:,i)),i) = energySum;
+       elseif basicParameter.rankMode == 2 || basicParameter.ampInitialMode ==1
+           sheetMatrix(min(find(sheetMatrix(:,i))),i) = energySum;
+       elseif basicParameter.ampInitialMode == 2
+           sheetMatrix(find(sheetMatrix(:,i)),i) = energySum / numActivatedBasis ;
+       elseif basicParameter.ampInitialMode == 3
+           sheetMatrix(find(sheetMatrix(:,i)),i) = energySum * sqrt(2) / numActivatedBasis ;
+       end 
     end
     
     initializedG = sheetMatrix;

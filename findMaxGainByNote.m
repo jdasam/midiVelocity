@@ -50,6 +50,10 @@ if indexEnd > size(G,2)
 indexEnd = size(G,2);
 end
 
+if indexEnd < index
+    indexEnd = index;
+end
+
 
 onsetClusterData = [];
 
@@ -125,7 +129,7 @@ function offset = calOffset(midiNote, midiEntire, basicParameter)
     if nextNote
         nextOnsetFrame = onsetTime2frame(nextNote(6), basicParameter);
         if offset>nextOnsetFrame
-            offset = nextOnsetFrame - 1;
+            offset = nextOnsetFrame -1;
         end
     end
    
