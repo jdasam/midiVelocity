@@ -45,7 +45,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
 %         Gnew(find(isnan(Gnew)))=0;
         
-        if i < basicParameter.updateBnumber || iteration == basicParameter.iterationData
+        if i < basicParameter.updateBnumber
             if basicParameter.BpartialUpdate
                 tempUpdate = (X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G') .* harmBoolean;
                 tempUpdate(tempUpdate==0) = 1;
