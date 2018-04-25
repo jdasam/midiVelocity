@@ -1,10 +1,178 @@
 dirSet = {};
 dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+% dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+% dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+% dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
+
+
+%% scale test
+
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+% basicParameter.earlyStopping = true;
+% basicParameter.iterationStopCriterion = 1e-4;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary =1.5;
+
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 1000;
+
+autoVelExtractSystem(basicParameter, dirSet, 'test');
+
+%% 0421
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+basicParameter.harmConstrain = true;
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 5000;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 5;
+basicParameter.useInitialB = true;
+basicParameter.postUpdate = true;
+basicParameter.iterationPost = 8;
+basicParameter.earlyStopping = true;
+basicParameter.iterationScale = 200;
+basicParameter.iterationPiece = 100;
+basicParameter.frequencyThreshold = 1;
+basicParameter.Gfixed = false;
+
+resultName = strcat('R8scaleS2Gpr5Ubn5UibId150Hb15postIp8_30_1_100_1_5000_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.basisSource = 'rand';
+resultName = strcat('R8randS2Gpr5Ubn5UibId150Hb15postIp8_30_10_100_1_5000_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.basisSource = 'scale';
+basicParameter.alpha2 = 10;
+resultName = strcat('R8scaleS2Gpr5Ubn5UibId150Hb15postIp8_30_10_100_1_5000_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.alpha2 = 100;
+resultName = strcat('R8scaleS2Gpr5Ubn5UibId150Hb15postIp8_30_10_100_1_5000_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+basicParameter.rankMode = 2;
+basicParameter.softConstraint = false;
+basicParameter.Gfixed = true;
+basicParameter.harmBoundary = 0.5;
+resultName = strcat('R2scaleS2Gpr5Ubn5Hb05_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+basicParameter.harmConstrain = true;
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 0.1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 5000;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 15;
+basicParameter.useInitialB = true;
+basicParameter.postUpdate = true;
+basicParameter.iterationPost = 8;
+basicParameter.earlyStopping = true;
+basicParameter.iterationScale = 200;
+basicParameter.iterationPiece = 100;
+basicParameter.frequencyThreshold = 1;
+basicParameter.Gfixed = false;
+
+resultName = strcat('R8scaleS2Gpr5Ubn5UibId150Hb15postIp8_30_1_100_1_5000_all');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+%%
+ 
+basicParameter.ampInitialMode = 2;
+
+ 
+ 
+basicParameter.ampInitialMode = 3;
+resultName = strcat('R8scaleS2Gpr5Ubn5UibId150Hb15postIp8_30_1_100_1_5000_Gfixed_Amp3chopin');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+ 
+ 
+basicParameter.ampInitialMode = 1;
+resultName = strcat('R8scaleS2Gpr5Ubn5UibId150Hb15postIp8_30_1_100_1_5000_Gfixed_Amp1chopin');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+basicParameter.harmConstrain = true;
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 0.1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 5000;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 15;
+basicParameter.useInitialB = true;
+basicParameter.postUpdate = true;
+basicParameter.iterationPost = 8;
+basicParameter.earlyStopping = true;
+basicParameter.iterationScale = 200;
+basicParameter.iterationPiece = 100;
+basicParameter.testOnlyOneFold = true;
+basicParameter.frequencyThreshold = 1;
+
+resultName = strcat('R8scaleS2Gpr15Ubn5UibId150Hb15postIp8_30_1_100_1_5000_chopin');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.frequencyThreshold = 1;
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+basicParameter.harmConstrain = true;
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 0.1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 5000;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate = 15;
+basicParameter.useInitialB = true;
+basicParameter.postUpdate = true;
+basicParameter.iterationPost = 8;
+basicParameter.Gfixed= true;
+basicParameter.earlyStopping = true;
+basicParameter.iterationScale = 200;
+basicParameter.iterationPiece = 100;
+basicParameter.testOnlyOneFold = true;
+
+
+resultName = strcat('R8scaleS2Gpr15Ubn5UibId150Hb15postIp8_30_1_100_1_5000_chopin_Gfixed');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
 %% 0409
 
 basicParameter = basicParameterInitialize();

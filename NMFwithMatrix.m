@@ -70,7 +70,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 Bnew(find(isnan(Bnew)))=0;
             end
         end
-        if Gfixed && basicParameter.rankMode < 2
+        if Gfixed && basicParameter.rankMode <= 2
             Gnew = G;
         end
 
