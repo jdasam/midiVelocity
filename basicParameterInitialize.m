@@ -14,6 +14,7 @@ basicParameter.searchRangeSecond = 0.6;
 basicParameter.multiRankOverlapSecond = 0.15;
 basicParameter.multiRankHopSecond = 0.0464;
 basicParameter.onsetWindowSecond = 0.3;
+basicParameter.referencePitch = 440;
 
 basicParameter.beta = 1;
 basicParameter.MIDIFilename = 'pianoScale12Staccato2.mid';
@@ -48,17 +49,20 @@ basicParameter.GpreUpdate = 0;
 % basicParameter.attackExceptRange= basicParameter.attackLengthFrame;
 basicParameter.attackExceptRange= basicParameter.attackLengthSecond;
 basicParameter.softConstraint = false;
+basicParameter.useSoftConstraintInScale = false;
 basicParameter.saveMIDI = false;
 basicParameter.usePseudoAligned = false;
 basicParameter.earlyStopping = false;
 basicParameter.postUpdate = false;
 basicParameter.testOnlyOneFold = false;
+basicParameter.hardConstraintW = true;
 
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;
 
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;
+basicParameter.stretchedTuning = false;
 basicParameter.fittingArray = zeros(2,88);
 
 basicParameter.iterationStopCriterion = 1e-5;

@@ -7,16 +7,63 @@ dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
 
 
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+basicParameter.earlyStopping = true;
+basicParameter.iterationStopCriterion = 1e-5;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary =1.5;
+basicParameter.iterationPiece = 100;
+basicParameter.postUpdate = true;
+basicParameter.iterationPost = 8;
+
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 1000;
+
+
+
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8_30_1_100_1_5000_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+basicParameter.hardConstraintW = true;
+basicParameter.beta2=0;
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8HardW_30_1_100_1_0_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.hardConstraintW = false;
+basicParameter.beta2=1000;
+basicParameter.stretchedTuning = true;
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8tune_30_1_100_1_0_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.harmBoundary = 1.0;
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb1postIp8tune_30_1_100_1_0_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.harmBoundary = 0.8;
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb08postIp8tune_30_1_100_1_0_2009');
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+
+
 %% scale test
 
 basicParameter = basicParameterInitialize();
 basicParameter.basisSource = 'scale';
 basicParameter.rankMode = 8;
 basicParameter.spectrumMode = 2;
-% basicParameter.earlyStopping = true;
-% basicParameter.iterationStopCriterion = 1e-4;
+basicParameter.earlyStopping = true;
+basicParameter.iterationStopCriterion = 1e-4;
 basicParameter.softConstraint = true;
 basicParameter.harmBoundary =1.5;
+basicParameter.hardConstraintW = true;
 
 basicParameter.alpha1 = 30;
 basicParameter.alpha2 = 1;
