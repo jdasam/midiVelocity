@@ -91,7 +91,7 @@ for i = 1:length(pieces)
         errorByDoubleStrike = addError(errorByDoubleStrike, doubleStrikeCheck, velError);
         errorByLength = addError(errorByLength,noteLength, velError);
         
-        totalNotes(size(totalNotes,1)+1,:) = [midiPiece(k,4), midiPiece(k,5), velError, numSimulOnset, numSustained, errorByDoubleStrike, noteLength ] ;
+        totalNotes(size(totalNotes,1)+1,:) = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2) -refVelCompare(k,3), numSimulOnset, numSustained, errorByDoubleStrike, noteLength ] ;
         
 %         errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
 %         errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
