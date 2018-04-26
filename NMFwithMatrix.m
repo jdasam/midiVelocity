@@ -22,7 +22,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
        for i = 1:basicParameter.GpreUpdate
            Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
            G = Gnew;
-            Xhat = calXhat(B,G,basicParameter);  
+           Xhat = calXhat(B,G,basicParameter);  
        end
         
     end
