@@ -1,4 +1,4 @@
-function [totalError, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell] = analyzeError(resultData, basicParameter, dir, pseudoAligned)
+function [totalError, totalNotes, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell] = analyzeError(resultData, basicParameter, dir, pseudoAligned)
 
 if nargin<3
     dir = pwd;
@@ -26,6 +26,7 @@ errorByDoubleStrikeCell = {};
 errorByLengthCell = {};
 
 totalError = zeros(127,12);
+totalNotes = zeros(1,7);
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
@@ -89,6 +90,8 @@ for i = 1:length(pieces)
         errorByPitch = addError(errorByPitch, midiPiece(k,4), velError);
         errorByDoubleStrike = addError(errorByDoubleStrike, doubleStrikeCheck, velError);
         errorByLength = addError(errorByLength,noteLength, velError);
+        
+        totalNotes(size(totalNotes,1)+1,:) = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2) -refVelCompare(k,3), numSimulOnset, numSustained, errorByDoubleStrike, noteLength ] ;
         
 %         errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
 %         errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
