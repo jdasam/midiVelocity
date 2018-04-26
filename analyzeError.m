@@ -90,9 +90,13 @@ for i = 1:length(pieces)
         errorByPitch = addError(errorByPitch, midiPiece(k,4), velError);
         errorByDoubleStrike = addError(errorByDoubleStrike, doubleStrikeCheck, velError);
         errorByLength = addError(errorByLength,noteLength, velError);
-        
-        totalNotes(size(totalNotes,1)+1,:) = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2) -refVelCompare(k,3), numSimulOnset, numSustained, errorByDoubleStrike, noteLength ] ;
-        
+
+        noteInfo = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2)-refVelCompare(k,3), numSimulOnset, numSustained, doubleStrikeCheck, noteLength ] ;
+        if size(noteInfo,2) == size(totalNotes,2)
+            totalNotes(size(totalNotes,1)+1,:) = noteInfo ;
+        else
+            continue
+        end
 %         errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
 %         errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
 %         errorBySust(numSustained, 1) = errorBySust(numSustained,1) + velError;

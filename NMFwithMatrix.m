@@ -135,7 +135,7 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
         else
             termA = B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR);
         end
-        if basicParameter.beta ==1 && basicParameter.beta3 ==0
+        if basicParameter.beta ==1 && abs( sum(B(:,1)) -1) <1e-8
             termB = (1+alpha1+alpha3) * ones(size(G)) + 4*alpha2*G;
         else
             termB = B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G;
