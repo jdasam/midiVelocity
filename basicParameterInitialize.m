@@ -55,7 +55,7 @@ basicParameter.usePseudoAligned = false;
 basicParameter.earlyStopping = false;
 basicParameter.postUpdate = false;
 basicParameter.testOnlyOneFold = false;
-basicParameter.hardConstraintW = true;
+basicParameter.hardConstraintW = false;
 
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;

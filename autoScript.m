@@ -32,17 +32,10 @@ basicParameter.beta2= 1000;
 basicParameter.searchRangeSecond =0.5;
 
 
-
 resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8_30_1_100_1_5000_2009_srFixed');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 
-basicParameter.hardConstraintW = true;
-basicParameter.beta2=0;
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8HardW_30_1_100_1_0_2009_srFixed');
-autoVelExtractSystem(basicParameter, dirSet, resultName);
-
-basicParameter.hardConstraintW = false;
 basicParameter.beta2=1000;
 basicParameter.stretchedTuning = true;
 resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8tune_30_1_100_1_0_2009_srFixed');
@@ -1389,3 +1382,4 @@ autoVelExtractSystem(basicParameter, dirSet, resultName);
 basicParameter = basicParameterInitialize();
 resultName = 'SubSettest';
 autoVelExtractSystem(basicParameter, dirSet, resultName);
+
