@@ -59,6 +59,7 @@ basicParameter.hardConstraintW = true;
 
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;
+basicParameter.maxIndexFromOnset = 4;
 
 basicParameter.minNote = 21;
 basicParameter.maxNote = 108;

@@ -20,35 +20,40 @@ basicParameter.iterationPiece = 100;
 basicParameter.postUpdate = true;
 basicParameter.iterationPost = 8;
 
+basicParameter.GpreUpdate = 5;
+basicParameter.updateBnumber = 5;
+
 basicParameter.alpha1 = 30;
 basicParameter.alpha2 = 1;
 basicParameter.alpha3 = 100;
 basicParameter.beta1= 100;
 basicParameter.beta2= 1000;
 
+basicParameter.searchRangeSecond =0.5;
 
 
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8_30_1_100_1_5000_2009');
+
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8_30_1_100_1_5000_2009_srFixed');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 
 basicParameter.hardConstraintW = true;
 basicParameter.beta2=0;
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8HardW_30_1_100_1_0_2009');
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8HardW_30_1_100_1_0_2009_srFixed');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 basicParameter.hardConstraintW = false;
 basicParameter.beta2=1000;
 basicParameter.stretchedTuning = true;
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8tune_30_1_100_1_0_2009');
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8tune_30_1_100_1_0_2009_srFixed');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 basicParameter.harmBoundary = 1.0;
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb1postIp8tune_30_1_100_1_0_2009');
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb1postIp8tune_30_1_100_1_0_2009_srFixed');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 basicParameter.harmBoundary = 0.8;
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb08postIp8tune_30_1_100_1_0_2009');
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb08postIp8tune_30_1_100_1_0_2009_srFixed');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
 
 

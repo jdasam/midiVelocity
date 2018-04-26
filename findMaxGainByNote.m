@@ -129,7 +129,7 @@ function offset = calOffset(midiNote, midiEntire, basicParameter)
     if nextNote
         nextOnsetFrame = onsetTime2frame(nextNote(6), basicParameter);
         if offset>nextOnsetFrame
-            offset = nextOnsetFrame -1;
+            offset = nextOnsetFrame -1 + basicParameter.maxIndexFromOnset;
         end
     end
    
