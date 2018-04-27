@@ -179,8 +179,20 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
         
         attM = (specContU + specContD) .*attackBasisBoolean;
         attP = B.* attackBasisBoolean;
-                
-        Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
+        
+        if basicParameter.useGPU
+            termA = gpuMultiply(X .* (Xhat .^(basicParameter.beta-2) ), G') + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM;
+        else
+            termA = X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM;
+        end
+        if basicParameter.beta == 1
+            termB = repmat(sum(G'), size(Xhat,1),1) + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP ;
+        else
+            termB = (Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP;
+        end
+        Bnew = B .* termA ./ termB;
+   
+%         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + 2* beta1 * attM + beta2 * softConstraintMatrix + beta3 * gam^2 * gammaM )   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*beta1*attP + beta2 * ones(size(B)) + beta3 * gam^2 * gammaP  ) ); 
     else
         Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G' )   ./ ((Xhat .^ (basicParameter.beta-1)) * G') );
     end
