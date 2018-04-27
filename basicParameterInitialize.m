@@ -49,6 +49,8 @@ basicParameter.softConstraint = false;
 basicParameter.saveMIDI = false;
 
 basicParameter.postUpdate = false;
+basicParameter.testOnlyOneFold = false;
+basicParameter.useGPU = false;
 
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;

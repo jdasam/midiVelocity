@@ -52,6 +52,9 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
                 [basicParameter.fittingArray, velocityGainMatchingCell{s,i}] = trainFitFolder(B, basicParameter, dirTrain);
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
                 fittingArrayCell{s,i} = basicParameter.fittingArray;
+                if basicParameter.testOnlyOneFold
+                    break
+                end 
             end                                   
         end
         
@@ -77,6 +80,9 @@ if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
                 resultData = velExtractionFolder(dirEval, B, basicParameter, resultData);
                 Bcell{s,i} = B;
                 fittingArrayCell{s,i} = basicParameter.fittingArray;
+                if basicParameter.testOnlyOneFold
+                    break
+                end 
             end
 
             B = Bscale;

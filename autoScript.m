@@ -1,31 +1,32 @@
 dirSet = {};
 % dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
 % dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+% dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
 %%
-% basicParameter = basicParameterInitialize();
-% basicParameter.basisSource = 'scale';
-% basicParameter.rankMode = 8;
-% basicParameter.spectrumMode = 2;
-% basicParameter.harmConstrain = true;
-% basicParameter.alpha1 = 30;
-% basicParameter.alpha2 = 0.1;
-% basicParameter.alpha3 = 100;
-% basicParameter.beta1= 100;
-% basicParameter.beta2= 5000;
-% basicParameter.softConstraint = true;
-% basicParameter.harmBoundary = 1.75;
-% basicParameter.updateBnumber = 5;
-% basicParameter.GpreUpdate = 15;
-% basicParameter.useInitialB = true;
-% basicParameter.postUpdate = true;
-% basicParameter.iterationPost = 8;
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 8;
+basicParameter.spectrumMode = 2;
+basicParameter.harmConstrain = true;
+basicParameter.alpha1 = 30;
+basicParameter.alpha2 = 1;
+basicParameter.alpha3 = 100;
+basicParameter.beta1= 100;
+basicParameter.beta2= 1000;
+basicParameter.softConstraint = true;
+basicParameter.harmBoundary = 1.5;
+basicParameter.GpreUpdate = 5;
+basicParameter.updateBnumber = 5;
+basicParameter.postUpdate = true;
+basicParameter.iterationPost =8;
+basicParameter.testOnlyOneFold =true;
+basicParameter.iterationScale = 40;
 
-resultName = strcat('R8scaleS2Gpr15Ubn5UibId150Hb15postIp8_30_1_100_1_5000_2011');
-autoVelExtractSystem(basicParameter, dirSet, resultName);
+resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8_30_1_100_1_1000_bachIs40_teset2');
+autoVelExtractSystem(basicParameter, dirSet, resultName, B);
 
 
 %%
