@@ -122,9 +122,9 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
             termB = B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G;
         end
         
-        Gnew = G .* (termA ./termB);
+%         Gnew = G .* (termA ./termB);
 
-%         Gnew =  G .*    ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
+        Gnew =  G .*    ( B' * (X .* (Xhat .^(basicParameter.beta-2) )) + alpha1 * softConstraintMatrix  + 2* alpha2 * (diffMatrixL + diffMatrixR) ) ./ (B' * (Xhat .^ (basicParameter.beta-1)) + (alpha1 + alpha3) * ones(size(G)) + 4*alpha2*G );
 %         if T(2,2) ~= 0
 %             th1 =  Gnew .* (alpha4+ T'*[zeros(441,1), Gnew(:,1:end-1)]);
 %             th1(:,1) = 0;
