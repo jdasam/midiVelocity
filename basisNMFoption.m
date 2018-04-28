@@ -28,7 +28,7 @@ elseif strcmp(dataSource, 'data')
         end
     end
 end
-% B = betaNormC(B, basicParameter.beta);
+B = betaNormC(B, basicParameter.beta);
 
 if basicParameter.softConstraint && basicParameter.useSoftConstraintInScale
     constraintMatrix = G;
