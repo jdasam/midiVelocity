@@ -22,14 +22,14 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
        end
         
     end
-    if isfield(basicParameter, 'transcription')
-        if basicParameter.transcription
+%     if isfield(basicParameter, 'transcription')
+%         if basicParameter.transcription
 %             B = rand(size(X,1), size(G,1));
 %             if basicParameter.harmConstrain
 %                 B = initializeWwithHarmonicConstraint(basicParameter);
 %             end
-        end
-    end
+%         end
+%     end
 
     
     for i = 1:iteration
@@ -42,29 +42,28 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
 %         Gnew(find(isnan(Gnew)))=0;
         
         if i < basicParameter.updateBnumber || iteration == basicParameter.iterationData
-            if basicParameter.BpartialUpdate
-                tempUpdate = (X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G') .* harmBoolean;
-                tempUpdate(tempUpdate==0) = 1;
-                Bnew = B .* tempUpdate;
-                Bnew = betaNormC(Bnew,basicParameter.beta);
-                Bnew(find(isnan(Bnew)))=0;
-            else
+%             if basicParameter.BpartialUpdate
+%                 tempUpdate = (X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G') .* harmBoolean;
+%                 tempUpdate(tempUpdate==0) = 1;
+%                 Bnew = B .* tempUpdate;
+%                 Bnew = betaNormC(Bnew,basicParameter.beta);
+%                 Bnew(find(isnan(Bnew)))=0;
+%             else
 %                 Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
-                if basicParameter.rankMode >= 2;
+            if basicParameter.rankMode >= 2;
 %                     specCont = ([B(2:end,:) ; zeros(1, 177)] + [zeros(1, 177); B(1:end-1,:)] ).* [zeros(size(B,1), 89), ones(size(B,1),88)];
 %                     sigma = basicParameter.beta1;
 %                     Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G'  + specCont * 2* sigma)   ./ ((Xhat .^ (basicParameter.beta-1)) * G' + 4*sigma*B.* [zeros(size(B,1), 89) ones(size(B,1),88)])); 
 %                     Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
-                    Bnew = updateB(B, G, X, Xhat, basicParameter);
-                else
-                    Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
-                end
-
-                if basicParameter.beta3 == 0
-                    Bnew = betaNormC(Bnew,basicParameter.beta);
-                end
-                Bnew(find(isnan(Bnew)))=0;
+                Bnew = updateB(B, G, X, Xhat, basicParameter);
+            else
+                Bnew = B .* ((X .* (Xhat .^(basicParameter.beta-2) ) * G') ./ ((Xhat .^ (basicParameter.beta-1)) * G'));
             end
+
+            if basicParameter.beta3 == 0
+                Bnew = betaNormC(Bnew,basicParameter.beta);
+            end
+            Bnew(find(isnan(Bnew)))=0;
         end
 
         B=Bnew;

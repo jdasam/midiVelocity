@@ -105,7 +105,7 @@ for j = 1:length(dataSet)
     for i = 1 : length(midiRef)
         basisIndex = midiRef(i,4) - basicParameter.minNote +2;
         
-        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated);
+        [gainTemp, ~,~,~,onsetClusterData] = findMaxGainByNote(midiRef(i,:), G, basicParameter, Bupdated. midiRef);
 %         index = onsetTime2frame(midiRef(i,6), basicParameter);
 %         offset = ceil( (midiRef(i,7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
 % 
