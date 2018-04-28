@@ -25,15 +25,14 @@ else
 end
 
 index = onsetTime2frame(midiNote(6),basicParameter);
-offset = ceil( (midiNote(7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
-% offset =  calOffset(midiNote, midiEntire, basicParameter);
+offset =  calOffset(midiNote, midiEntire, basicParameter);
 
-
-if isfield(basicParameter, 'bExt')
-    if basicParameter.bExt
-        offset = offset+basicParameter.bExt;
-    end
-end
+% offset = ceil( (midiNote(7) * basicParameter.sr) / basicParameter.nfft) + basicParameter.offsetFine;
+% if isfield(basicParameter, 'bExt')
+%     if basicParameter.bExt
+%         offset = offset+basicParameter.bExt;
+%     end
+% end
 
 if offset > size(G,2)
     offset = size(G,2);
