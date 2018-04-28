@@ -13,7 +13,9 @@ stretchedRatio = 1/12000;
 % end
 
 W = zeros(basicParameter.window/2+1, numberOfTotalKey *basicParameter.rankMode + 1);
-W(ceil(size(W,1)*basicParameter.frequencyThreshold):end,:) = [];
+if basicParameter.frequencyThreshold < 1
+    W(ceil(size(W,1)*basicParameter.frequencyThreshold):end,:) = [];
+end
 
 W(:,1) = rand(size(W,1),1);
 

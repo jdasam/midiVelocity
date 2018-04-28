@@ -14,8 +14,9 @@ s = spectrogram (d1, window, noverlap);
 X = abs(s);
 X(X==0) = eps;
 
-
-X(ceil(size(X,1)*basicParameter.frequencyThreshold):end,:) = [];
+if basicParameter.frequencyThreshold < 1
+    X(ceil(size(X,1)*basicParameter.frequencyThreshold):end,:) = [];
+end
 
 
 if strcmp(basicParameter.scale, 'midi')
