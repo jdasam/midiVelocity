@@ -10,7 +10,7 @@ gainData = zeros(length(midi),1);
 
 for i = 1:length(midi)
 
-    gainData(i) = findMaxGainByNote(midi(i,:),Gx,basicParameter, B);
+    gainData(i) = findMaxGainByNote(midi(i,:),Gx,basicParameter, B, midi);
 
 end
 gainDB = 20 * log10(gainData + eps);
