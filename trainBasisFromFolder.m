@@ -89,7 +89,7 @@ dataSet = getFileListWithExtension(strcat('*',basicParameter.audioExtension));
         nmat = applyPedalTxt(nmat, txtFilename, basicParameter);
         
         if basicParameter.rankMode <= 2
-            sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, false, true);
+            sheetMatrixTemporal = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, false, basicParameter.weightOnAttack);
             sheetMatrixTotal = horzcat(sheetMatrixTotal, sheetMatrixTemporal);
             sheetMatrixAttackTemp = midi2MatrixOption(nmat, size(Xtemp,2), basicParameter, true, false);
             sheetMatrixAttack = horzcat(sheetMatrixAttack, sheetMatrixAttackTemp);

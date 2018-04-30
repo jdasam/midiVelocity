@@ -24,9 +24,9 @@ if basicParameter.rankMode < 3
 
     for i = 2:numberOfTotalKey + 1
 
-        f0 = midi2frequency(i+basicParameter.minNote-2);
-        f0low = midi2frequency(i+basicParameter.minNote-2 - basicParameter.harmBoundary);
-        f0high = midi2frequency(i+basicParameter.minNote-2 + basicParameter.harmBoundary);
+        f0 = midi2frequency(i+basicParameter.minNote-2, referencePitch, stretched);
+        f0low = midi2frequency(i+basicParameter.minNote-2 - basicParameter.harmBoundary, referencePitch,  stretched);
+        f0high = midi2frequency(i+basicParameter.minNote-2 + basicParameter.harmBoundary, referencePitch, stretched);
 
         numberOfHarmonics = floor(basicParameter.sr/2/f0);
 

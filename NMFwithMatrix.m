@@ -18,7 +18,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     
     Xhat = calXhat(B,G,basicParameter);
     
-    if basicParameter.GpreUpdate && mean(mean(B)) <0.3
+    if basicParameter.GpreUpdate && std(std(B)) > 1e-4
        for i = 1:basicParameter.GpreUpdate
            Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
            G = Gnew;
@@ -187,7 +187,6 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
         
  
     
-
         softConstraintMatrix = initializeWwithHarmonicConstraint(basicParameter);
         softConstraintMatrix(softConstraintMatrix>0) = 1;
     

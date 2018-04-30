@@ -45,6 +45,7 @@ sheetMatrixMidi = midi2MatrixOption(midiRef, size(X,2), basicParameter, false, b
 % Calculate Gx
 if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     if isfield(basicParameter, 'softConstraint') && basicParameter.softConstraint
+        rng(0,'twister')
         G = rand(size(sheetMatrixMidi));
         softConstraintMatrix = sheetMatrixMidi;
         softConstraintMatrix(1,:) = 0;
