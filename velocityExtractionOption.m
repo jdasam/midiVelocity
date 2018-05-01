@@ -49,6 +49,9 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         G = rand(size(sheetMatrixMidi));
         softConstraintMatrix = sheetMatrixMidi;
         softConstraintMatrix(1,:) = 0;
+        if basicParameter.weightedInitialization
+            G =  0.5 * (G + softConstraintMatrix);
+        end
     else
         G = sheetMatrixMidi;
         softConstraintMatrix = zeros(size(G));
