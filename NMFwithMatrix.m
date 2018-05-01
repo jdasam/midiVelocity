@@ -81,7 +81,11 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         
         if basicParameter.earlyStopping 
 %         if mod(i,5) == 1
-            betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
+            if basicParameter.rankMode <= 2
+                betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
+            else
+                betaDiv = calCost(X,Xhat,B, G, constraintMatrix, basicParameter);
+            end
 %             progress = betaDiv/prevDiv
             if 1 - betaDiv/prevDiv < basicParameter.iterationStopCriterion && betaDiv <prevDiv
                 break
@@ -171,7 +175,6 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     beta3 = basicParameter.beta3;
     gam = basicParameter.gamma;
     
-    attackBasisBoolean = zeros(size(B));
     softConstraintMatrix = zeros(size(B));
     specContU = zeros(size(B));
     specContD = zeros(size(B));
@@ -179,9 +182,8 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     
     if basicParameter.rankMode > 2 && basicParameter.softConstraint
 
-        for i = 1:basicParameter.maxNote - basicParameter.minNote +1 %for each key
-            attackBasisBoolean(:, 2+(i-1)*basicParameter.rankMode) = 1;
-        end
+        attackBasisBoolean = makeAttBool(basicParameter);
+        
         specContU = [zeros(1, size(B,2)); B(1:end-1, :)];
         specContD = [B(2:end, :); zeros(1, size(B,2))];
         
@@ -275,5 +277,36 @@ function Xhat = calXhat(B,G,basicParameter)
     else
         Xhat = (B.^basicParameter.spectrumMode * G .^ basicParameter.spectrumMode) .^ (1/basicParameter.spectrumMode) +eps;
     end
+
+end
+
+
+function attackBasisBoolean = makeAttBool(basicParameter)
+    
+    attackBasisBoolean = zeros(size(initializeWwithHarmonicConstraint(basicParameter)));
+   
+    for i = 1:basicParameter.maxNote - basicParameter.minNote +1 %for each key
+        attackBasisBoolean(:, 2+(i-1)*basicParameter.rankMode) = 1;
+    end
+
+end
+
+
+function cost = calCost(X,Xhat,B, G, softConstraint, basicParameter)
+    
+    betaDivergence = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
+    
+    attackBasisBoolean = makeAttBool(basicParameter);
+    harmonicConstraint = initializeWwithHarmonicConstraint(basicParameter);
+    harmonicConstraint(harmonicConstraint>0) = 1;
+    [~, diffMatrixR] = multiRankActivationConstraintMatrix (G, basicParameter);
+    
+    costA = basicParameter.beta1 * sum(sum(attackBasisBoolean .* (B - [zeros(1, size(B,2)); B(1:end-1, :)]).^2));
+    costB = basicParameter.beta2 * sum(sum(B .*(1-harmonicConstraint)));
+    costC = basicParameter.alpha1 * sum(sum(G .*(1-softConstraint)));
+    costD = basicParameter.alpha2 * sum(sum( (diffMatrixR -  G).^2));
+    costE = basicParameter.alpha3 * sum(sum(G));
+    
+    cost = betaDivergence + costA + costB + costC + costD + costE;
 
 end
