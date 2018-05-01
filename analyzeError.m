@@ -1,4 +1,4 @@
-function [totalError, totalNotes, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell] = analyzeError(resultData, basicParameter, dir, pseudoAligned)
+function [totalError, totalNotes, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell, errorByNumNotesCell] = analyzeError(resultData, basicParameter, dir, pseudoAligned)
 
 if nargin<3
     dir = pwd;
@@ -24,9 +24,10 @@ errorByVelCell = {};
 errorByPitchCell ={};
 errorByDoubleStrikeCell = {};
 errorByLengthCell = {};
+errorByNumNotesCell = {};
 
-totalError = zeros(127,12);
-totalNotes = zeros(1,7);
+totalError = zeros(127,14);
+totalNotes = zeros(1,8);
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
@@ -72,6 +73,7 @@ for i = 1:length(pieces)
     errorByPitch = zeros(127,2);
     errorByDoubleStrike = zeros(127,2);
     errorByLength = zeros(127,2);
+    errorByNumNotes = zeros(127,2);
     
     for k = 1:length(midiPiece)
         onsetFrame = ceil(midiPiece(k,6) * basicParameter.sr / basicParameter.nfft);
@@ -83,6 +85,8 @@ for i = 1:length(pieces)
         end
         doubleStrikeCheck = calDobuleStrike(midiPiece(k,:), midiPiece);
         noteLength = min(round ( (midiPiece(k,7) - midiPiece(k,6)) * 50)+1, 127);
+        numNotesInPiece = min(round (sum(midiPiece(:,4)==midiPiece(k,4)) /2)+1, 127);
+        
         
         errorBySimul = addError(errorBySimul, numSimulOnset, velError);
         errorBySust = addError(errorBySust, numSustained, velError);
@@ -90,8 +94,9 @@ for i = 1:length(pieces)
         errorByPitch = addError(errorByPitch, midiPiece(k,4), velError);
         errorByDoubleStrike = addError(errorByDoubleStrike, doubleStrikeCheck, velError);
         errorByLength = addError(errorByLength,noteLength, velError);
+        errorByNumNotes = addError(errorByNumNotes, numNotesInPiece, velError);
 
-        noteInfo = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2)-refVelCompare(k,3), numSimulOnset, numSustained, doubleStrikeCheck, noteLength ] ;
+        noteInfo = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2)-refVelCompare(k,3), numSimulOnset, numSustained, doubleStrikeCheck, noteLength, numNotesInPiece ] ;
         if size(noteInfo,2) == size(totalNotes,2)
             totalNotes(size(totalNotes,1)+1,:) = noteInfo ;
         else
@@ -116,6 +121,7 @@ for i = 1:length(pieces)
     totalError(:,7:8) = totalError(:,7:8) + errorByPitch;
     totalError(:,9:10) = totalError(:,9:10) + errorByDoubleStrike;
     totalError(:,11:12) = totalError(:,11:12) + errorByLength;
+    totalError(:,13:14) = totalError(:,13:14) + errorByNumNotes;
     
     
     errorBySimul(:,1) = errorBySimul(:,1) ./ errorBySimul(:,2);
@@ -131,6 +137,8 @@ for i = 1:length(pieces)
     errorByDoubleStrike(isnan(errorByDoubleStrike)) = 0;
     errorByLength(:,1) = errorByLength(:,1) ./ errorByLength(:,2);
     errorByLength(isnan(errorByLength)) = 0;
+    errorByNumNotes(:,1) = errorByNumNotes(:,1) ./ errorByNumNotes(:,2);
+    errorByNumNotes(isnan(errorByNumNotes)) = 0;
     
     errorBySimulCell{index} = errorBySimul;
     errorBySustCell{index} = errorBySust;
@@ -138,6 +146,7 @@ for i = 1:length(pieces)
     errorByPitchCell{index} = errorByPitch;
     errorByDoubleStrikeCell{index} = errorByDoubleStrike;
     errorByLengthCell{index} =errorByLength;
+    errorByNumNotesCell{index} = errorByNumNotes;
     
 end
 
@@ -147,6 +156,8 @@ totalError(:,5) = totalError(:,5) ./ totalError(:,6);
 totalError(:,7) = totalError(:,7) ./ totalError(:,8);
 totalError(:,9) = totalError(:,9) ./ totalError(:,10);
 totalError(:,11) = totalError(:,11) ./ totalError(:,12);
+totalError(:,13) = totalError(:,13) ./ totalError(:,14);
+
 
 
 end 
