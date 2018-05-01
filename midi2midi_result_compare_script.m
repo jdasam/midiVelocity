@@ -1,4 +1,4 @@
-txtList = getFileListWithExtension('*.txt');
+txtList = getFileListWithExtension('*_corresp.txt');
 errorAndOmittedNotes = zeros(5, length(txtList));
 %
 for i = 1:length(txtList)
