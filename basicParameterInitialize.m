@@ -71,9 +71,9 @@ basicParameter.iterationStopCriterion = 1e-5;
 basicParameter.iterationScale = 100;
 basicParameter.iterationData = 150;
 basicParameter.iterationPiece = 50;
-if basicParameter.rankMode == 1 && basicParameter.Gfixed
-    basicParameter.iterationScale =5;
-end
+% if basicParameter.rankMode == 1 && basicParameter.Gfixed
+%     basicParameter.iterationScale =5;
+% end
 basicParameter.iterationPost = 15;
 
 basicParameter.usePedal = false;

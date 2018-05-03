@@ -34,7 +34,7 @@ if length(fieldnames(basicParameter)) > length(fieldnames(basicParameterInitiali
 end
 
 if strcmp(basicParameter.scale, 'stft') || strcmp(basicParameter.scale, 'midi')
-    if strcmp(basicParameter.basisSource, 'scale') || basicParameter.useInitialB
+    if strcmp(basicParameter.basisSource, 'scale') ||(basicParameter.useInitialB && strcmp(basicParameter.basisSource, 'data'))
         if nargin == 4
             B = scaleB;
         else

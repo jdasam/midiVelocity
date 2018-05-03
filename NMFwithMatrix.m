@@ -18,7 +18,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     
     Xhat = calXhat(B,G,basicParameter);
     
-    if basicParameter.GpreUpdate && std(std(B)) > 1e-4
+    if basicParameter.GpreUpdate && ~Gfixed
        for i = 1:basicParameter.GpreUpdate
            Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
            G = Gnew;
@@ -40,8 +40,11 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         Bnew = B;
         Gnew = G;
         
-        
-        Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
+        if Gfixed && basicParameter.rankMode <= 2
+            Gnew = G;
+        else
+            Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
+        end
 %         Gnew = updateGwithTempoPartial(G, X, B, Xhat, basicParameter);
 %         Gnew(find(isnan(Gnew)))=0;
         
@@ -70,9 +73,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
                 Bnew(find(isnan(Bnew)))=0;
             end
         end
-        if Gfixed && basicParameter.rankMode <= 2
-            Gnew = G;
-        end
+
 
         B=Bnew;
         G=Gnew;
@@ -175,9 +176,9 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
     beta3 = basicParameter.beta3;
     gam = basicParameter.gamma;
     
-    softConstraintMatrix = zeros(size(B));
-    specContU = zeros(size(B));
-    specContD = zeros(size(B));
+%     softConstraintMatrix = zeros(size(B));
+%     specContU = zeros(size(B));
+%     specContD = zeros(size(B));
     
     
     if basicParameter.rankMode > 2 && basicParameter.softConstraint
@@ -187,11 +188,8 @@ function Bnew = updateB(B, G, X, Xhat, basicParameter)
         specContU = [zeros(1, size(B,2)); B(1:end-1, :)];
         specContD = [B(2:end, :); zeros(1, size(B,2))];
         
- 
-    
         softConstraintMatrix = initializeWwithHarmonicConstraint(basicParameter);
         softConstraintMatrix(softConstraintMatrix>0) = 1;
-    
     
         susBasisBoolean = ~attackBasisBoolean;
         susBasisBoolean(:,1) = 0;
