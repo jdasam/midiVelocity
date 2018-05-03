@@ -57,6 +57,7 @@ basicParameter.postUpdate = false;
 basicParameter.testOnlyOneFold = false;
 basicParameter.hardConstraintW = false;
 basicParameter.weightedInitialization = false;
+basicParameter.weightedRandW = false;
 
 basicParameter.fExtSecond = 0;
 basicParameter.bExtSecond = 0;
