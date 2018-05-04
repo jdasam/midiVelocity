@@ -82,11 +82,11 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
         
         if basicParameter.earlyStopping 
 %         if mod(i,5) == 1
-            if basicParameter.rankMode <= 2
+%             if basicParameter.rankMode <= 2
                 betaDiv = betaDivergenceMatrix(X, Xhat, basicParameter.beta);
-            else
-                betaDiv = calCost(X,Xhat,B, G, constraintMatrix, basicParameter);
-            end
+%             else
+%                 betaDiv = calCost(X,Xhat,B, G, constraintMatrix, basicParameter);
+%             end
 %             progress = betaDiv/prevDiv
             if 1 - betaDiv/prevDiv < basicParameter.iterationStopCriterion && betaDiv <prevDiv
                 break
