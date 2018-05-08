@@ -19,6 +19,7 @@ fittingArray = basicParameter.fittingArray;
 
 midiRef = readmidi_java(MIDIFilename,true);
 midiRef(:,7) = midiRef(:,6) + midiRef(:,7);
+midiRef(midiRef(:,2)==0,:) = []; % delete the note with zero length
 
 midiRef = applyPedalTxt(midiRef, txtFilename, basicParameter);
 
@@ -189,7 +190,16 @@ if basicParameter.fittingArray(1,1)
         fittingArray(2,:) = histogramData.f.b1 / 20 * log(10)  - histogramData.f.c1 /20 * log(10) / basicParameter.targetRange * basicParameter.targetMedian;
         
     end
-    
+    if isfield(basicParameter, 'usePseudoAligned') && basicParameter.usePseudoAligned
+        fileName = strsplit(audioFilename, '.mp3');
+        fileName = fileName{1};
+        fid = fopen(strcat(fileName, '_corresp.txt'), 'r');
+        midiAlignResult = textscan(fid, '%s', 'delimiter', '\t');
+
+        midiAlignResult = reshape(midiAlignResult{1}, [10,length(midiAlignResult{1})/10])';
+
+        [midiRef] = midiMatAlign(midiVel, midiAlignResult);     
+    end
     
 
     for i = 1:length(midiVel)
@@ -238,15 +248,7 @@ if basicParameter.fittingArray(1,1)
     end
     
     if isfield(basicParameter, 'usePseudoAligned') && basicParameter.usePseudoAligned
-        fileName = strsplit(audioFilename, '.mp3');
-        fileName = fileName{1};
-        fid = fopen(strcat(fileName, '_corresp.txt'), 'r');
-        midiAlignResult = textscan(fid, '%s', 'delimiter', '\t');
-
-        midiAlignResult = reshape(midiAlignResult{1}, [10,length(midiAlignResult{1})/10])';
-
-        [midiRef, refVelCompare] = midiMatAlign(midiVel, midiAlignResult);       
-        
+        [~, refVelCompare] = midiMatAlign(midiVel, midiAlignResult);     
         [error, errorPerNoteResult, ~, numberOfNotesByError] = calculateError(midiRef, midiVel, gainFromVelVec, gainCalculatedVec);
      
     else
