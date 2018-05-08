@@ -18,7 +18,7 @@ if strcmp(basicParameter.scale, 'stft') | strcmp(basicParameter.scale, 'midi')
     
     Xhat = calXhat(B,G,basicParameter);
     
-    if basicParameter.GpreUpdate && ~Gfixed
+    if basicParameter.GpreUpdate && ~Gfixed && sum(std(B)) > 1
        for i = 1:basicParameter.GpreUpdate
            Gnew =updateG(G, B, X, Xhat, basicParameter, constraintMatrix, attackMatrix);
            G = Gnew;
