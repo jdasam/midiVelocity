@@ -1,4 +1,4 @@
-function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attackOnly, weightOnAttack)
+function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attackOnly, weightOnAttack, applyVel)
     
 
     if nargin < 4
@@ -6,6 +6,9 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
     end
     if nargin < 5
         weightOnAttack = false;
+    end
+    if nargin < 6
+        applyVel = false;
     end
     
     attMargin = ceil(basicParameter.attackLengthSecond / basicParameter.nfft * basicParameter.sr);
@@ -95,6 +98,9 @@ function sheetMatrix = midi2MatrixOption(nmat, specLength, basicParameter, attac
    
         else
             sheetMatrix(basisIndex, onset:offset) = 1;
+            if applyVel
+                sheetMatrix(basisIndex, onset:offset) = nmat(i,5);
+            end
         end
         
         if weightOnAttack

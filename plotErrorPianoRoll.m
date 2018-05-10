@@ -1,4 +1,5 @@
 function errorRoll = plotErrorPianoRoll(midi, velEstimated, basicParameter)
+    basicParameter.nfft = 441
 
     if midi(end,7) < midi(end,6)
         midi(:,7) = midi(:,6) + midi(:,7);
@@ -7,19 +8,21 @@ function errorRoll = plotErrorPianoRoll(midi, velEstimated, basicParameter)
     matLength = ceil(midi(end,7) * basicParameter.sr / basicParameter.nfft);
     
     basicParameter.rankMode = 1;
-    errorRoll = midi2MatrixOption(midi,matLength, basicParameter);
+    errorRoll = midi2MatrixOption(midi,matLength, basicParameter, false,false, true);
     
     for i=1:size(midi, 1)
         
         timeIndex = onsetTime2frame(midi(i,6), basicParameter);
         pitchIndex = midi(i,4) - basicParameter.minNote +2;
         
-        errorRoll(pitchIndex, timeIndex) = velError(i)+2;
+%         errorRoll(pitchIndex, timeIndex) = velError(i)+2;
+        errorRoll(pitchIndex, timeIndex) = velError(i)+errorRoll(pitchIndex, timeIndex);
+
         
     end
 
     
-%     imagesc(errorRoll)
-    imagesc(errorRoll.^0.3)
+    imagesc(errorRoll)
+%     imagesc(errorRoll.^0.8)
     axis 'xy'
 end
