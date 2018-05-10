@@ -46,6 +46,12 @@ if indexEnd > offset
 indexEnd = offset;
 end
 
+if basicParameter.findMaxNarrowed 
+    index = index+2;
+    indexEnd = index+4;
+end
+
+
 if indexEnd > size(G,2)
 indexEnd = size(G,2);
 end
