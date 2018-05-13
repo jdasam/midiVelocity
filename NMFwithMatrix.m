@@ -127,10 +127,10 @@ function [Gnew, Xhat] = updateG(G, B, X, Xhat, basicParameter, softConstraintMat
         attackMatrix = zeros(size(G));
     end
 
-    alpha1= basicParameter.alpha1;
-    alpha2= basicParameter.alpha2;
-    alpha3= basicParameter.alpha3;
-    alpha4= basicParameter.alpha4;
+    alpha1= basicParameter.alpha1; % score-infromed soft constraint
+    alpha2= basicParameter.alpha2; % temporal smoothing (diagonal)
+    alpha3= basicParameter.alpha3; % sparseness
+    %alpha4= basicParameter.alpha4; %
     
     
     if isfield(basicParameter, 'softConstraint') && basicParameter.softConstraint

@@ -15,7 +15,7 @@ for i=1:length(dataSet)
         continue
     end
 
-    [Gx, midiVel, tempError, tempErrorByNote, tempCompare, maxIndexVector, histogramData] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);
+    [Gx, midiVel, tempError, tempErrorByNote, tempCompare, maxIndexVector, histogramData, numNotesByError, gainCompare] = velocityExtractionOption(MP3Filename, MIDIFilename, B, basicParameter, txtFilename);
 
     resultData.errorByNote{size(resultData.errorByNote,2)+1} = tempErrorByNote(:, basicParameter.minNote:length(tempErrorByNote)) ;
     resultData.compareRefVel{size(resultData.compareRefVel,2)+1} = tempCompare;
@@ -23,6 +23,8 @@ for i=1:length(dataSet)
     resultData.title(size(resultData.title,1)+1,:) = cellstr(filename);
     resultData.error(:,size(resultData.error,2)+1) = tempError;
     resultData.histogramData{size(resultData.histogramData,2)+1} = histogramData;
+    resultData.numNotesByError{size(resultData.numNotesByError,2)+1} = numNotesByError;
+    resultData.gainCompare{size(resultData.gainCompare,2)+1} = gainCompare;
 end
 
 

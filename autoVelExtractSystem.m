@@ -8,6 +8,8 @@ resultData.errorByNote = {};
 resultData.compareRefVel = {};
 resultData.maxIndexVector = {};
 resultData.histogramData = {};
+resultData.gainCompare = {};
+resultData.numNotesByError = {};
 
 semiAlignedResultData = resultData;
 % resultData.velocityGainMatchingData = {};

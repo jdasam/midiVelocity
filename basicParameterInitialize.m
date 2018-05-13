@@ -97,7 +97,7 @@ end
 
 
 basicParameter.map_mx = fft2midimx(basicParameter.window, basicParameter.sr, basicParameter.minNote,basicParameter.maxNote+24, basicParameter.mapmxResolution);
-basicParameter.map_mx(:,ceil(basicParameter.frequencyThreshold * size(basicParameter.map_mx,2)):end) = [];
+% basicParameter.map_mx(:,ceil(basicParameter.frequencyThreshold * size(basicParameter.map_mx,2)):end) = [];
 
 basicParameter.noverlap = basicParameter.window - basicParameter.nfft;
 basicParameter.searchRangeFrame = ceil(basicParameter.searchRangeSecond / basicParameter.nfft * basicParameter.sr);
