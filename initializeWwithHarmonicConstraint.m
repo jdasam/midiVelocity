@@ -5,7 +5,10 @@ sr = basicParameter.sr;
 window = basicParameter.window;
 referencePitch = basicParameter.referencePitch;
 stretched = basicParameter.stretchedTuning;
-stretchedRatio = 1/12000;
+% stretchedRatio = 1/12000;
+stretchedRatio = 1/basicParameter.stretchedRatio;
+f0stretchRatio = 1/basicParameter.f0stretchRatio;
+
 % if basicParameter.rankMode == 1
 %     W = zeros(basicParameter.window/2+1, numberOfTotalKey + 1);
 % elseif basicParameter.rankMode == 2
@@ -24,9 +27,9 @@ if basicParameter.rankMode < 3
 
     for i = 2:numberOfTotalKey + 1
 
-        f0 = midi2frequency(i+basicParameter.minNote-2, referencePitch, stretched);
-        f0low = midi2frequency(i+basicParameter.minNote-2 - basicParameter.harmBoundary, referencePitch,  stretched);
-        f0high = midi2frequency(i+basicParameter.minNote-2 + basicParameter.harmBoundary, referencePitch, stretched);
+        f0 = midi2frequency(i+basicParameter.minNote-2, referencePitch, stretched, f0stretchRatio);
+        f0low = midi2frequency(i+basicParameter.minNote-2 - basicParameter.harmBoundary, referencePitch,  stretched, f0stretchRatio);
+        f0high = midi2frequency(i+basicParameter.minNote-2 + basicParameter.harmBoundary, referencePitch, stretched, f0stretchRatio);
 
         numberOfHarmonics = floor(basicParameter.sr/2/f0);
 
@@ -60,9 +63,9 @@ else
     for i = 1:numberOfTotalKey
         W(:, (i-1) * basicParameter.rankMode + 2) = 1;
         for j = 2:basicParameter.rankMode
-            f0 = midi2frequency(i+basicParameter.minNote-1, referencePitch,stretched);
-            f0low = midi2frequency(i+basicParameter.minNote-1 - basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )), referencePitch, stretched );
-            f0high = midi2frequency(i+basicParameter.minNote-1 + basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )), referencePitch, stretched);
+            f0 = midi2frequency(i+basicParameter.minNote-1, referencePitch,stretched, f0stretchRatio);
+            f0low = midi2frequency(i+basicParameter.minNote-1 - basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )), referencePitch, stretched,f0stretchRatio );
+            f0high = midi2frequency(i+basicParameter.minNote-1 + basicParameter.harmBoundary * (basicParameter.rankMode/ (basicParameter.rankMode + j )), referencePitch, stretched,f0stretchRatio);
             
             numberOfHarmonics = floor(basicParameter.sr/2/f0);
             for n = 1 : numberOfHarmonics
@@ -96,10 +99,11 @@ end
 
 end
 
-function f = midi2frequency(p, middleApitch, stretched)
+function f = midi2frequency(p, middleApitch, stretched, f0stretchRatio])
     if stretched && p~=44
 %         p = p + (p-44)^2 * (p-44)/abs(p-44) / 10000;
-        p = p + (p-44)^3  / 500000;
+%         p = p + (p-44)^3  / 500000;
+        p = p + (p-44)^3  / f0stretchRatio;
     end
       
     f = middleApitch * 2 ^ ((p - 69)/12);
