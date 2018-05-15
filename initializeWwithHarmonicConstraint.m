@@ -99,7 +99,7 @@ end
 
 end
 
-function f = midi2frequency(p, middleApitch, stretched, f0stretchRatio])
+function f = midi2frequency(p, middleApitch, stretched, f0stretchRatio)
     if stretched && p~=44
 %         p = p + (p-44)^2 * (p-44)/abs(p-44) / 10000;
 %         p = p + (p-44)^3  / 500000;
