@@ -1,15 +1,45 @@
 dirSet = {};
 dirSet{1} = '/Users/Da/Documents/MATLAB/smd_three_fold/others';
-% dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
-% dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
-% dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
+dirSet{2} = '/Users/Da/Documents/MATLAB/smd_three_fold/bach';
+dirSet{3} = '/Users/Da/Documents/MATLAB/smd_three_fold/chopin';
+dirSet{4} = '/Users/Da/Documents/MATLAB/smd_three_fold/2011';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/smd_three_fold/short_test';
 % dirSet{1} =  '/Users/Da/Documents/MATLAB/Chopin_Etude/three_fold';
 
 
 %%
 basicParameter = basicParameterInitialize();
-basicParameter.basisSource = 'scale';
+basicParameter.rankMode = 2;
+basicParameter.spectrumMode = 2;
+basicParameter.earlyStopping = false;
+% basicParameter.iterationStopCriterion = 1e-5;
+basicParameter.updateBnumber = 5;
+basicParameter.GpreUpdate =5;
+basicParameter.searchRangeSecond = 0.4;
+basicParameter.Gfixed = true;
+basicParameter.harmBoundary = 0.5;
+
+resultName = 'R2scaleS2ubn5gpr5_all_sr04_fixedItr_all';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.basisSource = 'data';
+resultName = 'R2dataS2ubn5gpr5_all_sr04_fixedItr';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.useInitialB = true;
+basicParameter.iterationData = 10;
+resultName = 'R2dataS2ubn5gpr5uib_all_sr04_fixedItr';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+basicParameter.useInitialB = false;
+basicParameter.basisSource = 'rand';
+basicParameter.updateBnumber = 30;
+resultName = 'R2randS2ubn30gpr5_all_sr04';
+autoVelExtractSystem(basicParameter, dirSet, resultName);
+
+%%
+basicParameter = basicParameterInitialize();
+basicParameter.basisSource = 'data';
 basicParameter.rankMode = 8;
 basicParameter.spectrumMode = 2;
 basicParameter.earlyStopping = true;
@@ -29,12 +59,12 @@ basicParameter.alpha3 = 100;
 basicParameter.beta1= 100;
 basicParameter.beta2= 1000;
 
-basicParameter.searchRangeSecond =0.5;
+basicParameter.searchRangeSecond =0.4;
 
 
-resultName = strcat('R8scaleS2Gpr5Ubn5Hb15postIp8_30_1_100_1_5000_2009_srFixed');
+resultName = strcat('R8dataS2Gpr5Ubn5Hb15postIp8_30_1_100_1_1000_2009_1');
 autoVelExtractSystem(basicParameter, dirSet, resultName);
-
+%%
 
 basicParameter.beta2=1000;
 basicParameter.stretchedTuning = true;

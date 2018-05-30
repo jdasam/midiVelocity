@@ -54,6 +54,7 @@ for i = 1:length(pieces)
     
     
     midiPiece = readmidi_java(MIDIFilename);
+    midiPiece(midiPiece(:,7)==0,:) = [];
     midiPiece(:,7) = midiPiece(:,6) + midiPiece(:,7);
     midiPiece = applyPedalTxt(midiPiece, pedalTxtFilename, basicParameter);
     

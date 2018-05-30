@@ -2,7 +2,9 @@ resultList ={};
 
 %  resultCodeList = {'Bd' ,'BdR2', 'BdHc', 'BdR2GfHc' ,'BdR2GfHcUibId10', 'R1', 'R2', 'R2Gf', 'R2Hc', 'R2GfHc', 'R2GfHcUbn5', 'R2GfHcGpr5Ubn5'};
 %resultCodeList = {'BdR2GfHcUibId10','BdR2S2GfHcUibId10','BdR2S2GfHcUibId10A1' , 'BdR2S2GfHcUibId10A10', 'BdR2S2GfHcUibId10A100', 'R2S2GfHcGpr5Ubn5', 'R2S2GfHcGpr5Ubn5A10', 'R2S2GfHcGpr5Ubn5A100'};
-resultCodeList = {'R4S2BdGpr20Ubn5aa5Uib', 'R5S2BdGpr20Ubn5aa5Uib', 'R6S2BdGpr20Ubn5aa5Uib', 'R5S2BdGpr20Ubn5aa5UibId50', 'R5S2BdUbn5Gpr20aa5', 'R5S2BdGpre20aa5Uib', 'R5S2BdUbn5Gpr20aa20Uib'};
+% resultCodeList = {'R4S2BdGpr20Ubn5aa5Uib', 'R5S2BdGpr20Ubn5aa5Uib', 'R6S2BdGpr20Ubn5aa5Uib', 'R5S2BdGpr20Ubn5aa5UibId50', 'R5S2BdUbn5Gpr20aa5', 'R5S2BdGpre20aa5Uib', 'R5S2BdUbn5Gpr20aa20Uib'};
+% resultCodeList = {'R2', 'R2scale', 'R10', 'R10scale'};
+resultCodeList = {'HarmPerc', 'HarmPerc_scale', 'Multi', 'Multi_scale'};
 
 
 for i = 1:length(resultCodeList)
@@ -16,28 +18,32 @@ resultAverage = [];
 
 for i=1:length(resultList)
     
-    resultAverage(i, 1) = mean(resultList{i}.error(1,:));
-    resultAverage(i, 2) = mean(resultList{i}.error(2,:));
-    resultAverage(i, 3) = std(resultList{i}.error(1,:));
-    resultAverage(i, 4) = std(resultList{i}.error(2,:));
+    resultAverage(i, 1) = mean(resultList{i}.error(5,:)*100);
+    resultAverage(i, 2) = mean(resultList{i}.error(6,:)*100);
+%     resultAverage(i, 3) = std(resultList{i}.error(5,:)*100);
+%     resultAverage(i, 4) = std(resultList{i}.error(6,:)*100);
 
 end
+
 
 barGraph = bar(resultAverage(:,1:2));
 barGraph(1).FaceColor = 'k';
 barGraph(2).FaceColor = 'w';
 barGraph(2).LineWidth = 2;
 
-ylim([4.5 6])
+ylim([5 26])
 xlim([0 length(resultCodeList)+1])
 %hold on;
 %h=errorbar(resultAverage(:,1:2),resultAverage(:,3:4),'c'); set(h,'linestyle','none')
-%hold off
+% hold off
 
 
 
-set(gca, 'XTickLabel', resultCodeList, 'FontName', 'Times', 'FontSize', 10)
+% set(gca, 'XTickLabel', resultCodeList, 'FontName', 'Arial', 'FontSize', 20)
+set(gca, 'XTickLabel', {'Harm-perc', 'Harm-perc + scale', 'Multi', 'Multi + scale'}, 'FontName', 'Arial', 'FontSize', 20)
+ylabel('Relative Error (%)', 'FontSize', 30)
 
+legend({'Piecewise Average of Mean Error', 'Piecewise Average of Error STD'})
 
 %%
 plot(resultDataBdR2GfHc.error(1,:))
