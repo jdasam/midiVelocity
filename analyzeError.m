@@ -1,7 +1,15 @@
-function [totalError, totalNotes, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell, errorByNumNotesCell] = analyzeError(resultData, basicParameter, dir, pseudoAligned)
+function [totalError, totalNotes, errorBySimulCell, errorBySustCell, errorByVelCell, errorByPitchCell,errorByDoubleStrikeCell, errorByLengthCell, errorByNumNotesCell] = analyzeError(resultData, basicParameter, dir, compareData, semiAligned)
 
 if nargin<3
     dir = pwd;
+end
+
+if nargin<4
+%     compareData = false;
+end
+
+if nargin<5
+    semiAligned = false;
 end
 
 cd(dir);
@@ -18,20 +26,20 @@ for i = 1:length(mp3filesInFolder)
     end
 end
 
-errorBySimulCell = {};
-errorBySustCell = {};
-errorByVelCell = {};
-errorByPitchCell ={};
-errorByDoubleStrikeCell = {};
-errorByLengthCell = {};
-errorByNumNotesCell = {};
+errorName={'Simul', 'Sust', 'Vel', 'Pitch', 'DoubleStrike', 'Length', 'NumNotes', 'AlignErr', 'Added', 'Missed', 'Matched' };
 
-totalError = zeros(127,14);
-totalNotes = zeros(1,8);
+for i = 1:length(errorName)
+    eval(strcat('errorBy', errorName{i}, 'Cell = {};'))
+end
+
+
+totalError = zeros(127,length(errorName)*2);
+totalNotes = zeros(1,length(errorName) + 1);
 
 for i = 1:length(pieces)
     audioFilename = strcat(pieces{i}, '.mp3');
     MIDIFilename = strcat(pieces{i}, '.mid');
+    scoreMIDIname = strcat(pieces{i}, '_aligned.mid');
     textFileName = strcat(pieces{i}, '_corresp.txt');
     pedalTxtFilename = strcat(pieces{i}, '_pedal.txt');
 
@@ -54,40 +62,91 @@ for i = 1:length(pieces)
     
     
     midiPiece = readmidi_java(MIDIFilename);
-    midiPiece(midiPiece(:,7)==0,:) = [];
+%     midiPiece(midiPiece(:,7)==0,:) = [];
     midiPiece(:,7) = midiPiece(:,6) + midiPiece(:,7);
     midiPiece = applyPedalTxt(midiPiece, pedalTxtFilename, basicParameter);
-    
-    if size(midiPiece,1) ~= size(refVelCompare,1)
-        refVelCompare = modifyRefVel(refVelCompare,textFileName);
-    end
     
     specLength = ceil(midiPiece(end,7) * basicParameter.sr / basicParameter.nfft);
     tempParameter = basicParameter;
     tempParameter.rankMode = 1;
     sheetMidi = midi2MatrixOption(midiPiece, specLength, tempParameter);
+    
+
+    
+    if exist(textFileName, 'file')
+        midiScore = readmidi_java(scoreMIDIname);
+        midiScore(midiScore(:,7)==0,:) = [];
+        midiScore(:,7) = midiScore(:,6) + midiScore(:,7);
+        midiScore = applyPedalTxt(midiScore, pedalTxtFilename, basicParameter);
+        midiMatch = loadCorresp(textFileName);
+        addedNotes = calAddedNotes(midiPiece, midiMatch);
+        missedNotes = calMissedNotes(midiScore, midiMatch);
+        if semiAligned
+            refVelCompare = checkCorrespOrder(midiMatch, midiPiece, refVelCompare);
+        end
+    else
+        continue
+%         missedNotes = zeros(1,size(midiPiece,2));
+%         addedNotes = zeros(1,size(midiPiece,2));
+%         midiScore = zeros(1,size(midiPiece,2));
+    end
+    
+   
     numSustainedNotesByFrame = sum(sheetMidi(2:end,:));
     
-    errorBySimul = zeros(127,2);
-    errorBySust = zeros(127,2);
-    errorByVel = zeros(127,2);
-    errorByPitch = zeros(127,2);
-    errorByDoubleStrike = zeros(127,2);
-    errorByLength = zeros(127,2);
-    errorByNumNotes = zeros(127,2);
+    if size(midiPiece,1) ~= size(refVelCompare,1)
+%         refVelCompare = modifyRefVel(refVelCompare,textFileName);
+        midiPiece(midiPiece(:,7)==midiPiece(:,6),:) = [];
+    end     
+
+    addedNotesSheet= midi2MatrixOption(addedNotes, specLength, tempParameter);
+    missedNotesSheet = midi2MatrixOption(missedNotes, specLength, tempParameter);
+    
+    numAddedNotesByFrame =  sum(addedNotesSheet(2:end,:));
+    numMissedNotesByFrame = sum(missedNotesSheet(2:end,:));
+    
+    midiPiece = matchMidiCorresp(midiPiece, midiMatch);
+    
+   
+    
+    for l = 1:length(errorName)
+        eval(strcat('errorBy', errorName{l}, ' = zeros(127,2);' ))
+    end
+    
+    if exist('compareData')
+        for j = 1:length(compareData.title)
+            if strcmp(compareData.title{j}, pieces{i}) == 1
+                index = j;
+                comparisonResult = compareData.compareRefVel{index};
+                if length(comparisonResult) ~= length(refVelCompare)
+                    compareData.title{j}
+                end
+                break
+            end
+        end
+    end
     
     for k = 1:length(midiPiece)
         onsetFrame = ceil(midiPiece(k,6) * basicParameter.sr / basicParameter.nfft);
         numSimulOnset =calNumberOfSimultaneousOnset(midiPiece(k,:), midiPiece);
         numSustained = numSustainedNotesByFrame(onsetFrame);
-        velError = abs(refVelCompare(k,2) -refVelCompare(k,3));
+        if exist('compareData')
+            velError = abs(refVelCompare(k,2) -refVelCompare(k,3)) - abs(comparisonResult(k,2) - comparisonResult(k,3));
+        else
+            velError = abs(refVelCompare(k,2) -refVelCompare(k,3));
+        end
         if refVelCompare(k,2) ==0 || refVelCompare(k,3) == 0
             continue
         end
         doubleStrikeCheck = calDobuleStrike(midiPiece(k,:), midiPiece);
         noteLength = min(round ( (midiPiece(k,7) - midiPiece(k,6)) * 50)+1, 127);
         numNotesInPiece = min(round (sum(midiPiece(:,4)==midiPiece(k,4)) /2)+1, 127);
-        
+        alignError = max(min(round(midiPiece(k,9) * 100), 63),-63) + 64;
+        if strcmp(midiMatch{k,7}, '-1')
+            matched =2;
+        else
+            matched =1;
+        end
         
         errorBySimul = addError(errorBySimul, numSimulOnset, velError);
         errorBySust = addError(errorBySust, numSustained, velError);
@@ -96,69 +155,43 @@ for i = 1:length(pieces)
         errorByDoubleStrike = addError(errorByDoubleStrike, doubleStrikeCheck, velError);
         errorByLength = addError(errorByLength,noteLength, velError);
         errorByNumNotes = addError(errorByNumNotes, numNotesInPiece, velError);
-
-        noteInfo = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2)-refVelCompare(k,3), numSimulOnset, numSustained, doubleStrikeCheck, noteLength, numNotesInPiece ] ;
+        errorByAlignErr = addError(errorByAlignErr, alignError, velError);
+        errorByAdded = addError(errorByAdded, numAddedNotesByFrame(onsetFrame)+1, velError);
+        errorByMissed = addError(errorByMissed, numMissedNotesByFrame(onsetFrame)+1, velError);
+        errorByMatched = addError(errorByMatched, matched, velError);
+        
+        % noteInfo = [(1) pitch, (2) velocity (3) velocity error 
+        % (4)simulOnset (5) sustained num (6) doubleStrike (7) noteLength
+        % (8)note appearance (9)align error
+        noteInfo = [midiPiece(k,4), midiPiece(k,5), refVelCompare(k,2)-refVelCompare(k,3), numSimulOnset, numSustained, doubleStrikeCheck, noteLength, numNotesInPiece, alignError,numAddedNotesByFrame(onsetFrame), numMissedNotesByFrame(onsetFrame),  matched ] ;
         if size(noteInfo,2) == size(totalNotes,2)
             totalNotes(size(totalNotes,1)+1,:) = noteInfo ;
         else
             continue
         end
-%         errorBySimul(numSimulOnset, 1) = errorBySimul(numSimulOnset, 1) + velError;
-%         errorBySimul(numSimulOnset, 2) = errorBySimul(numSimulOnset, 2) +1;
-%         errorBySust(numSustained, 1) = errorBySust(numSustained,1) + velError;
-%         errorBySust(numSustained, 2) = errorBySust(numSustained,2) + 1;
-%         errorByVel(midiPiece(k,5), 1) = errorByVel(midiPiece(k,5), 1) + velError;
-%         errorByVel(midiPiece(k,5), 2) = errorByVel(midiPiece(k,5), 2) + 1;
-%         errorByPitch(midiPiece(k,4), 1) = errorByPitch(midiPiece(k,4), 1) + velError;
-%         errorByPitch(midiPiece(k,4), 2) = errorByPitch(midiPiece(k,4), 2) +1;
-%         errorByDoubleStrike(doubleStrikeCheck, 1) = errorByDoubleStrike(doubleStrikeCheck, 1) + velError;
-%         errorByDoubleStrike(doubleStrikeCheck, 2) =  errorByDoubleStrike(doubleStrikeCheck, 2) +1;
-%         errorBy
+
         
     end
-    totalError(:,1:2) = totalError(:,1:2) + errorBySimul;
-    totalError(:,3:4) = totalError(:,3:4) + errorBySust;
-    totalError(:,5:6) = totalError(:,5:6) + errorByVel;
-    totalError(:,7:8) = totalError(:,7:8) + errorByPitch;
-    totalError(:,9:10) = totalError(:,9:10) + errorByDoubleStrike;
-    totalError(:,11:12) = totalError(:,11:12) + errorByLength;
-    totalError(:,13:14) = totalError(:,13:14) + errorByNumNotes;
     
+    for l=1:length(errorName)
+        eval(strcat('totalError(:,', num2str(l*2-1), ':', num2str(l*2), ') = totalError(:,', num2str(l*2-1), ':', num2str(l*2), ')+ errorBy', errorName{l}, ';'))
+    end
     
-    errorBySimul(:,1) = errorBySimul(:,1) ./ errorBySimul(:,2);
-    errorBySimul(isnan(errorBySimul)) =0;
-    errorBySust(:,1) = errorBySust(:,1) ./ errorBySust(:,2);
-    errorBySust(isnan(errorBySust)) =0;
+
     
-    errorByVel(:,1) = errorByVel(:,1) ./ errorByVel(:,2);
-    errorByVel(isnan(errorByVel)) = 0;
-    errorByPitch(:,1) = errorByPitch(:,1) ./ errorByPitch(:,2);
-    errorByPitch(isnan(errorByPitch)) = 0;    
-    errorByDoubleStrike(:,1) = errorByDoubleStrike(:,1) ./ errorByDoubleStrike(:,2);
-    errorByDoubleStrike(isnan(errorByDoubleStrike)) = 0;
-    errorByLength(:,1) = errorByLength(:,1) ./ errorByLength(:,2);
-    errorByLength(isnan(errorByLength)) = 0;
-    errorByNumNotes(:,1) = errorByNumNotes(:,1) ./ errorByNumNotes(:,2);
-    errorByNumNotes(isnan(errorByNumNotes)) = 0;
-    
-    errorBySimulCell{index} = errorBySimul;
-    errorBySustCell{index} = errorBySust;
-    errorByVelCell{index} = errorByVel;
-    errorByPitchCell{index} = errorByPitch;
-    errorByDoubleStrikeCell{index} = errorByDoubleStrike;
-    errorByLengthCell{index} =errorByLength;
-    errorByNumNotesCell{index} = errorByNumNotes;
+    for l=1:length(errorName)
+        eval(strcat('errorBy', errorName{l}, '(:,1) = errorBy', errorName{l}, '(:,1) ./ errorBy', errorName{l}, '(:,2);'));
+        eval(strcat('errorBy', errorName{l}, '(isnan(errorBy', errorName{l}, ')) = 0;'))
+        eval(strcat('errorBy', errorName{l}, 'Cell{index} = errorBy', errorName{l}, ';'))
+    end
     
 end
 
-totalError(:,1) = totalError(:,1) ./ totalError(:,2);
-totalError(:,3) = totalError(:,3) ./ totalError(:,4);
-totalError(:,5) = totalError(:,5) ./ totalError(:,6);
-totalError(:,7) = totalError(:,7) ./ totalError(:,8);
-totalError(:,9) = totalError(:,9) ./ totalError(:,10);
-totalError(:,11) = totalError(:,11) ./ totalError(:,12);
-totalError(:,13) = totalError(:,13) ./ totalError(:,14);
-
+for i = 1:length(errorName)
+    
+    totalError(:,i*2-1) = totalError(:,i*2-1) ./ totalError(:,i*2);
+    
+end
 
 
 end 
@@ -201,3 +234,75 @@ function refVelCompare = modifyRefVel(refVelCompare, textFileName)
 
 
 end
+
+
+function addedNotes = calAddedNotes(midiPerform, midiMatch)
+    correspDouble = cellfun(@(x)str2double(x), midiMatch);
+    addedNotesIndex = find(correspDouble(:,7) == -1);
+    
+    addedNotes = midiPerform(addedNotesIndex, :);
+
+end
+
+function missedNotes = calMissedNotes(midiScore, midiMatch)
+    correspDouble = cellfun(@(x)str2double(x), midiMatch);
+    missedNotesIndex = find(correspDouble(:,2) == -1);
+    
+     missedNotes = zeros(length(missedNotesIndex), size(midiScore,2)); 
+    
+    for i=1:length(missedNotesIndex)
+        note = midiScore( abs(midiScore(:,6) - correspDouble(missedNotesIndex(i), 7))< 0.001 &  midiScore(:,4) == correspDouble(missedNotesIndex(i), 9),:);
+        if isempty(note)
+            note = zeros(1, size(midiScore,2));
+        end
+        missedNotes(i, :) = note;
+        
+    end
+end
+
+
+
+function compareRefVel = checkCorrespOrder(corresp, midi, compareRefVel)
+    correspDouble = cellfun(@(x)str2double(x), corresp);
+    emptyNotes = find(midi(:,2)==0);
+    copmareRefVelBackup = compareRefVel;
+    
+    if ~isempty(emptyNotes)
+         for i=1:length(emptyNotes)
+            midi(emptyNotes(i),:) = [];
+            if midi(emptyNotes(i),4) == compareRefVel(emptyNotes(i), 1)
+                compareRefVel(emptyNotes(i),:) = [];
+            else
+                index=findFromCorresp(midi(emptyNotes(i),:), correspDouble);
+                compareRefVel(index,:) = [];
+            end
+         end
+    end
+    
+    
+    for i = 1:length(midi)
+        
+        if correspDouble(i,4) ~= midi(i,4)
+            index=findFromCorresp(midi(i,:), correspDouble);
+            compareRefVel(i,:) = copmareRefVelBackup(index,:);
+        end
+    end
+end
+
+
+function index=findFromCorresp(midinote, correspDouble)
+    
+    candidateList = find( abs(correspDouble(:,2) - midinote(6)) < 0.001);
+
+    for j=1:length(candidateList)
+        % compare pitch, and check not missed
+        if correspDouble(candidateList(j),4)  == midinote(4) 
+            index= candidateList(j);
+            return
+        end
+    end
+
+    
+
+end
+
