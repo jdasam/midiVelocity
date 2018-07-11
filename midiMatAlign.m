@@ -4,13 +4,14 @@ midiAligned = zeros(size(midiScore));
 refVelCompare = zeros(1,3);
     
 for i=1:length(midiScore)
-    candidateIndex = find(strcmp(alignResult(:,7),num2str(midiScore(i,6))));
-    
-    if length(candidateIndex) < 1
+        candidateIndex = find(strcmp(alignResult(:,7),num2str(midiScore(i,6))));
+
+        if length(candidateIndex) < 1
         continue
     end
     
     for j=1:length(candidateIndex)
+        % compare pitch, and check not missed
         if strcmp(alignResult(candidateIndex(j),4), num2str(midiScore(i,4)) ) && ~strcmp(alignResult(candidateIndex(j), 2) , '-1')
             midiAligned(i,4) = str2double(alignResult(candidateIndex(j),4));
             midiAligned(i,5) = str2double(alignResult(candidateIndex(j),5));
